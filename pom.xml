@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.tools.db</groupId>
+    <artifactId>tools-db</artifactId>
+    <packaging>pom</packaging>
+    <version>1.0</version>
+
+    <modules>
+        <module>db</module>
+        <module>db.core</module>
+        <module>db.dataview</module>
+        <module>db.drivers</module>
+        <module>db.kit</module>
+        <module>db.metadata.model</module>
+        <module>db.mysql</module>
+        <module>db.sql.editor</module>
+        <module>db.sql.visualeditor</module>
+        <module>dbapi</module>
+        <module>dbschema</module>
+    </modules>
+</project>
