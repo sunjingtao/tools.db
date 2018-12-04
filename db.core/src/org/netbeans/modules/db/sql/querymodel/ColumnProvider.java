@@ -27,7 +27,7 @@
  * Contributor(s):
  *
  * The Original Software is NetBeans. The Initial Developer of the Original
- * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
+ * Software is Sun Microsystems, Inc. Portions Copyright 1997-2007 Sun
  * Microsystems, Inc. All Rights Reserved.
  *
  * If you wish your version of this file to be governed by only the CDDL
@@ -41,19 +41,14 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  */
-package org.netbeans.modules.db.dataview.spi;
+package org.netbeans.modules.db.sql.querymodel;
 
-import java.sql.Connection;
-import org.netbeans.api.db.explorer.DatabaseConnection;
+import java.util.List;
 
-/**
- * An SPI for which different providers are available.
- *
- * @author Ahimanikya Satapathy
- */
-public interface DBConnectionProvider {
+// Provides information about columns in a table
+// The provider is usually an object that has got knowledge of database metadata
+public interface ColumnProvider {
 
-    public Connection getConnection(DatabaseConnection dbConn);
+    public void getColumnNames(String fullTableName, List columnNames ) ;
 
-    public void closeConnection(Connection con);
 }

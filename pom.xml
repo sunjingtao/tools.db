@@ -13,13 +13,7 @@
         <module>db</module>
         <module>db.core</module>
         <module>db.dataview</module>
-        <module>db.drivers</module>
-        <module>db.kit</module>
-        <module>db.metadata.model</module>
         <module>db.mysql</module>
         <module>db.sql.editor</module>
-        <module>db.sql.visualeditor</module>
-        <module>dbapi</module>
-        <module>dbschema</module>
     </modules>
 </project>

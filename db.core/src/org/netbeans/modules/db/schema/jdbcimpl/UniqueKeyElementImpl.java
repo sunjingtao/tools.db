@@ -41,19 +41,37 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  */
-package org.netbeans.modules.db.dataview.spi;
 
-import java.sql.Connection;
-import org.netbeans.api.db.explorer.DatabaseConnection;
+package org.netbeans.modules.db.schema.jdbcimpl;
 
-/**
- * An SPI for which different providers are available.
- *
- * @author Ahimanikya Satapathy
- */
-public interface DBConnectionProvider {
+import org.netbeans.modules.db.schema.*;
 
-    public Connection getConnection(DatabaseConnection dbConn);
+public class UniqueKeyElementImpl extends KeyElementImpl implements UniqueKeyElement.Impl {
 
-    public void closeConnection(Connection con);
+    private boolean _primary;
+
+    /** Creates new UniqueKeyElementImpl */
+    public UniqueKeyElementImpl() {
+		this(null, false);
+    }
+
+    public UniqueKeyElementImpl(String name, boolean primary) {
+        super(name);   //the same as index name
+        _primary = primary;
+    }
+
+    /** Get the primary key flag of the unique key.
+     * @return true if this unique key is a primary key, false otherwise
+     */
+    public boolean isPrimaryKey() {
+        return _primary;
+    }
+  
+    /** Set the primary key flag of the unique key.
+     * @param flag the flag
+     * @throws DBException if impossible
+     */
+    public void setPrimaryKey(boolean primary) throws DBException {
+        _primary = primary;
+    }
 }

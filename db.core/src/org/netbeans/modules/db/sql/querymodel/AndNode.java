@@ -27,7 +27,7 @@
  * Contributor(s):
  *
  * The Original Software is NetBeans. The Initial Developer of the Original
- * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
+ * Software is Sun Microsystems, Inc. Portions Copyright 1997-2007 Sun
  * Microsystems, Inc. All Rights Reserved.
  *
  * If you wish your version of this file to be governed by only the CDDL
@@ -41,19 +41,47 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  */
-package org.netbeans.modules.db.dataview.spi;
+package org.netbeans.modules.db.sql.querymodel;
 
-import java.sql.Connection;
-import org.netbeans.api.db.explorer.DatabaseConnection;
+import org.netbeans.modules.db.core.SQLIdentifiers;
+
+import java.util.ArrayList;
+
 
 /**
- * An SPI for which different providers are available.
- *
- * @author Ahimanikya Satapathy
+ * Represents a SQL And term in a clause
+ * Example Form: ((a.x = b.y) AND (c.w = d.v))
  */
-public interface DBConnectionProvider {
+public class AndNode extends BooleanExpressionList implements And {
 
-    public Connection getConnection(DatabaseConnection dbConn);
+    //
+    // Constructors
+    //
 
-    public void closeConnection(Connection con);
+    public AndNode(ArrayList expressions) {
+        _expressions = new ArrayList();
+        BooleanExpressionList.flattenExpression(expressions, AndNode.class, _expressions);
+    }
+
+    //
+    // Methods
+    //
+
+    // Return the Where clause as a SQL string
+    public String genText(SQLIdentifiers.Quoter quoter) {
+        if (_expressions==null || _expressions.size()==0)
+            return "";    // NOI18N
+
+        String res = ((Expression)_expressions.get(0)).genText(quoter);    // NOI18N
+
+        for (int i=1; i<_expressions.size(); i++)
+            res += "          AND " + ((Expression)_expressions.get(i)).genText(quoter);    // NOI18N
+
+        return res;
+    }
+
+    public String toString() {
+        return "";    // NOI18N
+    }
+
 }

@@ -41,19 +41,13 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  */
-package org.netbeans.modules.db.dataview.spi;
 
-import java.sql.Connection;
-import org.netbeans.api.db.explorer.DatabaseConnection;
+package org.netbeans.modules.db.schema.migration.archiver.deserializer;
 
-/**
- * An SPI for which different providers are available.
- *
- * @author Ahimanikya Satapathy
- */
-public interface DBConnectionProvider {
+import java.lang.*;
 
-    public Connection getConnection(DatabaseConnection dbConn);
+public  interface SpecificXMLDeserializer
+{
+    public abstract  void setMasterDeserializer(XMLDeserializer master);
 
-    public void closeConnection(Connection con);
-}
+}  // end of class

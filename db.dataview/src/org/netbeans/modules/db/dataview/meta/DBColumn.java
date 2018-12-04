@@ -81,7 +81,6 @@ public final class DBColumn extends DBObject<DBTable> implements Comparable<DBCo
         editable = (!table.getName().equals("") && !isGenerated);
     }
 
-    @Override
     public int compareTo(DBColumn refColumn) {
         if (refColumn == null) {
             return -1;

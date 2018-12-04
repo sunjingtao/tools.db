@@ -27,7 +27,7 @@
  * Contributor(s):
  *
  * The Original Software is NetBeans. The Initial Developer of the Original
- * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
+ * Software is Sun Microsystems, Inc. Portions Copyright 1997-2007 Sun
  * Microsystems, Inc. All Rights Reserved.
  *
  * If you wish your version of this file to be governed by only the CDDL
@@ -41,19 +41,33 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  */
-package org.netbeans.modules.db.dataview.spi;
+package org.netbeans.modules.db.sql.querymodel;
 
-import java.sql.Connection;
-import org.netbeans.api.db.explorer.DatabaseConnection;
+import java.util.List;
 
-/**
- * An SPI for which different providers are available.
- *
- * @author Ahimanikya Satapathy
- */
-public interface DBConnectionProvider {
+// Identify a Column.
+// It derives from Value which derives from Expression.
+// REVIEW: not clear we need all these methods, need a clean up
+public interface Column extends Value {
 
-    public Connection getConnection(DatabaseConnection dbConn);
+    //
+    // this first 3 methods are used for equality. Equality is based on string equality and not object identity
+    //
+    public boolean matches(String table, String column);
+    public boolean matches(String table);
+    public boolean equals(Column column);
 
-    public void closeConnection(Connection con);
+    // getters
+    public String getColumnName();
+    public String getTableSpec();
+    public String getFullTableName();
+    public String getDerivedColName();
+
+    // modifiers
+    public void setDerivedColName(String derivedColName);
+    public void setTableSpec(String oldTableSpec, String newTableSpec);
+    public void setColumnName(String oldColumnName, String newColumnName);
+    public void setColumnTableName(String tableName);
+    public void setColumnCorrName(String corrName);
 }
+

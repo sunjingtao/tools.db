@@ -41,19 +41,74 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  */
-package org.netbeans.modules.db.dataview.spi;
 
-import java.sql.Connection;
-import org.netbeans.api.db.explorer.DatabaseConnection;
+package org.netbeans.modules.db.schema.jdbcimpl;
 
-/**
- * An SPI for which different providers are available.
- *
- * @author Ahimanikya Satapathy
- */
-public interface DBConnectionProvider {
+import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.netbeans.modules.db.schema.jdbcimpl.wizard.RecaptureSchema;
 
-    public Connection getConnection(DatabaseConnection dbConn);
+import org.openide.DialogDisplayer;
+import org.openide.NotifyDescriptor;
+import org.openide.nodes.Node;
+import org.openide.util.Exceptions;
+import org.openide.util.actions.*;
+import org.openide.util.HelpCtx;
+import org.openide.util.NbBundle;
 
-    public void closeConnection(Connection con);
+public class RecaptureSchemaAction extends CookieAction {
+
+    /** Create. new ObjectViewAction. */
+    public RecaptureSchemaAction() {
+    }
+
+    /** Name of the action. */
+    public String getName () {
+        return NbBundle.getBundle("org.netbeans.modules.db.schema.jdbcimpl.resources.Bundle").getString("ActionNameRecap"); //NOI18N
+    }
+
+    /** No help yet. */
+    public HelpCtx getHelpCtx () {
+        return null; //new HelpCtx("dbschema_ctxhelp_wizard"); //NOI18N
+    }
+
+    protected String iconResource () {
+        return "org/netbeans/modules/dbschema/jdbcimpl/DBschemaDataIcon.gif"; //NOI18N
+    }
+
+    protected Class[] cookieClasses() {
+        return new Class[] {
+                   DBschemaDataObject.class
+               };
+    }
+
+    protected int mode() {
+        return MODE_ONE;
+    }
+
+    protected boolean enable(Node[] activatedNodes) {
+        return true;
+    }
+
+    public void performAction (Node[] activatedNodes) {
+        try {
+            if (activatedNodes.length == 1) {
+                new RecaptureSchema(activatedNodes[0]).start();
+            }
+        }
+        catch (ClassNotFoundException e) {
+            Exceptions.printStackTrace(e);
+        }
+        catch (SQLException e) {
+            DialogDisplayer.getDefault().notify(
+                    new NotifyDescriptor.Exception(e, e.getMessage()));
+            Logger.getLogger("global").log(Level.INFO, null, e);
+        }
+    }
+    
+    protected boolean asynchronous() {
+        return false;
+    }
+    
 }

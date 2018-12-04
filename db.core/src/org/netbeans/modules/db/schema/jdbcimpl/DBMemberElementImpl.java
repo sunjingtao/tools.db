@@ -41,19 +41,30 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  */
-package org.netbeans.modules.db.dataview.spi;
 
-import java.sql.Connection;
-import org.netbeans.api.db.explorer.DatabaseConnection;
+package org.netbeans.modules.db.schema.jdbcimpl;
 
-/**
- * An SPI for which different providers are available.
- *
- * @author Ahimanikya Satapathy
- */
-public interface DBConnectionProvider {
+import org.netbeans.modules.db.schema.*;
 
-    public Connection getConnection(DatabaseConnection dbConn);
+public abstract class DBMemberElementImpl extends DBElementImpl implements DBMemberElement.Impl {
+    /** Creates new DBMemberElementImpl */
+    public DBMemberElementImpl() {
+		this(null);
+    }
 
-    public void closeConnection(Connection con);
+	/** Creates new DBMemberElementImpl with the specified name */
+    public DBMemberElementImpl (String name) {
+        super(name);
+	}
+
+    /** Get the name of this element.
+    * @return the name
+    */
+    public DBIdentifier getName() {
+        if (_name.getFullName() == null)
+            _name.setFullName(((DBMemberElement) element).getDeclaringTable().getName().getFullName() + "." + _name.getName());
+            
+        return _name;
+    }
+
 }

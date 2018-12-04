@@ -27,7 +27,7 @@
  * Contributor(s):
  *
  * The Original Software is NetBeans. The Initial Developer of the Original
- * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
+ * Software is Sun Microsystems, Inc. Portions Copyright 1997-2007 Sun
  * Microsystems, Inc. All Rights Reserved.
  *
  * If you wish your version of this file to be governed by only the CDDL
@@ -41,19 +41,21 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  */
-package org.netbeans.modules.db.dataview.spi;
+package org.netbeans.modules.db.sql.querymodel;
 
-import java.sql.Connection;
-import org.netbeans.api.db.explorer.DatabaseConnection;
+import org.netbeans.modules.db.core.SQLIdentifiers;
 
 /**
- * An SPI for which different providers are available.
- *
- * @author Ahimanikya Satapathy
+ * Represents a SQL Set function (AVG, COUNT, MAX, MIN, SUM)
+ * Example Form: SUM(Orders.Quantity), MAX(Employee.Salary), COUNT(Employee.Name)
  */
-public interface DBConnectionProvider {
 
-    public Connection getConnection(DatabaseConnection dbConn);
+public abstract class ColumnItem implements Value {
 
-    public void closeConnection(Connection con);
+    abstract Column getReferencedColumn();
+
+    public String genText(SQLIdentifiers.Quoter quoter, boolean select) {
+        return genText(quoter);
+    }
 }
+

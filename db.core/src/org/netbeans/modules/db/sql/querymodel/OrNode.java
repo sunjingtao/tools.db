@@ -27,7 +27,7 @@
  * Contributor(s):
  *
  * The Original Software is NetBeans. The Initial Developer of the Original
- * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
+ * Software is Sun Microsystems, Inc. Portions Copyright 1997-2007 Sun
  * Microsystems, Inc. All Rights Reserved.
  *
  * If you wish your version of this file to be governed by only the CDDL
@@ -41,19 +41,46 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  */
-package org.netbeans.modules.db.dataview.spi;
+package org.netbeans.modules.db.sql.querymodel;
 
-import java.sql.Connection;
-import org.netbeans.api.db.explorer.DatabaseConnection;
+import java.util.ArrayList;
+
+import org.netbeans.modules.db.core.SQLIdentifiers;
 
 /**
- * An SPI for which different providers are available.
- *
- * @author Ahimanikya Satapathy
+ * Represents a SQL Or term in a clause
+ * Example Form: ((a.x = b.y) OR (c.w = d.v))
  */
-public interface DBConnectionProvider {
+public class OrNode extends BooleanExpressionList implements Or {
 
-    public Connection getConnection(DatabaseConnection dbConn);
+    //
+    // Constructors
+    //
+    public OrNode(ArrayList expressions) {
+       _expressions = new ArrayList();
+       BooleanExpressionList.flattenExpression(expressions, OrNode.class, _expressions);
+    }
 
-    public void closeConnection(Connection con);
+    //
+    // Methods
+    //
+
+    // Return the Where clause as a SQL string
+    public String genText(SQLIdentifiers.Quoter quoter) {
+        if (_expressions==null)
+            return "";    // NOI18N
+        String res = " ( " + ((Expression)_expressions.get(0)).genText(quoter);    // NOI18N
+
+        for (int i=1; i<_expressions.size(); i++)
+            res += " OR " + ((Expression)_expressions.get(i)).genText(quoter);  // NOI18N
+
+        res += " ) ";    // NOI18N
+
+        return res;
+    }
+
+    public String toString() {
+        return "";    // NOI18N
+    }
+
 }

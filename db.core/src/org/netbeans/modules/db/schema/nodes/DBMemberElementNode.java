@@ -41,19 +41,39 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  */
-package org.netbeans.modules.db.dataview.spi;
 
-import java.sql.Connection;
-import org.netbeans.api.db.explorer.DatabaseConnection;
+package org.netbeans.modules.dbschema.nodes;
 
-/**
- * An SPI for which different providers are available.
- *
- * @author Ahimanikya Satapathy
+import org.openide.nodes.*;
+
+import org.netbeans.modules.db.schema.*;
+
+/** Node representing some type of member element.
  */
-public interface DBConnectionProvider {
+public abstract class DBMemberElementNode extends DBElementNode {
+	/** Create a new node.
+	 *
+	 * @param element member element to represent
+	 * @param children list of children
+	 * @param writeable <code>true</code> to be writable
+	 */
+	public DBMemberElementNode (DBMemberElement element, Children children, boolean writeable) {
+		super(element, children, writeable);
+		superSetName(element.getName().getName());
+	}
+  
+	/** Create a node property representing the element's name.
+	 * @param canW if <code>false</code>, property will be read-only
+	 * @return the property.
+	 */
+	protected Node.Property createNameProperty (boolean canW) {
+		return new ElementProp(Node.PROP_NAME, String.class,canW) {
+			/** Gets the value */
+			public Object getValue () {
+                DBMemberElement elm = (DBMemberElement) element;
 
-    public Connection getConnection(DatabaseConnection dbConn);
-
-    public void closeConnection(Connection con);
+                return elm.getDeclaringTable().getName().getName() + "." + elm.getName().getName(); //NOI18N
+			}
+		};
+	}
 }

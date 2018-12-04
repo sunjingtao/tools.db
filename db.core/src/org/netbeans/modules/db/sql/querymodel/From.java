@@ -27,7 +27,7 @@
  * Contributor(s):
  *
  * The Original Software is NetBeans. The Initial Developer of the Original
- * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
+ * Software is Sun Microsystems, Inc. Portions Copyright 1997-2007 Sun
  * Microsystems, Inc. All Rights Reserved.
  *
  * If you wish your version of this file to be governed by only the CDDL
@@ -41,19 +41,22 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  */
-package org.netbeans.modules.db.dataview.spi;
+package org.netbeans.modules.db.sql.querymodel;
 
-import java.sql.Connection;
-import org.netbeans.api.db.explorer.DatabaseConnection;
+import java.util.List;
 
-/**
- * An SPI for which different providers are available.
- *
- * @author Ahimanikya Satapathy
- */
-public interface DBConnectionProvider {
+// A FROM clause
+public interface From extends QueryItem {
+    public void addTable(JoinTable joinTable);
+    public String getPreviousTableFullName();
+    public Table findTable(String tableSpec);
+    public JoinTable findJoinTable(String table1, String column1, String table2, String column2);
+    public String getFullTableName(String corrName);
+    public String getTableSpec(String fullTableName);
 
-    public Connection getConnection(DatabaseConnection dbConn);
-
-    public void closeConnection(Connection con);
+    // verify
+    public void setTableSpec(String oldTableSpec, String newTableSpec);
+    public List getTableList();
 }
+
+

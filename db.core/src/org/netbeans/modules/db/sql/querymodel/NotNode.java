@@ -27,7 +27,7 @@
  * Contributor(s):
  *
  * The Original Software is NetBeans. The Initial Developer of the Original
- * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
+ * Software is Sun Microsystems, Inc. Portions Copyright 1997-2007 Sun
  * Microsystems, Inc. All Rights Reserved.
  *
  * If you wish your version of this file to be governed by only the CDDL
@@ -41,19 +41,58 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  */
-package org.netbeans.modules.db.dataview.spi;
+package org.netbeans.modules.db.sql.querymodel;
 
-import java.sql.Connection;
-import org.netbeans.api.db.explorer.DatabaseConnection;
+import java.util.Collection;
+
+import org.netbeans.modules.db.core.SQLIdentifiers;
 
 /**
- * An SPI for which different providers are available.
- *
- * @author Ahimanikya Satapathy
+ * Represents a SQL And term in a WHERE clause
+ * Example Form: ((a.x = b.y) AND (c.w = d.v))
  */
-public interface DBConnectionProvider {
+public class NotNode implements Expression {
 
-    public Connection getConnection(DatabaseConnection dbConn);
+    // Fields
 
-    public void closeConnection(Connection con);
+    // A condition
+
+    Expression _cond;
+
+
+    // Constructor
+
+    public NotNode(Expression cond) {
+
+        _cond = cond;
+    }
+
+
+    // Methods
+
+    public Expression findExpression(String table1, String column1, String table2, String column2) {
+        return _cond.findExpression(table1, column1, table2, column2);
+    }
+
+    // get the column specified in the condition if any
+    public void getReferencedColumns(Collection comlumns) {
+        _cond.getReferencedColumns(comlumns);
+    }
+
+    // Return the Where clause as a SQL string
+    public String genText(SQLIdentifiers.Quoter quoter) {
+        return " ( NOT " + _cond.genText(quoter) + ") ";  // NOI18N
+    }
+
+    public String toString() {
+        return "";    // NOI18N
+    }
+
+    public boolean isParameterized() {
+        return _cond.isParameterized();
+    }
+
+    public void renameTableSpec(String oldTableSpec, String corrName) {
+        _cond.renameTableSpec(oldTableSpec, corrName);
+    }
 }

@@ -41,19 +41,40 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  */
-package org.netbeans.modules.db.dataview.spi;
 
-import java.sql.Connection;
-import org.netbeans.api.db.explorer.DatabaseConnection;
+package org.netbeans.modules.db.schema.jdbcimpl;
 
-/**
- * An SPI for which different providers are available.
- *
- * @author Ahimanikya Satapathy
- */
-public interface DBConnectionProvider {
+import java.sql.*;
 
-    public Connection getConnection(DatabaseConnection dbConn);
 
-    public void closeConnection(Connection con);
+import org.netbeans.lib.ddl.*;
+import org.netbeans.lib.ddl.impl.*;
+import org.openide.util.Exceptions;
+
+public class DDLBridge extends Object {
+
+    private DriverSpecification drvSpec;
+
+    /** Creates new DDLBridge */
+    public DDLBridge(Connection con, String schema, DatabaseMetaData dmd) {
+        try {
+            SpecificationFactory fac = new SpecificationFactory();
+            drvSpec = fac.createDriverSpecification(dmd.getDriverName().trim());
+            drvSpec.setMetaData(dmd);
+            drvSpec.setSchema(schema);
+            
+            //workaround for issue #4825200 - it seems there is a timing/thread problem with PointBase driver on Windows
+            if (/*Utilities.isWindows() && */dmd.getDatabaseProductName().trim().equals("PointBase")) //NOI18N
+                Thread.sleep(60);
+
+            drvSpec.setCatalog(con.getCatalog());
+        } catch (Exception exc) {
+            Exceptions.printStackTrace(exc);
+        }
+    }
+
+    public DriverSpecification getDriverSpecification() {
+        return drvSpec;
+    }
+    
 }

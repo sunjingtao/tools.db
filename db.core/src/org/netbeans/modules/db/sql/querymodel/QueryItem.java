@@ -27,7 +27,7 @@
  * Contributor(s):
  *
  * The Original Software is NetBeans. The Initial Developer of the Original
- * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
+ * Software is Sun Microsystems, Inc. Portions Copyright 1997-2007 Sun
  * Microsystems, Inc. All Rights Reserved.
  *
  * If you wish your version of this file to be governed by only the CDDL
@@ -41,19 +41,23 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  */
-package org.netbeans.modules.db.dataview.spi;
+package org.netbeans.modules.db.sql.querymodel;
 
-import java.sql.Connection;
-import org.netbeans.api.db.explorer.DatabaseConnection;
+import java.util.Collection;
 
-/**
- * An SPI for which different providers are available.
- *
- * @author Ahimanikya Satapathy
- */
-public interface DBConnectionProvider {
+import org.netbeans.modules.db.core.SQLIdentifiers;
 
-    public Connection getConnection(DatabaseConnection dbConn);
+// The comon base type of every item present in a query
 
-    public void closeConnection(Connection con);
+public interface  QueryItem {
+
+    // generate text that represent the item
+    public String genText(SQLIdentifiers.Quoter quoter);
+
+    // walks recursively the specific item to find all teh columns that are referenced from this item.
+    // For instance, called on a WHERE cluase will return all teh columns used in the expression of the WHERE clause
+    // could be used by the editor to obtain info on all teh column used in a particular clause
+    public void getReferencedColumns(Collection columns);
+
 }
+

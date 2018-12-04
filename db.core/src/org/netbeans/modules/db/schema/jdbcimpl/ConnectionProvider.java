@@ -41,19 +41,71 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  */
-package org.netbeans.modules.db.dataview.spi;
 
-import java.sql.Connection;
-import org.netbeans.api.db.explorer.DatabaseConnection;
+package org.netbeans.modules.db.schema.jdbcimpl;
 
-/**
- * An SPI for which different providers are available.
- *
- * @author Ahimanikya Satapathy
- */
-public interface DBConnectionProvider {
+import java.sql.*;
+import java.util.ResourceBundle;
 
-    public Connection getConnection(DatabaseConnection dbConn);
+public class ConnectionProvider {
 
-    public void closeConnection(Connection con);
+	final ResourceBundle bundle = ResourceBundle.getBundle("org.netbeans.modules.dbschema.resources.Bundle"); // NOI18N
+
+    private Connection con;
+    private DatabaseMetaData dmd;
+
+    private String driver;
+    private String url;
+    private String username;
+    private String password;
+    private String schema;
+
+    /** Creates new ConnectionProvider */
+    public ConnectionProvider(Connection con, String driver) throws SQLException{
+        this.con = con;
+        this.driver = driver;
+        dmd = con.getMetaData();
+    }
+    
+    public ConnectionProvider(String driver, String url, String username, String password) throws ClassNotFoundException, SQLException {
+        this.driver = driver;
+        this.url = url;
+        this.username = username;
+        this.password = password;
+    
+        Class.forName(driver);
+        con = DriverManager.getConnection(url, username, password);
+        dmd = con.getMetaData();
+    }
+  
+    public Connection getConnection() {
+        return con;
+    }
+  
+    public DatabaseMetaData getDatabaseMetaData() throws SQLException {
+        return dmd;
+    }
+
+    public String getDriver() {
+        return driver;
+    }
+    
+    public void setSchema(String schema) {
+        this.schema = schema;
+    }
+    
+    public String getSchema() {
+        return schema;
+    }
+    
+    public void closeConnection() {
+        if (con != null)
+            try {
+                con.close();
+            } catch (SQLException exc) {
+                if (Boolean.getBoolean("netbeans.debug.exceptions")) // NOI18N
+                    System.out.println(bundle.getString("UnableToCloseConnection")); //NOI18N
+                con = null;
+            }
+    }
 }

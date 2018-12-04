@@ -27,7 +27,7 @@
  * Contributor(s):
  *
  * The Original Software is NetBeans. The Initial Developer of the Original
- * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
+ * Software is Sun Microsystems, Inc. Portions Copyright 1997-2007 Sun
  * Microsystems, Inc. All Rights Reserved.
  *
  * If you wish your version of this file to be governed by only the CDDL
@@ -41,19 +41,71 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  */
-package org.netbeans.modules.db.dataview.spi;
+package org.netbeans.modules.db.sql.querymodel;
 
-import java.sql.Connection;
-import org.netbeans.api.db.explorer.DatabaseConnection;
+import org.netbeans.modules.db.sql.visualeditor.parser.SQLParser;
+import org.netbeans.modules.db.sql.visualeditor.parser.ParseException;
+import java.util.ArrayList;
 
-/**
- * An SPI for which different providers are available.
- *
- * @author Ahimanikya Satapathy
- */
-public interface DBConnectionProvider {
+public class SQLQueryFactory {
 
-    public Connection getConnection(DatabaseConnection dbConn);
+    public static Query parse(String query) throws ParseException {
+        SQLParser parser = new SQLParser(new java.io.StringReader(query));
+        return (Query)parser.SQLQuery();
+    }
 
-    public void closeConnection(Connection con);
+    public static Where createWhere(Expression expr) {
+        return new WhereNode(expr);
+    }
+
+    public static Predicate createPredicate(Value val1, Value val2, String op) {
+        return new Predicate(val1, val2, op);
+    }
+
+    public static Predicate createPredicate(Value val1, Object literal, String op) {
+        Literal val2 = new Literal(literal);
+        return new Predicate(val1, val2, op);
+    }
+
+    public static Predicate createPredicate(String[] rel) {
+        return new Predicate(rel);
+    }
+
+    public static GroupBy createGroupBy(ArrayList columnList) {
+        return new GroupByNode(columnList);
+    }
+
+    public static OrderBy createOrderBy() {
+        return new OrderByNode();
+    }
+
+    public static Column createColumn(String tableSpec, String columnName) {
+        return new ColumnNode(tableSpec, columnName);
+    }
+
+    public static Literal createLiteral(Object value) {
+        return new Literal(value);
+    }
+
+    public static Table createTable(String tableName, String corrName, String schemaName) {
+        return new TableNode(tableName, corrName, schemaName);
+    }
+
+    public static JoinTable createJoinTable(Table table) {
+        return new JoinTableNode((TableNode)table);
+    }
+
+    public static And createAnd(Expression expr1, Expression expr2) {
+        ArrayList items = new ArrayList();
+        items.add(expr1);
+        items.add(expr2);
+        return new AndNode(items);
+    }
+
+    public static Or createOr(Expression expr1, Expression expr2) {
+        ArrayList items = new ArrayList();
+        items.add(expr1);
+        items.add(expr2);
+        return new OrNode(items);
+    }
 }

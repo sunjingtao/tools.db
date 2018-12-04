@@ -41,19 +41,33 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  */
-package org.netbeans.modules.db.dataview.spi;
 
-import java.sql.Connection;
-import org.netbeans.api.db.explorer.DatabaseConnection;
+package org.netbeans.modules.db.schema.jdbcimpl;
 
-/**
- * An SPI for which different providers are available.
- *
- * @author Ahimanikya Satapathy
- */
-public interface DBConnectionProvider {
+import java.awt.Image;
+import java.beans.*;
+import org.openide.util.ImageUtilities;
+import org.openide.util.Utilities;
 
-    public Connection getConnection(DatabaseConnection dbConn);
+public class DBschemaDataLoaderBeanInfo extends SimpleBeanInfo {
 
-    public void closeConnection(Connection con);
+    public BeanInfo[] getAdditionalBeanInfo () {
+        try {
+            return new BeanInfo[] { Introspector.getBeanInfo (DBschemaDataLoader.class.getSuperclass ()) };
+        } catch (IntrospectionException ie) {
+            if (Boolean.getBoolean ("netbeans.debug.exceptions")) //NOI18N
+                ie.printStackTrace ();
+      
+            return null;
+        }
+    }
+
+    public Image getIcon (int type) {
+        if (type == BeanInfo.ICON_COLOR_16x16 || type == BeanInfo.ICON_MONO_16x16) {
+            return ImageUtilities.loadImage("org/netbeans/modules/dbschema/jdbcimpl/DBschemaDataIcon.gif"); //NOI18N
+        } else {
+            return ImageUtilities.loadImage("org/netbeans/modules/dbschema/jdbcimpl/DBschemaDataIcon32.gif"); //NOI18N
+        }
+    }
+
 }

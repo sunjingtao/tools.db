@@ -27,7 +27,7 @@
  * Contributor(s):
  *
  * The Original Software is NetBeans. The Initial Developer of the Original
- * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
+ * Software is Sun Microsystems, Inc. Portions Copyright 1997-2007 Sun
  * Microsystems, Inc. All Rights Reserved.
  *
  * If you wish your version of this file to be governed by only the CDDL
@@ -41,19 +41,24 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  */
-package org.netbeans.modules.db.dataview.spi;
+package org.netbeans.modules.db.sql.querymodel;
 
-import java.sql.Connection;
-import org.netbeans.api.db.explorer.DatabaseConnection;
-
-/**
- * An SPI for which different providers are available.
+/*
+ * ExpressionList.java
  *
- * @author Ahimanikya Satapathy
+ * Created on March 23, 2005, 2:11 PM
  */
-public interface DBConnectionProvider {
 
-    public Connection getConnection(DatabaseConnection dbConn);
-
-    public void closeConnection(Connection con);
+// AND and OR operators are defined as list of expressions.
+// The reason is mostly due to the need of the editor to see expressions in a "linear" form and changing this to be a binary expression (which it should be)
+// is too much of a change
+// The api here is very similar to that of a List though it is properly typed.
+public interface ExpressionList extends Expression {
+    public int size();
+    public Expression getExpression(int i);
+    public void addExpression(int index, Expression expression);
+    public void addExpression(Expression expression);
+    public void replaceExpression(int index, Expression expression);
+    public void removeExpression(int index);
+    public void removeTable(String tableSpec);
 }

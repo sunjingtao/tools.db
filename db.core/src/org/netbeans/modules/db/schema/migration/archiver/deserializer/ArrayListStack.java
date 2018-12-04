@@ -41,19 +41,48 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  */
-package org.netbeans.modules.db.dataview.spi;
 
-import java.sql.Connection;
-import org.netbeans.api.db.explorer.DatabaseConnection;
+package org.netbeans.modules.db.schema.migration.archiver.deserializer;
 
-/**
- * An SPI for which different providers are available.
- *
- * @author Ahimanikya Satapathy
- */
-public interface DBConnectionProvider {
+import java.util.ArrayList;
+import java.util.EmptyStackException;
 
-    public Connection getConnection(DatabaseConnection dbConn);
+//@olsen+MBO: local class providing an unsynchronized Stack
+class ArrayListStack extends ArrayList {
+    public ArrayListStack() {
+    }
 
-    public void closeConnection(Connection con);
+    public Object push(Object item) {
+	add(item);
+	return item;
+    }
+
+    public Object pop() {
+	Object	obj;
+	int	len = size();
+
+	obj = remove(len - 1);
+	return obj;
+    }
+
+    public Object peek() {
+	int	len = size();
+
+	if (len == 0)
+	    throw new EmptyStackException();
+	return get(len - 1);
+    }
+
+    public boolean empty() {
+	return size() == 0;
+    }
+
+    public int search(Object o) {
+	int i = lastIndexOf(o);
+
+	if (i >= 0) {
+	    return size() - i;
+	}
+	return -1;
+    }
 }

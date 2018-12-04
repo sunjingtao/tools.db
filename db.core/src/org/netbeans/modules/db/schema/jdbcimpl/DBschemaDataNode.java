@@ -41,19 +41,27 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  */
-package org.netbeans.modules.db.dataview.spi;
 
-import java.sql.Connection;
-import org.netbeans.api.db.explorer.DatabaseConnection;
+package org.netbeans.modules.db.schema.jdbcimpl;
 
-/**
- * An SPI for which different providers are available.
- *
- * @author Ahimanikya Satapathy
- */
-public interface DBConnectionProvider {
+import javax.swing.Action;
+import org.openide.loaders.DataNode;
+import org.openide.nodes.Children;
 
-    public Connection getConnection(DatabaseConnection dbConn);
+import org.netbeans.modules.dbschema.nodes.*;
 
-    public void closeConnection(Connection con);
+public class DBschemaDataNode extends DataNode {
+
+    public DBschemaDataNode (DBschemaDataObject obj) {
+        this (obj, obj.isTemplate() ? Children.LEAF : new SchemaRootChildren(new DefaultDBFactory(false), obj));
+    }
+
+    public DBschemaDataNode (DBschemaDataObject obj, Children ch) {
+        super (obj, ch);
+        setIconBase ("org/netbeans/modules/dbschema/jdbcimpl/DBschemaDataIcon"); //NOI18N
+    }
+
+    public Action getPreferredAction() {
+        return null;
+    }
 }

@@ -41,19 +41,60 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  */
-package org.netbeans.modules.db.dataview.spi;
 
-import java.sql.Connection;
-import org.netbeans.api.db.explorer.DatabaseConnection;
+package org.netbeans.modules.dbschema.nodes;
 
-/**
- * An SPI for which different providers are available.
- *
- * @author Ahimanikya Satapathy
+import java.beans.*;
+
+import org.openide.nodes.*;
+
+import org.netbeans.modules.db.schema.*;
+
+/** Node representing an index.
+ * @see IndexElement
  */
-public interface DBConnectionProvider {
+public class IndexElementNode extends DBMemberElementNode {
+	/** Create a new index node.
+	 * @param element index element to represent
+	 * @param writeable <code>true</code> to be writable
+	 */
+	public IndexElementNode (IndexElement element, TableChildren children, boolean writeable) {
+		super(element, children, writeable);
+		TableElementFilter filter = new TableElementFilter();
+		filter.setOrder(new int[] {TableElementFilter.COLUMN});
+        filter.setSorted(false);
+		children.setFilter(filter);
+	}
+    
+	/* Resolve the current icon base.
+	 * @return icon base string.
+	 */
+	protected String resolveIconBase () {
+		return INDEX;
+	}
 
-    public Connection getConnection(DatabaseConnection dbConn);
+	/* Creates property set for this node */
+	protected Sheet createSheet ()
+	{
+		Sheet sheet = Sheet.createDefault();
+		Sheet.Set ps = sheet.get(Sheet.PROPERTIES);
 
-    public void closeConnection(Connection con);
+		ps.put(createNameProperty(writeable));
+		ps.put(createUniqueProperty(writeable));
+
+		return sheet;
+	}
+
+    /** Create a property for the index unique.
+	 * @param canW <code>false</code> to force property to be read-only
+	 * @return the property
+	 */
+	protected Node.Property createUniqueProperty (boolean canW) {
+		return new ElementProp(PROP_UNIQUE, Boolean.TYPE, canW) {
+			/** Gets the value */
+			public Object getValue () {
+				return Boolean.valueOf(((IndexElement)element).isUnique());
+			}
+		};
+	}
 }

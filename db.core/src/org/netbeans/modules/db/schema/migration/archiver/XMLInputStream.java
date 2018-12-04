@@ -41,19 +41,63 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  */
-package org.netbeans.modules.db.dataview.spi;
 
-import java.sql.Connection;
-import org.netbeans.api.db.explorer.DatabaseConnection;
+package org.netbeans.modules.db.schema.migration.archiver;
+
+import org.netbeans.modules.db.schema.migration.archiver.deserializer.XMLGraphDeserializer;
+
+import org.xml.sax.*;
+
+import java.io.InputStream;
 
 /**
- * An SPI for which different providers are available.
  *
- * @author Ahimanikya Satapathy
+ * @author  Administrator
+ * @version
  */
-public interface DBConnectionProvider {
+public class XMLInputStream extends java.io.DataInputStream implements java.io.ObjectInput
+{
 
-    public Connection getConnection(DatabaseConnection dbConn);
+    private InputStream inStream;
+    private ClassLoader classLoader;
 
-    public void closeConnection(Connection con);
+    //@lars: added classloader-constructor
+    /** Creates new XMLInputStream with the given classloader*/
+    public XMLInputStream(InputStream in,
+                          ClassLoader cl)
+    {
+        super(in);
+        this.inStream = in;
+        this.classLoader = cl;
+    }
+
+    /** Creates new XMLInputStream */
+    public XMLInputStream(InputStream in)
+    {
+        this (in, null);
+    }
+
+    public java.lang.Object readObject() throws java.lang.ClassNotFoundException, java.io.IOException
+    {
+
+        try
+        {
+
+            XMLGraphDeserializer lSerializer = new XMLGraphDeserializer(this.classLoader);
+            lSerializer.Begin();
+            InputSource input = new InputSource(this.inStream);
+            input.setSystemId("archiverNoID");
+
+            lSerializer.setSource(input);
+
+            return lSerializer.XlateObject();
+        }
+        catch (SAXException lError)
+        {
+            lError.printStackTrace();
+            java.io.IOException lNewError = new java.io.IOException(lError.getMessage());
+            throw lNewError;
+        }
+    }
+
 }

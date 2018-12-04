@@ -41,19 +41,25 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  */
-package org.netbeans.modules.db.dataview.spi;
 
-import java.sql.Connection;
-import org.netbeans.api.db.explorer.DatabaseConnection;
+package org.netbeans.modules.db.schema.jdbcimpl;
 
-/**
- * An SPI for which different providers are available.
- *
- * @author Ahimanikya Satapathy
- */
-public interface DBConnectionProvider {
+import java.sql.*;
+import java.util.LinkedList;
 
-    public Connection getConnection(DatabaseConnection dbConn);
+public class MetaDataUtil {
 
-    public void closeConnection(Connection con);
+    public static boolean areViewsSupported(String productName) {
+        LinkedList list = new LinkedList();
+
+        list.add("PointBase"); // NOI18N
+        list.add("MySQL"); // NOI18N
+        list.add("HypersonicSQL"); // NOI18N
+//        list.add("InstantDB"); // NOI18N - isn't necessary in the list - getTables() returns empty result set for views
+
+        if (list.contains(productName.trim()))
+            return false;
+        else
+            return true;
+    }
 }

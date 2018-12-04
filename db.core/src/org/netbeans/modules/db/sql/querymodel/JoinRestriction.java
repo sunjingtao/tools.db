@@ -27,7 +27,7 @@
  * Contributor(s):
  *
  * The Original Software is NetBeans. The Initial Developer of the Original
- * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
+ * Software is Sun Microsystems, Inc. Portions Copyright 1997-2007 Sun
  * Microsystems, Inc. All Rights Reserved.
  *
  * If you wish your version of this file to be governed by only the CDDL
@@ -41,19 +41,53 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  */
-package org.netbeans.modules.db.dataview.spi;
+package org.netbeans.modules.db.sql.querymodel;
 
-import java.sql.Connection;
-import org.netbeans.api.db.explorer.DatabaseConnection;
+import org.netbeans.modules.db.core.SQLIdentifiers;
 
 /**
- * An SPI for which different providers are available.
- *
- * @author Ahimanikya Satapathy
+ * Represents the restriction in a JOIN clause
+ * Must be of form a.x = b.y
  */
-public interface DBConnectionProvider {
+public class JoinRestriction {
 
-    public Connection getConnection(DatabaseConnection dbConn);
+    // Fields
 
-    public void closeConnection(Connection con);
+    private ColumnNode  _col1;
+
+    private String      _op;
+
+    private ColumnNode  _col2;
+
+
+    // Constructors
+
+    public JoinRestriction (ColumnNode col1, String op, ColumnNode col2) {
+        _col1 = col1;
+        _op = op;
+        _col2 = col2;
+    }
+
+
+    // Methods
+
+    // Return the SQL string that corresponds to this From clause
+    // For now, assume no joins
+    public String genText(SQLIdentifiers.Quoter quoter) {
+        return " " + _col1.genText(quoter) + " " + _op + " " + _col2.genText(quoter);    // NOI18N
+    }
+
+    // Methods
+
+    // Accessors/Mutators
+
+    public Column getCol1 () {
+        return _col1;
+    }
+
+    public Column getCol2 () {
+        return _col2;
+    }
 }
+
+

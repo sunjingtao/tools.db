@@ -41,19 +41,40 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  */
-package org.netbeans.modules.db.dataview.spi;
 
-import java.sql.Connection;
-import org.netbeans.api.db.explorer.DatabaseConnection;
+package org.netbeans.modules.db.schema.migration.archiver;
+
+import org.netbeans.modules.db.schema.migration.archiver.serializer.XMLGraphSerializer;
+
+import java.io.OutputStream;
 
 /**
- * An SPI for which different providers are available.
  *
- * @author Ahimanikya Satapathy
+ * @author  Administrator
+ * @version
  */
-public interface DBConnectionProvider {
+public class XMLOutputStream extends java.io.DataOutputStream implements java.io.ObjectOutput
+{
 
-    public Connection getConnection(DatabaseConnection dbConn);
+    private OutputStream outStream;
 
-    public void closeConnection(Connection con);
+    /** Creates new XMLOutputStream */
+    public XMLOutputStream(OutputStream out)
+    {
+        super(out);
+        this.outStream = out;
+    }
+
+    public void close() throws java.io.IOException
+    {
+        this.outStream.close();
+    }
+
+    public void writeObject(Object o) throws java.io.IOException
+    {
+
+        XMLGraphSerializer lSerial = new XMLGraphSerializer(this.outStream);
+        lSerial.writeObject(o);
+        
+    }
 }

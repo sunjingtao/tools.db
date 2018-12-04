@@ -41,19 +41,35 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  */
-package org.netbeans.modules.db.dataview.spi;
 
-import java.sql.Connection;
-import org.netbeans.api.db.explorer.DatabaseConnection;
+package org.netbeans.modules.db.schema.migration.archiver;
 
 /**
- * An SPI for which different providers are available.
  *
- * @author Ahimanikya Satapathy
+ * @author  ludo
  */
-public interface DBConnectionProvider {
+public class MapClassName {
+    static String LEGACYPREFIX= "com.sun.forte4j.modules.dbmodel.";
+    static String CURRENTPREFIX= "org.netbeans.modules.dbschema.";
 
-    public Connection getConnection(DatabaseConnection dbConn);
+    static public String getClassNameToken(String realClassName){
+        if (realClassName.startsWith(CURRENTPREFIX)){
+            realClassName = LEGACYPREFIX + realClassName.substring(CURRENTPREFIX.length(),realClassName.length());
+        }
 
-    public void closeConnection(Connection con);
+        return realClassName;
+        }
+
+    static public String getRealClassName(String token){
+        if (token.startsWith(LEGACYPREFIX)){
+            token = CURRENTPREFIX + token.substring(LEGACYPREFIX.length(),token.length());
+        }
+        return token;
+    }
+    public static void main(String[] args){
+        
+        String S="org.netbeans.modules.db.schema.jdbcimpl.TEST";
+        System.out.println(getClassNameToken(S));
+    }
+    
 }

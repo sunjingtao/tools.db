@@ -27,7 +27,7 @@
  * Contributor(s):
  *
  * The Original Software is NetBeans. The Initial Developer of the Original
- * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
+ * Software is Sun Microsystems, Inc. Portions Copyright 1997-2007 Sun
  * Microsystems, Inc. All Rights Reserved.
  *
  * If you wish your version of this file to be governed by only the CDDL
@@ -41,19 +41,64 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  */
-package org.netbeans.modules.db.dataview.spi;
-
-import java.sql.Connection;
-import org.netbeans.api.db.explorer.DatabaseConnection;
+package org.netbeans.modules.db.sql.querymodel;
 
 /**
- * An SPI for which different providers are available.
- *
- * @author Ahimanikya Satapathy
+ * Represents a HAVING clause in a SQL Table Expression
  */
-public interface DBConnectionProvider {
+import java.util.Collection;
 
-    public Connection getConnection(DatabaseConnection dbConn);
+import org.netbeans.modules.db.core.SQLIdentifiers;
 
-    public void closeConnection(Connection con);
+public class HavingNode implements Having {
+
+    // Fields
+
+    private Expression   _condition; // simplified WHERE clause
+
+    // Constructors
+
+    public HavingNode () {
+    }
+
+    public HavingNode(Expression condition) {
+        _condition = condition;
+    }
+
+
+    // Methods
+
+    // Return the SQL string that corresponds to this From clause
+    // For now, assume no joins
+    public String genText(SQLIdentifiers.Quoter quoter) {
+        String res="";    // NOI18N
+        if (_condition != null) {
+            res = " HAVING " + _condition.genText(quoter);  // NOI18N
+        }
+
+        return res;
+    }
+
+
+    // Methods
+
+    // Accessors/Mutators
+
+    public Expression getExpression() {
+        return _condition;
+    }
+
+    void renameTableSpec(String oldTableSpec, String corrName) {
+
+        if (_condition instanceof Predicate)
+            ((Predicate) _condition).renameTableSpec(oldTableSpec, corrName);
+    }
+
+    // adds any column in the condition to the ArrayList of columns
+    public void  getReferencedColumns (Collection columns) {
+        if (_condition != null)
+            _condition.getReferencedColumns(columns);
+    }
 }
+
+

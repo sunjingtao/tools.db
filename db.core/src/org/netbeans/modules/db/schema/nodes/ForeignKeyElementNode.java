@@ -41,19 +41,44 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  */
-package org.netbeans.modules.db.dataview.spi;
 
-import java.sql.Connection;
-import org.netbeans.api.db.explorer.DatabaseConnection;
+package org.netbeans.modules.dbschema.nodes;
 
-/**
- * An SPI for which different providers are available.
- *
- * @author Ahimanikya Satapathy
+import java.beans.*;
+
+import org.openide.nodes.*;
+
+import org.netbeans.modules.db.schema.*;
+
+/** Node representing a foreign key.
+ * @see ForeignKeyElement
  */
-public interface DBConnectionProvider {
+public class ForeignKeyElementNode extends DBMemberElementNode {
+	/** Create a new foreign key node.
+	 * @param element foreign key element to represent
+	 * @param writeable <code>true</code> to be writable
+	 */
+	public ForeignKeyElementNode(ForeignKeyElement element, TableChildren children, boolean writeable) {
+		super(element, children, writeable);
+		TableElementFilter filter = new TableElementFilter();
+		filter.setOrder(new int[] {TableElementFilter.COLUMN});
+		children.setFilter(filter);
+	}
 
-    public Connection getConnection(DatabaseConnection dbConn);
+	/* Resolve the current icon base.
+	 * @return icon base string.
+	 */
+	protected String resolveIconBase () {
+		return FK;
+	}
 
-    public void closeConnection(Connection con);
+	/* Creates property set for this node */
+	protected Sheet createSheet () {
+		Sheet sheet = Sheet.createDefault();
+		Sheet.Set ps = sheet.get(Sheet.PROPERTIES);
+
+		ps.put(createNameProperty(writeable));
+
+		return sheet;
+	}
 }

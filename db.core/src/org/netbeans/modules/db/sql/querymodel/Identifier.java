@@ -27,7 +27,7 @@
  * Contributor(s):
  *
  * The Original Software is NetBeans. The Initial Developer of the Original
- * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
+ * Software is Sun Microsystems, Inc. Portions Copyright 1997-2007 Sun
  * Microsystems, Inc. All Rights Reserved.
  *
  * If you wish your version of this file to be governed by only the CDDL
@@ -41,19 +41,67 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  */
-package org.netbeans.modules.db.dataview.spi;
+package org.netbeans.modules.db.sql.querymodel;
 
-import java.sql.Connection;
-import org.netbeans.api.db.explorer.DatabaseConnection;
+import org.netbeans.modules.db.core.SQLIdentifiers;
 
 /**
- * An SPI for which different providers are available.
- *
- * @author Ahimanikya Satapathy
+ * Represents an identifier (schema/table/column name)
  */
-public interface DBConnectionProvider {
-
-    public Connection getConnection(DatabaseConnection dbConn);
-
-    public void closeConnection(Connection con);
+public class Identifier {
+    
+    // Fields
+    private String      _name;
+    private boolean     _delimited;
+    
+    // Constructors
+    
+    // Create an Identifier with delimiter status explicitly specified.
+    // Only occurs when the parser has that information
+    public Identifier(String name, boolean delimited) {
+        _name = name;
+        _delimited = delimited;
+    }
+    
+    
+    // Create an Identifier with delimiter status decided heuristically,
+    // depending whether the name contains any special characters
+    public Identifier(String name) {
+        _name=name;
+        _delimited = needsDelimited(name);
+    }
+    
+    
+    // Accessors
+    
+    public String genText(SQLIdentifiers.Quoter quoter) {
+        return quoter.quoteIfNeeded(_name);
+        
+//        if (_delimited) {
+//	    String delimiter = qbMetaData.getIdentifierQuoteString();
+//	    return delimiter + _name + delimiter;
+//	} else {
+//            return _name;
+//	}
+    }
+    
+    
+    public String getName() {
+        return _name;
+    }
+    
+    
+    /**
+     * Returns true if the argument contains any non-word characters, which
+     * will require it to be delimited.
+     */
+    private boolean needsDelimited(String name) {
+        //        String[] split=name.split("\\W");
+        //        return (split.length>1);
+        // For consistency with Netbeans, mark all Identifiers as delimited for now.  
+        // See IZ# 87920.
+        return true;
+    }
+    
 }
+

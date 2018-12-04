@@ -27,7 +27,7 @@
  * Contributor(s):
  *
  * The Original Software is NetBeans. The Initial Developer of the Original
- * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
+ * Software is Sun Microsystems, Inc. Portions Copyright 1997-2007 Sun
  * Microsystems, Inc. All Rights Reserved.
  *
  * If you wish your version of this file to be governed by only the CDDL
@@ -41,19 +41,74 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  */
-package org.netbeans.modules.db.dataview.spi;
+package org.netbeans.modules.db.sql.querymodel;
 
-import java.sql.Connection;
-import org.netbeans.api.db.explorer.DatabaseConnection;
+import java.util.Collection;
+
+import org.netbeans.modules.db.core.SQLIdentifiers;
 
 /**
- * An SPI for which different providers are available.
- *
- * @author Ahimanikya Satapathy
+ * Represents a SQL literal valus
  */
-public interface DBConnectionProvider {
+public class Literal implements Value {
 
-    public Connection getConnection(DatabaseConnection dbConn);
+    // Fields
 
-    public void closeConnection(Connection con);
+    private Object _value;
+
+
+    // Constructors
+
+    public Literal() {
+    }
+
+    public Literal(Object value) {
+        _value = value;
+    }
+
+
+    // Methods
+
+    public String genText(SQLIdentifiers.Quoter quoter) {
+        return _value.toString();
+    }
+
+    public String toString() {
+        return _value.toString();
+    }
+
+
+    // Accessors/Mutators
+
+    public Object getValue(SQLIdentifiers.Quoter quoter) {
+        return _value;
+    }
+
+    //REVIEW: this should probably go away, and change Literal to not be a QueryItem?
+    public void getReferencedColumns(Collection columns) {}
+    public Expression findExpression(String table1, String column1, String table2, String column2) {
+        return null;
+    }
+
+    public boolean isParameterized() {
+        // Original version
+        // return _value.equals("?");
+
+        // Expand prev version, to try to catch literals like "id = ?" or "id IN (?,?,?).
+        // return (_value.toString().indexOf("?") != -1 );
+
+        // Prev version was also catching "id = '?'", which is a string, not a parameter.  Exclude it.
+	// return (_value.toString().matches(".*[^']?[^']"));
+
+        // Prev regexp had problems because ? was not escaped
+        // Return true if (a) string contains ? (b) string does not contain '?'
+        // This still gets other cases wrong, like ? in the middle of a string.
+        return (((_value.toString().indexOf("?")) != -1) &&
+                ((_value.toString().indexOf("'?'")) == -1));
+    }
+
+    public void renameTableSpec(String oldTableSpec, String corrName) {}
+
 }
+
+

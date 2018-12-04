@@ -41,19 +41,29 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  */
-package org.netbeans.modules.db.dataview.spi;
 
-import java.sql.Connection;
-import org.netbeans.api.db.explorer.DatabaseConnection;
+package org.netbeans.modules.db.schema.migration.archiver.deserializer;
 
 /**
- * An SPI for which different providers are available.
  *
- * @author Ahimanikya Satapathy
+ * @author  Administrator
+ * @version
  */
-public interface DBConnectionProvider {
+public class NewInstanceHelper extends Object {
 
-    public Connection getConnection(DatabaseConnection dbConn);
+    /** Creates new NewInstanceHelper */
+    public NewInstanceHelper() {
+    }
 
-    public void closeConnection(Connection con);
+    public static Object newInstance(String className, Object parentObject)
+    {
+        Object lReturnObj = null;
+        // The following method is used to help init classes that do not have a
+        // default constructor and hence using relaection to create them fails
+
+        if ( className.equals("java.beans.PropertyChangeSupport") )
+            lReturnObj = new java.beans.PropertyChangeSupport(parentObject);
+        return lReturnObj;
+    }
+    
 }

@@ -41,19 +41,20 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  */
-package org.netbeans.modules.db.dataview.spi;
 
-import java.sql.Connection;
-import org.netbeans.api.db.explorer.DatabaseConnection;
+package org.netbeans.modules.db.schema.jdbcimpl;
 
-/**
- * An SPI for which different providers are available.
- *
- * @author Ahimanikya Satapathy
- */
-public interface DBConnectionProvider {
+import java.sql.*;
 
-    public Connection getConnection(DatabaseConnection dbConn);
+import org.netbeans.modules.db.schema.*;
 
-    public void closeConnection(Connection con);
+public class ColumnPairElementImpl extends DBMemberElementImpl implements ColumnPairElement.Impl {
+
+    /** Creates new ForeignColumnElementImpl */
+    public ColumnPairElementImpl() {
+    }
+
+    public ColumnPairElementImpl(String name) {
+        super(name);
+    }
 }

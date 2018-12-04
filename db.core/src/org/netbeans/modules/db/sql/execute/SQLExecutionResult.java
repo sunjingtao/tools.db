@@ -111,7 +111,6 @@ public class SQLExecutionResult {
     /**
      * Retrieve logical error position.
      *
-     * @param logicalOffset
      * @return -1 if no error position is availble, else it is an offset into the SQL
      */
     public int getErrorPosition() {
@@ -124,7 +123,6 @@ public class SQLExecutionResult {
      * 
      * <p>Both values are zero-based</p>
      * 
-     * @param logicalOffset
      * @return int array with two components, first denotes line, second column
      */
     public int[] getRawErrorLocation() {

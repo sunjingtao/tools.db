@@ -41,19 +41,42 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  */
-package org.netbeans.modules.db.dataview.spi;
 
-import java.sql.Connection;
-import org.netbeans.api.db.explorer.DatabaseConnection;
+package org.netbeans.modules.db.schema.jdbcimpl;
 
-/**
- * An SPI for which different providers are available.
- *
- * @author Ahimanikya Satapathy
- */
-public interface DBConnectionProvider {
 
-    public Connection getConnection(DatabaseConnection dbConn);
+import java.io.IOException;
+import java.util.ResourceBundle;
+import org.openide.filesystems.FileObject;
+import org.openide.loaders.*;
+import org.openide.util.NbBundle;
 
-    public void closeConnection(Connection con);
+public class DBschemaDataLoader extends UniFileLoader {
+
+    static final long serialVersionUID = -8808468937919122876L;
+
+    public DBschemaDataLoader () {
+        super("org.netbeans.modules.db.schema.jdbcimpl.DBschemaDataObject");
+    }
+
+    @Override
+    protected void initialize() {
+        super.initialize();
+        getExtensions().addMimeType("text/x-dbschema+xml");
+    }
+
+    @Override
+    protected String defaultDisplayName() {
+        ResourceBundle bundle = NbBundle.getBundle("org.netbeans.modules.db.schema.jdbcimpl.resources.Bundle"); //NOI18N
+        return bundle.getString("ObjectName");
+    }
+    
+    @Override
+    protected String actionsContext() {
+        return "Loaders/text/x-dbschema+xml/Actions"; // NOI18N
+    }
+
+    protected MultiDataObject createMultiObject (FileObject primaryFile) throws DataObjectExistsException, IOException {
+        return new DBschemaDataObject (primaryFile, this);
+    }
 }

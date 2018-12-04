@@ -27,7 +27,7 @@
  * Contributor(s):
  *
  * The Original Software is NetBeans. The Initial Developer of the Original
- * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
+ * Software is Sun Microsystems, Inc. Portions Copyright 1997-2007 Sun
  * Microsystems, Inc. All Rights Reserved.
  *
  * If you wish your version of this file to be governed by only the CDDL
@@ -41,19 +41,63 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  */
-package org.netbeans.modules.db.dataview.spi;
+package org.netbeans.modules.db.sql.querymodel;
 
-import java.sql.Connection;
-import org.netbeans.api.db.explorer.DatabaseConnection;
+import java.util.Collection;
+
+import org.netbeans.modules.db.core.SQLIdentifiers;
 
 /**
- * An SPI for which different providers are available.
- *
- * @author Ahimanikya Satapathy
+ * Represents a column in an ORDER BY clause
  */
-public interface DBConnectionProvider {
+public final class SortSpecification implements QueryItem {
 
-    public Connection getConnection(DatabaseConnection dbConn);
+    // Fields
 
-    public void closeConnection(Connection con);
+    private ColumnItem _column;
+
+    // direction is one of standard SQL 'ASC' or DESC'
+    private String _direction;
+
+
+    // Constructors
+
+    public SortSpecification(ColumnItem col, String direction) {
+        _column = col;
+        _direction = direction;
+    }
+
+    public SortSpecification(ColumnItem col) {
+        this(col, "ASC");  // NOI18N
+    }
+
+
+    // Methods
+
+    public String genText(SQLIdentifiers.Quoter quoter) {
+        return _column.genText(quoter) + " " +  // NOI18N
+              _direction;
+    }
+
+
+    // Accessors/Mutators
+
+    public String getDirection() {
+        return _direction;
+    }
+
+    public Column getColumn() {
+        if (_column instanceof ColumnNode) return (Column)_column;  return null;
+    }
+
+    public void  getReferencedColumns(Collection columns) {
+        columns.add(_column.getReferencedColumn());
+    }
+
+    void renameTableSpec(String oldTableSpec, String corrName) {
+        _column.renameTableSpec(oldTableSpec, corrName);
+    }
+
 }
+
+

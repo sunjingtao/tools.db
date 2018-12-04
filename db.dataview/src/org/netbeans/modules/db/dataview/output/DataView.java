@@ -105,7 +105,6 @@ public class DataView {
      * to render to render the DataView by calling DataView.createComponent()
      * 
      * @param dbConn instance of DBExplorer DatabaseConnection 
-     * @param queryString SQL query string
      * @param pageSize default page size for this data view
      * @return a new DataView instance
      */
@@ -138,7 +137,6 @@ public class DataView {
     /**
      * Create the UI component and renders the data fetched from database on create()
      * 
-     * @param dataView DataView Object created using create()
      * @return a JComponent that after rending the given dataview
      */
     public synchronized List<Component> createComponents() {

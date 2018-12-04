@@ -27,7 +27,7 @@
  * Contributor(s):
  *
  * The Original Software is NetBeans. The Initial Developer of the Original
- * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
+ * Software is Sun Microsystems, Inc. Portions Copyright 1997-2007 Sun
  * Microsystems, Inc. All Rights Reserved.
  *
  * If you wish your version of this file to be governed by only the CDDL
@@ -41,19 +41,17 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  */
-package org.netbeans.modules.db.dataview.spi;
+package org.netbeans.modules.db.sql.querymodel;
 
-import java.sql.Connection;
-import org.netbeans.api.db.explorer.DatabaseConnection;
-
-/**
- * An SPI for which different providers are available.
+/*
+ * UnaryExpression.java
  *
- * @author Ahimanikya Satapathy
+ * Created on March 23, 2005, 3:44 PM
  */
-public interface DBConnectionProvider {
 
-    public Connection getConnection(DatabaseConnection dbConn);
-
-    public void closeConnection(Connection con);
+// a UnaryExpression is an Expression with one operand
+// In the query is either a NOT or a SetFunction (MAX, MIN, etc...)
+// The main usage of this interface is to walk the unary expression further (i.e. NOT (a AND b))
+public interface UnaryExpression extends Expression {
+    public Expression getOperand();
 }
