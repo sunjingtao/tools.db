@@ -45,9 +45,6 @@
 package org.netbeans.modules.db.core;
 
 import java.util.prefs.Preferences;
-import org.openide.util.NbBundle;
-import org.openide.util.NbPreferences;
-
 /**
  *
  * @author Andrei Badea
@@ -63,37 +60,6 @@ public class SQLOptions  {
 
     public static SQLOptions getDefault() {
         return INSTANCE;
-    }
-    
-    public String displayName() {
-        return NbBundle.getMessage(SQLOptions.class, "LBL_SQLOptions");
-    }
-    
-    private static Preferences getPreferences() {
-        return NbPreferences.forModule(SQLOptions.class);
-    }
-        
-    public int getFetchStep() {
-        return getPreferences().getInt(PROP_FETCH_STEP, DEFAULT_FETCH_STEP);
-    }
-    
-    public void setFetchStep(int value) {
-        getPreferences().putInt(PROP_FETCH_STEP, value);
-    }   
-    
-    public int getMaxRows() {
-        return getPreferences().getInt(PROP_MAX_ROWS, DEFAULT_MAX_ROWS);
-    }
-    
-    public void setMaxRows(int rows) {
-        getPreferences().putInt(PROP_MAX_ROWS, rows);
-    }
-    public boolean isKeepOldResultTabs() {
-        return getPreferences().getBoolean(PROP_KEEP_OLD_RESULT_TABS, false);
-    }
-
-    public void setKeepOldResultTabs(boolean keepOldTabs) {
-        getPreferences().putBoolean(PROP_KEEP_OLD_RESULT_TABS, keepOldTabs);
     }
 
 }

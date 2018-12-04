@@ -55,8 +55,6 @@ import java.util.logging.Logger;
 import org.netbeans.api.db.explorer.DatabaseConnection;
 import org.netbeans.modules.db.dataview.api.DataView;
 import org.netbeans.modules.db.dataview.api.DataViewPageContext;
-import org.netbeans.modules.db.sql.history.SQLHistoryEntry;
-import org.netbeans.modules.db.sql.history.SQLHistoryManager;
 
 /**
  * Support class for executing SQL statements.
@@ -111,9 +109,6 @@ public final class SQLExecuteHelper {
                 
             DataView view = DataView.create(conn, sql, pageSize);
 
-            // Save SQL statements executed for the SQLHistoryManager
-            SQLHistoryManager.getInstance().saveSQL(new SQLHistoryEntry(url, sql, new Date()));
-
             SQLExecutionResult result = new SQLExecutionResult(info, view);
 
             boolean isIllegal = false;
@@ -143,9 +138,6 @@ public final class SQLExecuteHelper {
             executionLogger.cancel();
         }
                 
-        // Persist SQL executed
-        SQLHistoryManager.getInstance().save();
-
         if (!cancelled) {
             return new SQLExecutionResults(results);
         } else {
@@ -242,7 +234,6 @@ public final class SQLExecuteHelper {
         /**
          * @param sql the SQL string to parse. If it contains multiple lines
          * they have to be delimited by '\n' characters.
-         * @param useHashComments True if hash symbol (#) should be used as
          * start of line comment (MySQL supports it).
          */
         public SQLSplitter(String sql, Compatibility compat) {
@@ -565,9 +556,6 @@ public final class SQLExecuteHelper {
         /** 
          * See if the SQL text starting at the given position is a given token 
          * 
-         * @param sql - the full SQL text
-         * @param ch - the character at the current position
-         * @param pos - the current position index for the SQL text
          * @param token - the token we are looking for
          * 
          * @return true if the token is found at the current position

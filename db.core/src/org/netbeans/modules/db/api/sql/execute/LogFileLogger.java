@@ -45,7 +45,7 @@ package org.netbeans.modules.db.api.sql.execute;
 import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.openide.util.NbBundle;
+import java.text.MessageFormat;
 
 /**
  * This logger writes everything to the log file.
@@ -57,23 +57,19 @@ public class LogFileLogger implements SQLExecuteLogger {
     
     private int errorCount;
 
-    @Override
     public void log(StatementExecutionInfo info) {
         if (info.hasExceptions()) {
             logException(info);
         }
     }
 
-    @Override
     public void finish(long executionTime) {
-        LOGGER.log(Level.INFO, (NbBundle.getMessage(LogFileLogger.class, "LBL_ExecutionFinished",
-                executionTime / 1000d,
-                errorCount)));
+        LOGGER.log(Level.INFO, MessageFormat.format("Execution finished after {0,number,0.###} s, {1,choice,0#no errors|1#1 error|1.0<{1,number,integer} errors} occurred.",
+         executionTime / 1000d, errorCount));
     }
 
-    @Override
     public void cancel() {
-        LOGGER.log(Level.INFO, NbBundle.getMessage(LogFileLogger.class, "LBL_ExecutionCancelled"));
+        LOGGER.log(Level.INFO, "Execution canceled");
     }
 
     private void logException(StatementExecutionInfo info) {
@@ -83,14 +79,14 @@ public class LogFileLogger implements SQLExecuteLogger {
             if (e instanceof SQLException) {
                 logSQLException((SQLException)e, info);
             } else {
-                LOGGER.log(Level.INFO, NbBundle.getMessage(LogFileLogger.class, "MSG_SQLExecutionException", info.getSQL()), e);
+                LOGGER.log(Level.INFO, MessageFormat.format("Encountered an exception while executing the following statement:\\n{0}", info.getSQL()), e);
             }
         }
     }
 
     private void logSQLException(SQLException e, StatementExecutionInfo info) {
         while (e != null) {
-            LOGGER.log(Level.INFO, NbBundle.getMessage(LogFileLogger.class, "MSG_SQLExecutionException", info.getSQL()), e);
+            LOGGER.log(Level.INFO, MessageFormat.format("Encountered an exception while executing the following statement:\\n{0}",info.getSQL()), e);
             e = e.getNextException();
         }
     }

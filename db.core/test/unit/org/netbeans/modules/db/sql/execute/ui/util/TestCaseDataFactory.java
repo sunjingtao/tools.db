@@ -50,7 +50,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import org.netbeans.junit.Manager;
 
 /**
  *
@@ -93,8 +92,9 @@ public class TestCaseDataFactory {
                 dataDir = dataDir.getParentFile();
         }
         dataDir = new File(dataDir.getParentFile(), "data"); //NOI18N
-        return Manager.normalizeFile(dataDir);
-        
+//        return Manager.normalizeFile(dataDir);
+
+        return null;
     }
     
     private void process() throws Exception{

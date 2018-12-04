@@ -42,37 +42,50 @@
  * made subject to such option by the copyright holder.
  */
 
-package org.netbeans.modules.db.sql.loader;
+package org.netbeans.modules.db.sql.execute.ui.util;
 
-import java.beans.*;
-import java.awt.Image;
 
-import org.openide.loaders.UniFileLoader;
-import org.openide.util.Exceptions;
-import org.openide.util.ImageUtilities;
-import org.openide.util.Utilities;
+
+import java.io.File;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.sql.Connection;
+import java.sql.Driver;
+import java.sql.DriverManager;
+import java.util.*;
 
 /**
  *
- * @author Jesse Beaumont
+ * @author luke
  */
-public class SQLDataLoaderBeanInfo extends SimpleBeanInfo {
 
-    public BeanInfo[] getAdditionalBeanInfo () {
-        try {
-            return new BeanInfo[] { Introspector.getBeanInfo(UniFileLoader.class) };
-        } catch (IntrospectionException ie) {
-	    Exceptions.printStackTrace(ie);
-            return null;
-        }
-    }
 
-    public Image getIcon(int type) {
-        if (type == java.beans.BeanInfo.ICON_COLOR_16x16 ||
-                type == java.beans.BeanInfo.ICON_MONO_16x16) {
-	    return ImageUtilities.loadImage("org/netbeans/modules/db/sql/loader/resources/sql16.png"); // NOI18N
-        } else {
-	    return ImageUtilities.loadImage ("org/netbeans/modules/db/sql/loader/resources/sql32.png"); // NOI18N
+public class DbUtil {
+    
+    public static  String DRIVER_CLASS_NAME="driver_class_name";
+    public static String URL="url";
+    public static String USER="user";
+    public static String PASSWORD="password";
+    
+    public static Connection createConnection(Properties p,File[] f) throws Exception{
+        String driver_name=p.getProperty(DRIVER_CLASS_NAME);
+        String url=p.getProperty(URL);
+        String user=p.getProperty(USER);
+        String passwd=p.getProperty(PASSWORD);
+        ArrayList list=new java.util.ArrayList();
+        for(int i=0;i<f.length;i++){
+            list.add(f[i].toURI().toURL());
         }
+        URL[] driverURLs=(URL[])list.toArray(new URL[0]);
+        URLClassLoader l = new URLClassLoader(driverURLs);
+        Class c = Class.forName(driver_name, true, l);
+        Driver driver=(Driver)c.newInstance();
+        Connection con=driver.connect(url,p);
+        return con;
     }
+    
+    
+    
+    
 }
+

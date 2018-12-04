@@ -71,15 +71,4 @@ public class SQLExecuteOptions {
         pcs.removePropertyChangeListener(listener);
     }
 
-    public boolean isKeepOldResultTabs() {
-        return SQLOptions.getDefault().isKeepOldResultTabs();
-    }
-
-    public void setKeepOldResultTabs(boolean keepOldResultTabs) {
-        boolean oldKeepOldResultTabs = SQLOptions.getDefault().isKeepOldResultTabs();
-        if (oldKeepOldResultTabs != keepOldResultTabs) {
-            SQLOptions.getDefault().setKeepOldResultTabs(keepOldResultTabs);
-            pcs.firePropertyChange(PROP_KEEP_OLD_TABS, oldKeepOldResultTabs, keepOldResultTabs);
-        }
-    }
 }

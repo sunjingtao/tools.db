@@ -43,38 +43,36 @@
 package org.netbeans.modules.db.api.sql.execute;
 
 import junit.framework.Test;
+import org.junit.Assert;
 import org.netbeans.api.db.explorer.ConnectionManager;
 import org.netbeans.api.db.explorer.DatabaseConnection;
 import org.netbeans.api.db.explorer.DatabaseException;
-import org.netbeans.junit.NbModuleSuite;
-import org.netbeans.modules.db.test.DBTestBase;
 
 /**
  *
  * @author David Van Couvering
  */
-public class SQLExecutorTest extends DBTestBase {
+public class SQLExecutorTest {
     
     private DatabaseConnection dbconn;
 
-    public SQLExecutorTest(String name) {
-        super(name);
-    }
-
-    @Override
     public void setUp() throws Exception {
-        super.setUp();
         dbconn = getDatabaseConnection(true);
-
-        createTestTable();
-
         if (isMySQL()) {
             createRentalTable();
         }
     }
-    
+
+    private boolean isMySQL() {
+        return true;
+    }
+
+    private DatabaseConnection getDatabaseConnection(boolean b) {
+        return null;
+    }
+
     private void createRentalTable() throws Exception {
-        assertTrue(isMySQL());
+        Assert.assertTrue(isMySQL());
 
         String sql = "USE " + getSchema() + "; CREATE TABLE rental ( " +
           "rental_id INT NOT NULL AUTO_INCREMENT, " +
@@ -93,6 +91,10 @@ public class SQLExecutorTest extends DBTestBase {
         checkExecution(SQLExecutor.execute(dbconn, sql));
 }
 
+    private String getSchema() {
+        return  null;
+    }
+
     public void testExecuteOnClosedConnection() throws Exception {
         DatabaseConnection broken = getDatabaseConnection(false);
 
@@ -100,7 +102,7 @@ public class SQLExecutorTest extends DBTestBase {
 
         try {
             SQLExecutor.execute(broken, "SELECT ydayaday");
-            fail("No exception when executing on a closed connection");
+            Assert.fail("No exception when executing on a closed connection");
         } catch (DatabaseException dbe) {
             // expected
         }
@@ -109,21 +111,29 @@ public class SQLExecutorTest extends DBTestBase {
     public void testExecute() throws Exception {
         SQLExecutionInfo info = SQLExecutor.execute(dbconn, "SELECT * FROM " + getTestTableName() + ";");
         checkExecution(info);
-        assertTrue(info.getStatementInfos().size() == 1);
+        Assert.assertTrue(info.getStatementInfos().size() == 1);
 
         info = SQLExecutor.execute(dbconn, "SELECT * FROM " + getTestTableName() + "; SELECT " + getTestTableIdName() + " FROM " + getTestTableName() + ";");
         checkExecution(info);
-        assertTrue(info.getStatementInfos().size() == 2);
+        Assert.assertTrue(info.getStatementInfos().size() == 2);
+    }
+
+    private String getTestTableIdName() {
+        return null;
+    }
+
+    private String getTestTableName() {
+        return null;
     }
 
     public void testBadExecute() throws Exception {
         SQLExecutionInfo info = SQLExecutor.execute(dbconn, "SELECT * FROM BADTABLE;");
 
-        assertTrue(info.hasExceptions());
+        Assert.assertTrue(info.hasExceptions());
     }
             
     private void checkExecution(SQLExecutionInfo info) throws Exception {
-        assertNotNull(info);
+        Assert.assertNotNull(info);
 
         Throwable throwable = null;
         if (info.hasExceptions()) {
@@ -210,11 +220,11 @@ public class SQLExecutorTest extends DBTestBase {
         TestLogger logger = new TestLogger();
 
         SQLExecutor.execute(dbconn, sql, logger);
-        assertEquals(4, logger.statementCount);
-        assertEquals(1, logger.errorCount);
-        assertEquals(3, logger.errorStatement);
-        assertTrue(logger.gotFinish);
-        assertFalse(logger.gotCancel);
+        Assert.assertEquals(4, logger.statementCount);
+        Assert.assertEquals(1, logger.errorCount);
+        Assert.assertEquals(3, logger.errorStatement);
+        Assert.assertTrue(logger.gotFinish);
+        Assert.assertFalse(logger.gotCancel);
     }
 
     private static class TestLogger implements SQLExecuteLogger {
