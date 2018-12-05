@@ -50,7 +50,7 @@ import com.tools.data.db.lib.ddl.CommandNotSupportedException;
 import com.tools.data.db.lib.ddl.DBConnection;
 import com.tools.data.db.lib.ddl.DDLException;
 import com.tools.data.db.lib.ddl.impl.Specification;
-import com.tools.data.db.metadata.model.api.MetadataModel;
+import com.tools.data.db.metadata.api.MetadataModel;
 
 import java.io.ObjectStreamException;
 import java.sql.Connection;
@@ -159,11 +159,9 @@ public final class DatabaseConnection implements DBConnection {
     public static final String PROP_CONNECTIONPROPERTIES = "connectionProperties";
     public static final String DRIVER_CLASS_NET = "org.apache.derby.jdbc.ClientDriver"; // NOI18N
     public static final int DERBY_UNICODE_ERROR_CODE = 20000;
-    private OpenConnectionInterface openConnection = null;
     private volatile JDBCDriver jdbcdrv = null;
     private JDBCDriver[] drivers = null;
 
-    static private Collection<? extends OpenConnectionInterface> openConnectionServices = null;
     /** Default constructor */
     @SuppressWarnings("LeakingThisInConstructor")
     public DatabaseConnection() {
@@ -275,7 +273,6 @@ public final class DatabaseConnection implements DBConnection {
 
         String olddrv = drv;
         drv = driver;
-        openConnection = null;
     }
 
     @Override
@@ -522,8 +519,6 @@ public final class DatabaseConnection implements DBConnection {
             Connection connection = DbDriverManager.getDefault().getConnection(db, dbprops, useDriver);
             setJDBCConnection(connection);
 
-            DatabaseUILogger.logConnection(drv);
-
             setState(State.connected);
 
             return connection;
@@ -594,8 +589,6 @@ public final class DatabaseConnection implements DBConnection {
 
             conn = DbDriverManager.getDefault().getConnection(db, dbprops, useDriver);
             setJDBCConnection(conn);
-
-            DatabaseUILogger.logConnection(drv);
 
             connector.finishConnect(null);
 

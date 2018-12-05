@@ -44,6 +44,7 @@
 
 package com.tools.data.db.api;
 
+import java.net.URLClassLoader;
 import java.sql.Connection;
 import java.sql.Driver;
 import java.sql.DriverManager;
@@ -283,7 +284,7 @@ public class DbDriverManager {
         synchronized (driver2Loader) {
             loader = (ClassLoader)driver2Loader.get(driver);
             if (loader == null) {
-                loader = new DbURLClassLoader(driver.getURLs());
+                loader = new URLClassLoader(driver.getURLs());
                 if (LOG) {
                     LOGGER.log(Level.FINE, "Creating " + loader); // NOI18N
                 }

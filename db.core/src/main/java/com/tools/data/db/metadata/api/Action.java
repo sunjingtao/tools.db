@@ -42,71 +42,14 @@
  * made subject to such option by the copyright holder.
  */
 
-package com.tools.data.db.exception;
-
-import java.sql.SQLException;
+package com.tools.data.db.metadata.api;
 
 /**
- * Generic database exception.
+ * A runnable task which takes a single parameter.
  *
- * @author Slavek Psenicka, Andrei Badea
+ * @author Andrei Badea
  */
-public final class DatabaseException extends Exception
-{
+public interface Action<T> {
 
-    static final long serialVersionUID = 7114326612132815401L;
-
-    /**
-     * Constructs a new exception with a specified message.
-     *
-     * @param message the text describing the exception.
-     */
-    public DatabaseException(String message) {
-        super (message);
-    }
-
-    /**
-     * Constructs a new exception with the specified cause.
-     *
-     * @param cause the cause of the exception.
-     */
-    public DatabaseException(Throwable cause) {
-        super (cause);
-    }
-
-    /**
-     * Constructs a new exception with the specified cause.
-     *
-     * @param message the text describing the exception.
-     * @param cause the cause of the exception.
-     */
-    public DatabaseException(String message, Throwable cause) {
-        super(message, cause);
-    }
-
-    @Override
-    public String getMessage() {
-        StringBuffer buf = new StringBuffer();
-
-        Throwable t = this;
-        //we are getting only the first exception which is wrapped,
-        //should we get messages from all the exceptions in the chain?
-        if (t.getCause() != null) {
-            t = t.getCause();
-        }
-
-        if (t != this) {
-            if (t instanceof SQLException) {
-                SQLException e = (SQLException) t;
-                buf.append("Error code ").append(e.getErrorCode());
-                buf.append(", SQL state ").append(e.getSQLState());
-                buf.append("\n");
-            }
-            buf.append(super.getMessage() + " " + t.getMessage());
-        } else {
-            buf.append(super.getMessage());
-        }
-
-        return buf.toString();
-    }
+    void run(T parameter);
 }

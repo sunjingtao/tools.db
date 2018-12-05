@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright 2010 Oracle and/or its affiliates. All rights reserved.
  *
  * Oracle and Java are registered trademarks of Oracle and/or its affiliates.
  * Other names may be trademarks of their respective owners.
@@ -24,12 +24,6 @@
  * your own identifying information:
  * "Portions Copyrighted [year] [name of copyright owner]"
  *
- * Contributor(s):
- *
- * The Original Software is NetBeans. The Initial Developer of the Original
- * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
- * Microsystems, Inc. All Rights Reserved.
- *
  * If you wish your version of this file to be governed by only the CDDL
  * or only the GPL Version 2, indicate your decision by adding
  * "[Contributor] elects to include this software in this distribution
@@ -40,73 +34,45 @@
  * However, if you add GPL Version 2 code and therefore, elected the GPL
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
+ *
+ * Contributor(s):
+ *
+ * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
 
-package com.tools.data.db.exception;
+package com.tools.data.db.metadata.api;
 
-import java.sql.SQLException;
+import java.util.Collection;
 
 /**
- * Generic database exception.
+ * A tuple is something that is represented by a set of rows, with each
+ * row being represented by one or more columns
  *
- * @author Slavek Psenicka, Andrei Badea
+ * @author David
  */
-public final class DatabaseException extends Exception
-{
-
-    static final long serialVersionUID = 7114326612132815401L;
+public abstract class Tuple extends MetadataElement {
+    /**
+     * Returns the columns in this tuple.
+     *
+     * @return the columns.
+     * @throws MetadataException if an error occurs while retrieving the metadata.
+     */
+    public abstract Collection<Column> getColumns();
 
     /**
-     * Constructs a new exception with a specified message.
+     * Returns the column with the given name.
      *
-     * @param message the text describing the exception.
+     * @param name a column name.
+     * @return a column named {@code name} or {@code null} if there is no such column.
+     * @throws MetadataException if an error occurs while retrieving the metadata.
      */
-    public DatabaseException(String message) {
-        super (message);
-    }
+    public abstract Column getColumn(String name);
 
     /**
-     * Constructs a new exception with the specified cause.
+     * Returns the schema containing this tuple.
      *
-     * @param cause the cause of the exception.
+     * @return the parent schema.
+     * @since 0.8
      */
-    public DatabaseException(Throwable cause) {
-        super (cause);
-    }
-
-    /**
-     * Constructs a new exception with the specified cause.
-     *
-     * @param message the text describing the exception.
-     * @param cause the cause of the exception.
-     */
-    public DatabaseException(String message, Throwable cause) {
-        super(message, cause);
-    }
-
-    @Override
-    public String getMessage() {
-        StringBuffer buf = new StringBuffer();
-
-        Throwable t = this;
-        //we are getting only the first exception which is wrapped,
-        //should we get messages from all the exceptions in the chain?
-        if (t.getCause() != null) {
-            t = t.getCause();
-        }
-
-        if (t != this) {
-            if (t instanceof SQLException) {
-                SQLException e = (SQLException) t;
-                buf.append("Error code ").append(e.getErrorCode());
-                buf.append(", SQL state ").append(e.getSQLState());
-                buf.append("\n");
-            }
-            buf.append(super.getMessage() + " " + t.getMessage());
-        } else {
-            buf.append(super.getMessage());
-        }
-
-        return buf.toString();
-    }
+    public abstract Schema getParent();
 }

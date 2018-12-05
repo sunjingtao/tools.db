@@ -43,6 +43,8 @@
  */
 package com.tools.data.db.util;
 
+import com.tools.data.db.exception.DatabaseException;
+
 import java.sql.Time;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -51,8 +53,6 @@ import java.util.Date;
 import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import com.tools.data.db.meta.DBException;
 
 /**
  * Implements a date type which can generate instances of java.sql.Date and other JDBC
@@ -95,7 +95,7 @@ public class TimeType {
         return ret;
     }
 
-    public static Time convert(Object value) throws DBException {
+    public static Time convert(Object value) throws DatabaseException {
         if (null == value) {
             return null;
         } else if (value instanceof java.sql.Time) {
@@ -103,11 +103,11 @@ public class TimeType {
         } else if (value instanceof String) {
             Date dVal = doParse ((String) value);
             if (dVal == null) {
-                throw new DBException("Invalid Time");
+                throw new DatabaseException("Invalid Time");
             }
             return getNormalizedTime(dVal.getTime());
         } else {
-            throw new DBException("Invalid Time");
+            throw new DatabaseException("Invalid Time");
         }
     }
 

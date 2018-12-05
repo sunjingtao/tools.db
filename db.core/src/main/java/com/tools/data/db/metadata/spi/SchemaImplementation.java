@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright 2010 Oracle and/or its affiliates. All rights reserved.
  *
  * Oracle and Java are registered trademarks of Oracle and/or its affiliates.
  * Other names may be trademarks of their respective owners.
@@ -24,12 +24,6 @@
  * your own identifying information:
  * "Portions Copyrighted [year] [name of copyright owner]"
  *
- * Contributor(s):
- *
- * The Original Software is NetBeans. The Initial Developer of the Original
- * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
- * Microsystems, Inc. All Rights Reserved.
- *
  * If you wish your version of this file to be governed by only the CDDL
  * or only the GPL Version 2, indicate your decision by adding
  * "[Contributor] elects to include this software in this distribution
@@ -40,73 +34,73 @@
  * However, if you add GPL Version 2 code and therefore, elected the GPL
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
+ *
+ * Contributor(s):
+ *
+ * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
 
-package com.tools.data.db.exception;
+package com.tools.data.db.metadata.spi;
 
-import java.sql.SQLException;
+import java.util.Collection;
+import java.util.Collections;
+
+import com.tools.data.db.metadata.MetadataAccessor;
+import com.tools.data.db.metadata.api.Catalog;
+import com.tools.data.db.metadata.api.Function;
+import com.tools.data.db.metadata.api.Procedure;
+import com.tools.data.db.metadata.api.Schema;
+import com.tools.data.db.metadata.api.Table;
+import com.tools.data.db.metadata.api.View;
 
 /**
- * Generic database exception.
  *
- * @author Slavek Psenicka, Andrei Badea
+ * @author Andrei Badea
  */
-public final class DatabaseException extends Exception
-{
+public abstract class SchemaImplementation {
 
-    static final long serialVersionUID = 7114326612132815401L;
+    private Schema schema;
 
-    /**
-     * Constructs a new exception with a specified message.
-     *
-     * @param message the text describing the exception.
-     */
-    public DatabaseException(String message) {
-        super (message);
-    }
-
-    /**
-     * Constructs a new exception with the specified cause.
-     *
-     * @param cause the cause of the exception.
-     */
-    public DatabaseException(Throwable cause) {
-        super (cause);
-    }
-
-    /**
-     * Constructs a new exception with the specified cause.
-     *
-     * @param message the text describing the exception.
-     * @param cause the cause of the exception.
-     */
-    public DatabaseException(String message, Throwable cause) {
-        super(message, cause);
-    }
-
-    @Override
-    public String getMessage() {
-        StringBuffer buf = new StringBuffer();
-
-        Throwable t = this;
-        //we are getting only the first exception which is wrapped,
-        //should we get messages from all the exceptions in the chain?
-        if (t.getCause() != null) {
-            t = t.getCause();
+    public final Schema getSchema() {
+        if (schema == null) {
+            schema = MetadataAccessor.getDefault().createSchema(this);
         }
-
-        if (t != this) {
-            if (t instanceof SQLException) {
-                SQLException e = (SQLException) t;
-                buf.append("Error code ").append(e.getErrorCode());
-                buf.append(", SQL state ").append(e.getSQLState());
-                buf.append("\n");
-            }
-            buf.append(super.getMessage() + " " + t.getMessage());
-        } else {
-            buf.append(super.getMessage());
-        }
-
-        return buf.toString();
+        return schema;
     }
+
+    public abstract Catalog getParent();
+
+    public abstract String getName();
+
+    public abstract View getView(String name);
+
+    public abstract Collection<View> getViews();
+
+    public abstract Procedure getProcedure(String name);
+
+    public abstract Collection<Procedure> getProcedures();
+
+    /**
+     * @since db.metadata.model/1.0
+     */
+    public Function getFunction(String name) {
+        return null;
+    }
+
+    /**
+     * @since db.metadata.model/1.0
+     */
+    public Collection<Function> getFunctions() {
+        return Collections.emptyList();
+    }
+
+    public abstract boolean isDefault();
+
+    public abstract boolean isSynthetic();
+
+    public abstract Collection<Table> getTables();
+
+    public abstract Table getTable(String name);
+
+    public abstract void refresh();
 }

@@ -43,6 +43,12 @@
  */
 package com.tools.data.db.util;
 
+import com.tools.data.db.exception.DatabaseException;
+import com.tools.data.db.meta.DBColumn;
+import com.tools.data.db.meta.DBForeignKey;
+import com.tools.data.db.meta.DBTable;
+import com.tools.data.db.sql.SQLConstant;
+
 import java.sql.*;
 import java.text.DateFormat;
 import java.text.MessageFormat;
@@ -51,12 +57,6 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import com.tools.data.db.meta.DBColumn;
-import com.tools.data.db.meta.DBException;
-import com.tools.data.db.meta.DBForeignKey;
-import com.tools.data.db.meta.DBTable;
-import com.tools.data.db.sql.SQLConstant;
 
 /**
  * Implements a date type which can generate instances of java.sql.Date and other JDBC
@@ -83,7 +83,7 @@ public class DBUtils {
     }
     
 
-    public static java.sql.Date convert(Object value) throws DBException {
+    public static java.sql.Date convert(Object value) throws DatabaseException {
         Calendar cal = Calendar.getInstance();
 
         if (null == value) {
@@ -95,11 +95,11 @@ public class DBUtils {
         }else if (value instanceof String) {
             java.util.Date dVal = doParse ((String) value);
             if (dVal == null) {
-                throw new DBException(MessageFormat.format("Can't convert {0} {1} due {2}.", value.getClass().getName(), value.toString())); // NOI18N
+                throw new DatabaseException(MessageFormat.format("Can't convert {0} {1} due {2}.", value.getClass().getName(), value.toString())); // NOI18N
             }
             cal.setTimeInMillis(dVal.getTime());
         } else {
-            throw new DBException(MessageFormat.format("Can't convert {0} {1} due {2}.", value.getClass().getName(), value.toString())); // NOI18N
+            throw new DatabaseException(MessageFormat.format("Can't convert {0} {1} due {2}.", value.getClass().getName(), value.toString())); // NOI18N
         }
 
         // Normalize to 0 hour in default time zone.

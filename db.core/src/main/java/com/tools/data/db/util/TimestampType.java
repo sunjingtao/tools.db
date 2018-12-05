@@ -43,17 +43,16 @@
  */
 package com.tools.data.db.util;
 
+import com.tools.data.db.exception.DatabaseException;
+
 import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
-
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import com.tools.data.db.meta.DBException;
 
 /**
  *
@@ -82,7 +81,7 @@ public class TimestampType {
         }
     }
 
-    public static Timestamp convert(Object value) throws DBException {
+    public static Timestamp convert(Object value) throws DatabaseException {
         if (null == value) {
             return null;
         } else if (value instanceof Timestamp) {
@@ -94,11 +93,11 @@ public class TimestampType {
         } else if (value instanceof String) {
             Date dVal = doParse ((String) value);
             if (dVal == null) {
-                throw new DBException("Invalid TimeStamp");
+                throw new DatabaseException("Invalid TimeStamp");
             }
             return new Timestamp(dVal.getTime());
         } else {
-            throw new DBException("Invalid TimeStamp");
+            throw new DatabaseException("Invalid TimeStamp");
         }
     }
 

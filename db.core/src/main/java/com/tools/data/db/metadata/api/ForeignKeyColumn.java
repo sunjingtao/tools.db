@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright 2010 Oracle and/or its affiliates. All rights reserved.
  *
  * Oracle and Java are registered trademarks of Oracle and/or its affiliates.
  * Other names may be trademarks of their respective owners.
@@ -24,12 +24,6 @@
  * your own identifying information:
  * "Portions Copyrighted [year] [name of copyright owner]"
  *
- * Contributor(s):
- *
- * The Original Software is NetBeans. The Initial Developer of the Original
- * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
- * Microsystems, Inc. All Rights Reserved.
- *
  * If you wish your version of this file to be governed by only the CDDL
  * or only the GPL Version 2, indicate your decision by adding
  * "[Contributor] elects to include this software in this distribution
@@ -40,73 +34,64 @@
  * However, if you add GPL Version 2 code and therefore, elected the GPL
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
+ *
+ * Contributor(s):
+ *
+ * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
 
-package com.tools.data.db.exception;
+package com.tools.data.db.metadata.api;
 
-import java.sql.SQLException;
+import com.tools.data.db.metadata.spi.ForeignKeyColumnImplementation;
 
 /**
- * Generic database exception.
- *
- * @author Slavek Psenicka, Andrei Badea
+ * This class defines a column that is a foreign key, referring to a
+ * column in the primary key of another table.
+ * 
+ * @author David Van Couvering
  */
-public final class DatabaseException extends Exception
-{
+public class ForeignKeyColumn extends MetadataElement {
+    ForeignKeyColumnImplementation impl;
 
-    static final long serialVersionUID = 7114326612132815401L;
-
-    /**
-     * Constructs a new exception with a specified message.
-     *
-     * @param message the text describing the exception.
-     */
-    public DatabaseException(String message) {
-        super (message);
-    }
-
-    /**
-     * Constructs a new exception with the specified cause.
-     *
-     * @param cause the cause of the exception.
-     */
-    public DatabaseException(Throwable cause) {
-        super (cause);
-    }
-
-    /**
-     * Constructs a new exception with the specified cause.
-     *
-     * @param message the text describing the exception.
-     * @param cause the cause of the exception.
-     */
-    public DatabaseException(String message, Throwable cause) {
-        super(message, cause);
+    ForeignKeyColumn(ForeignKeyColumnImplementation impl) {
+        this.impl = impl;
     }
 
     @Override
-    public String getMessage() {
-        StringBuffer buf = new StringBuffer();
+    public ForeignKey getParent() {
+        return impl.getParent();
+    }
 
-        Throwable t = this;
-        //we are getting only the first exception which is wrapped,
-        //should we get messages from all the exceptions in the chain?
-        if (t.getCause() != null) {
-            t = t.getCause();
-        }
+    @Override
+    public String getName() {
+        return impl.getName();
+    }
 
-        if (t != this) {
-            if (t instanceof SQLException) {
-                SQLException e = (SQLException) t;
-                buf.append("Error code ").append(e.getErrorCode());
-                buf.append(", SQL state ").append(e.getSQLState());
-                buf.append("\n");
-            }
-            buf.append(super.getMessage() + " " + t.getMessage());
-        } else {
-            buf.append(super.getMessage());
-        }
+    /**
+     * Get the column in the source table which is referring to the column
+     * in the target table.
+     *
+     * @return the referring column definition
+     */
+    public Column getReferringColumn() {
+        return impl.getReferringColumn();
+    }
 
-        return buf.toString();
+    /**
+     * Get the primary key column in the target table which is being referred to
+     *
+     * @return the referred column
+     */
+    public Column getReferredColumn() {
+        return impl.getReferredColumn();
+    }
+
+    /**
+     * Get the position of this column in the foreign key
+     *
+     * @return the position of the column in the foreign key
+     */
+    public int getPosition() {
+        return impl.getPosition();
     }
 }

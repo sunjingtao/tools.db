@@ -43,7 +43,7 @@
  */
 package com.tools.data.db.util;
 
-import com.tools.data.db.meta.DBException;
+import com.tools.data.db.exception.DatabaseException;
 
 import java.text.MessageFormat;
 
@@ -152,7 +152,7 @@ public class BinaryToStringConverter {
         }
     }
 
-    public static byte[] convertBitStringToBytes(String s) throws DBException {
+    public static byte[] convertBitStringToBytes(String s) throws DatabaseException {
         int shtBits = s.length() % 8;
         s = (shtBits > 0 ? "00000000".substring(0, 8 - shtBits) + s : s); // NOI18N
 
@@ -164,7 +164,7 @@ public class BinaryToStringConverter {
                 int b = 1 << (7 - bit);
                 buf[index] |= b;
             } else if ('0' != s.charAt(i)) { // NOI18N
-                throw new DBException(MessageFormat.format("{0} found at character {1}; 0 or 1 expected.", s.charAt(i), i)); // NOI18N
+                throw new DatabaseException(MessageFormat.format("{0} found at character {1}; 0 or 1 expected.", s.charAt(i), i)); // NOI18N
             }
             bit++;
             if (bit > 7) {

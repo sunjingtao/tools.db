@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright 2010 Oracle and/or its affiliates. All rights reserved.
  *
  * Oracle and Java are registered trademarks of Oracle and/or its affiliates.
  * Other names may be trademarks of their respective owners.
@@ -24,12 +24,6 @@
  * your own identifying information:
  * "Portions Copyrighted [year] [name of copyright owner]"
  *
- * Contributor(s):
- *
- * The Original Software is NetBeans. The Initial Developer of the Original
- * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
- * Microsystems, Inc. All Rights Reserved.
- *
  * If you wish your version of this file to be governed by only the CDDL
  * or only the GPL Version 2, indicate your decision by adding
  * "[Contributor] elects to include this software in this distribution
@@ -40,73 +34,76 @@
  * However, if you add GPL Version 2 code and therefore, elected the GPL
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
+ *
+ * Contributor(s):
+ *
+ * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
 
-package com.tools.data.db.exception;
+package com.tools.data.db.metadata.api;
 
-import java.sql.SQLException;
+import com.tools.data.db.metadata.spi.IndexColumnImplementation;
 
 /**
- * Generic database exception.
+ * This class represents a column in an index.  It provides more information
+ * about the column, such as whether it's used in the index ascending or
+ * descending
  *
- * @author Slavek Psenicka, Andrei Badea
+ * @author David Van Couvering
  */
-public final class DatabaseException extends Exception
-{
+public class IndexColumn extends MetadataElement {
+    private IndexColumnImplementation impl;
 
-    static final long serialVersionUID = 7114326612132815401L;
-
-    /**
-     * Constructs a new exception with a specified message.
-     *
-     * @param message the text describing the exception.
-     */
-    public DatabaseException(String message) {
-        super (message);
+    IndexColumn(IndexColumnImplementation impl) {
+        this.impl = impl;
     }
 
     /**
-     * Constructs a new exception with the specified cause.
+     * Return the ordering for this column in the index
      *
-     * @param cause the cause of the exception.
+     * @return the ordering for this column
      */
-    public DatabaseException(Throwable cause) {
-        super (cause);
+    public Ordering getOrdering() {
+        return impl.getOrdering();
     }
 
     /**
-     * Constructs a new exception with the specified cause.
+     * Get the ordinal position for the column in this index
      *
-     * @param message the text describing the exception.
-     * @param cause the cause of the exception.
+     * @return the ordinal position, starting at 1
      */
-    public DatabaseException(String message, Throwable cause) {
-        super(message, cause);
+    public int getPosition() {
+        return impl.getPosition();
     }
 
     @Override
-    public String getMessage() {
-        StringBuffer buf = new StringBuffer();
-
-        Throwable t = this;
-        //we are getting only the first exception which is wrapped,
-        //should we get messages from all the exceptions in the chain?
-        if (t.getCause() != null) {
-            t = t.getCause();
-        }
-
-        if (t != this) {
-            if (t instanceof SQLException) {
-                SQLException e = (SQLException) t;
-                buf.append("Error code ").append(e.getErrorCode());
-                buf.append(", SQL state ").append(e.getSQLState());
-                buf.append("\n");
-            }
-            buf.append(super.getMessage() + " " + t.getMessage());
-        } else {
-            buf.append(super.getMessage());
-        }
-
-        return buf.toString();
+    public Index getParent() {
+        return impl.getParent();
     }
+
+    /**
+     * Returns the name of the column
+     *
+     * @return the column name
+     */
+    @Override
+    public String getName() {
+        return impl.getName();
+    }
+
+    /**
+     * Get the underlying column for this index column
+     *
+     * @return the column for this index column.
+     */
+    public Column getColumn() {
+        return impl.getColumn();
+    }
+
+    @Override
+    public String toString() {
+        return impl.toString();
+    }
+
+
 }

@@ -44,6 +44,9 @@
 package com.tools.data.db.util;
 
 
+import com.tools.data.db.exception.DatabaseException;
+import com.tools.data.db.meta.DBColumn;
+
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -51,9 +54,6 @@ import java.sql.*;
 import java.text.MessageFormat;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import com.tools.data.db.meta.DBColumn;
-import com.tools.data.db.meta.DBException;
 
 /**
  *
@@ -280,7 +280,7 @@ public class DBReadWriteHelper {
         }
     }
 
-    public static void setAttributeValue(PreparedStatement ps, int index, int jdbcType, Object valueObj) throws DBException {
+    public static void setAttributeValue(PreparedStatement ps, int index, int jdbcType, Object valueObj) throws DatabaseException {
         Number numberObj;
 
         try {
@@ -409,13 +409,13 @@ public class DBReadWriteHelper {
                 default:
                     ps.setObject(index, valueObj, jdbcType);
             }
-        } catch (RuntimeException | SQLException | DBException e) {
+        } catch (RuntimeException | SQLException | DatabaseException e) {
             mLogger.log(Level.SEVERE, "Invalid Data for" + jdbcType + "type -- ", e); // NOI18N
-            throw new DBException(MessageFormat.format("Invalid data for {0} type. \n Cause: {1}", jdbcType, e)); // NOI18N
+            throw new DatabaseException(MessageFormat.format("Invalid data for {0} type. \n Cause: {1}", jdbcType, e)); // NOI18N
         }
     }
 
-    public static Object validate(Object valueObj, DBColumn col) throws DBException {
+    public static Object validate(Object valueObj, DBColumn col) throws DatabaseException {
         int colType = col.getJdbcType();
         if (valueObj == null) {
             return null;
@@ -438,7 +438,7 @@ public class DBReadWriteHelper {
                         } else if ((str.equalsIgnoreCase("false")) || (str.equalsIgnoreCase("0"))) { // NOI18N
                             return Boolean.FALSE;
                         } else {
-                            throw new DBException("Values must be true/false or numeric 0 or 1"); // NOI18N
+                            throw new DatabaseException("Values must be true/false or numeric 0 or 1"); // NOI18N
                         }
                     }
                 }
@@ -518,18 +518,18 @@ public class DBReadWriteHelper {
                 case Types.NCHAR: //NCHAR
                     if (col.getPrecision() > 0 && valueObj.toString().length() > col.getPrecision()) {
                         String colName = col.getQualifiedName(false);
-                        throw new DBException(MessageFormat.format("Too large data ''{0}'' for column {1}", valueObj, colName)); // NOI18N
+                        throw new DatabaseException(MessageFormat.format("Too large data ''{0}'' for column {1}", valueObj, colName)); // NOI18N
                     }
                     return valueObj;
 
                 case Types.BIT:
                     if (valueObj.toString().length() > col.getPrecision()) {
                         String colName = col.getQualifiedName(false);
-                        throw new DBException(MessageFormat.format("Too large data ''{0}'' for column {1}", valueObj, colName)); // NOI18N
+                        throw new DatabaseException(MessageFormat.format("Too large data ''{0}'' for column {1}", valueObj, colName)); // NOI18N
                     }
                     if (valueObj.toString().trim().length() == 0) {
                         String colName = col.getQualifiedName(false);
-                        throw new DBException(MessageFormat.format("Invalid data for column {0}", valueObj, colName)); // NOI18N
+                        throw new DatabaseException(MessageFormat.format("Invalid data for column {0}", valueObj, colName)); // NOI18N
                     }
                     BinaryToStringConverter.convertBitStringToBytes(valueObj.toString());
                     return valueObj;
@@ -545,11 +545,11 @@ public class DBReadWriteHelper {
                 default:
                     return valueObj;
             }
-        } catch (RuntimeException | DBException e) {
+        } catch (RuntimeException | DatabaseException e) {
             String type = col.getTypeName();
             String colName = col.getQualifiedName(false);
             int precision = col.getPrecision();
-            throw new DBException(MessageFormat.format("Please enter valid data for {0} of datatype {1}({2}) \n Cause: {3}", new Object[] {colName, type, precision, e.getLocalizedMessage()}));
+            throw new DatabaseException(MessageFormat.format("Please enter valid data for {0} of datatype {1}({2}) \n Cause: {3}", new Object[] {colName, type, precision, e.getLocalizedMessage()}));
         }
     }
 

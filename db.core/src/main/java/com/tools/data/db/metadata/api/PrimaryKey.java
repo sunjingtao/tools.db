@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright 2010 Oracle and/or its affiliates. All rights reserved.
  *
  * Oracle and Java are registered trademarks of Oracle and/or its affiliates.
  * Other names may be trademarks of their respective owners.
@@ -24,12 +24,6 @@
  * your own identifying information:
  * "Portions Copyrighted [year] [name of copyright owner]"
  *
- * Contributor(s):
- *
- * The Original Software is NetBeans. The Initial Developer of the Original
- * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
- * Microsystems, Inc. All Rights Reserved.
- *
  * If you wish your version of this file to be governed by only the CDDL
  * or only the GPL Version 2, indicate your decision by adding
  * "[Contributor] elects to include this software in this distribution
@@ -40,73 +34,58 @@
  * However, if you add GPL Version 2 code and therefore, elected the GPL
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
+ *
+ * Contributor(s):
+ *
+ * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
 
-package com.tools.data.db.exception;
+package com.tools.data.db.metadata.api;
 
-import java.sql.SQLException;
+import java.util.Collection;
+
+import com.tools.data.db.metadata.spi.PrimaryKeyImplementation;
 
 /**
- * Generic database exception.
  *
- * @author Slavek Psenicka, Andrei Badea
+ * @author David
  */
-public final class DatabaseException extends Exception
-{
+public class PrimaryKey extends MetadataElement {
 
-    static final long serialVersionUID = 7114326612132815401L;
+    private final PrimaryKeyImplementation impl;
 
-    /**
-     * Constructs a new exception with a specified message.
-     *
-     * @param message the text describing the exception.
-     */
-    public DatabaseException(String message) {
-        super (message);
-    }
-
-    /**
-     * Constructs a new exception with the specified cause.
-     *
-     * @param cause the cause of the exception.
-     */
-    public DatabaseException(Throwable cause) {
-        super (cause);
-    }
-
-    /**
-     * Constructs a new exception with the specified cause.
-     *
-     * @param message the text describing the exception.
-     * @param cause the cause of the exception.
-     */
-    public DatabaseException(String message, Throwable cause) {
-        super(message, cause);
+    PrimaryKey(PrimaryKeyImplementation impl) {
+        this.impl = impl;
     }
 
     @Override
-    public String getMessage() {
-        StringBuffer buf = new StringBuffer();
-
-        Throwable t = this;
-        //we are getting only the first exception which is wrapped,
-        //should we get messages from all the exceptions in the chain?
-        if (t.getCause() != null) {
-            t = t.getCause();
-        }
-
-        if (t != this) {
-            if (t instanceof SQLException) {
-                SQLException e = (SQLException) t;
-                buf.append("Error code ").append(e.getErrorCode());
-                buf.append(", SQL state ").append(e.getSQLState());
-                buf.append("\n");
-            }
-            buf.append(super.getMessage() + " " + t.getMessage());
-        } else {
-            buf.append(super.getMessage());
-        }
-
-        return buf.toString();
+    public Table getParent() {
+        return impl.getParent();
     }
+
+    @Override
+    /**
+     * Get the name for this primary key.  May be null.
+     *
+     * @return the name for this primary key
+     */
+    public String getName() {
+        return impl.getName();
+    }
+
+    @Override
+    public String toString() {
+        return impl.toString();
+    }
+
+    /**
+     * Get the list of columns for this primary key.  The collection is ordered
+     * based on the sequencing of the primary key
+     *
+     * @return the list of columns for this primary key.  
+     */
+    public Collection<Column> getColumns() {
+        return impl.getColumns();
+    }
+
 }

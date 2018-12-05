@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright 2010 Oracle and/or its affiliates. All rights reserved.
  *
  * Oracle and Java are registered trademarks of Oracle and/or its affiliates.
  * Other names may be trademarks of their respective owners.
@@ -24,12 +24,6 @@
  * your own identifying information:
  * "Portions Copyrighted [year] [name of copyright owner]"
  *
- * Contributor(s):
- *
- * The Original Software is NetBeans. The Initial Developer of the Original
- * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
- * Microsystems, Inc. All Rights Reserved.
- *
  * If you wish your version of this file to be governed by only the CDDL
  * or only the GPL Version 2, indicate your decision by adding
  * "[Contributor] elects to include this software in this distribution
@@ -40,73 +34,45 @@
  * However, if you add GPL Version 2 code and therefore, elected the GPL
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
+ *
+ * Contributor(s):
+ *
+ * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
 
-package com.tools.data.db.exception;
-
-import java.sql.SQLException;
+package com.tools.data.db.metadata.api;
 
 /**
- * Generic database exception.
+ * Encapsulates a metadata element (catalog, schema, table, etc.).
  *
- * @author Slavek Psenicka, Andrei Badea
+ * @author Andrei Badea
  */
-public final class DatabaseException extends Exception
-{
+public abstract class MetadataElement {
 
-    static final long serialVersionUID = 7114326612132815401L;
-
-    /**
-     * Constructs a new exception with a specified message.
-     *
-     * @param message the text describing the exception.
-     */
-    public DatabaseException(String message) {
-        super (message);
-    }
+    MetadataElement() {}
 
     /**
-     * Constructs a new exception with the specified cause.
+     * Returns the metadata element which is the parent of this metadata
+     * element.
      *
-     * @param cause the cause of the exception.
+     * @return the parent.
      */
-    public DatabaseException(Throwable cause) {
-        super (cause);
-    }
+    public abstract MetadataElement getParent();
 
     /**
-     * Constructs a new exception with the specified cause.
+     * Returns the name of this metadata element or {@code null} if
+     * this element has no name.
      *
-     * @param message the text describing the exception.
-     * @param cause the cause of the exception.
+     * @return the name.
      */
-    public DatabaseException(String message, Throwable cause) {
-        super(message, cause);
-    }
+    public abstract String getName();
 
-    @Override
-    public String getMessage() {
-        StringBuffer buf = new StringBuffer();
-
-        Throwable t = this;
-        //we are getting only the first exception which is wrapped,
-        //should we get messages from all the exceptions in the chain?
-        if (t.getCause() != null) {
-            t = t.getCause();
-        }
-
-        if (t != this) {
-            if (t instanceof SQLException) {
-                SQLException e = (SQLException) t;
-                buf.append("Error code ").append(e.getErrorCode());
-                buf.append(", SQL state ").append(e.getSQLState());
-                buf.append("\n");
-            }
-            buf.append(super.getMessage() + " " + t.getMessage());
-        } else {
-            buf.append(super.getMessage());
-        }
-
-        return buf.toString();
+    /**
+     * This can be overriden by elements that can have names that are null.  The default
+     * is to just use the name provided by the database.
+     * @return
+     */
+    String getInternalName() {
+        return getName();
     }
 }

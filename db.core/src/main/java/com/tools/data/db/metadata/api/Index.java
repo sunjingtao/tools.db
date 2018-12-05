@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright 2010 Oracle and/or its affiliates. All rights reserved.
  *
  * Oracle and Java are registered trademarks of Oracle and/or its affiliates.
  * Other names may be trademarks of their respective owners.
@@ -24,12 +24,6 @@
  * your own identifying information:
  * "Portions Copyrighted [year] [name of copyright owner]"
  *
- * Contributor(s):
- *
- * The Original Software is NetBeans. The Initial Developer of the Original
- * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
- * Microsystems, Inc. All Rights Reserved.
- *
  * If you wish your version of this file to be governed by only the CDDL
  * or only the GPL Version 2, indicate your decision by adding
  * "[Contributor] elects to include this software in this distribution
@@ -40,73 +34,86 @@
  * However, if you add GPL Version 2 code and therefore, elected the GPL
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
+ *
+ * Contributor(s):
+ *
+ * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
 
-package com.tools.data.db.exception;
+package com.tools.data.db.metadata.api;
 
-import java.sql.SQLException;
+import java.util.Collection;
+import com.tools.data.db.metadata.spi.IndexImplementation;
 
 /**
- * Generic database exception.
  *
- * @author Slavek Psenicka, Andrei Badea
+ * @author David Van Couvering
  */
-public final class DatabaseException extends Exception
-{
+public class Index extends MetadataElement {
+    public enum IndexType { CLUSTERED, HASHED, OTHER };
 
-    static final long serialVersionUID = 7114326612132815401L;
+    final IndexImplementation impl;
 
-    /**
-     * Constructs a new exception with a specified message.
-     *
-     * @param message the text describing the exception.
-     */
-    public DatabaseException(String message) {
-        super (message);
+    Index(IndexImplementation impl) {
+        this.impl = impl;
     }
 
     /**
-     * Constructs a new exception with the specified cause.
+     * Returns the schema containing this table.
      *
-     * @param cause the cause of the exception.
+     * @return the parent schema.
      */
-    public DatabaseException(Throwable cause) {
-        super (cause);
+    public Table getParent() {
+        return impl.getParent();
     }
 
     /**
-     * Constructs a new exception with the specified cause.
+     * Returns the name of this table; never {@code null}.
      *
-     * @param message the text describing the exception.
-     * @param cause the cause of the exception.
+     * @return the name.
      */
-    public DatabaseException(String message, Throwable cause) {
-        super(message, cause);
+    public String getName() {
+        return impl.getName();
+    }
+
+    /**
+     * Return the columns for this index
+     *
+     * @return the list of columns for this index
+     */
+    public Collection<IndexColumn> getColumns() {
+        return impl.getColumns();
+    }
+
+    /**
+     * Return a given index column
+     * @param name the name of the column to retrieve
+     * @return the column for the given name or null if it doesn't exist
+     */
+    public IndexColumn getColumn(String name) {
+        return impl.getColumn(name);
+    }
+
+    /**
+     * Return the type of index
+     *
+     * @return the index type
+     */
+    public IndexType getIndexType() {
+        return impl.getIndexType();
+    }
+
+    /**
+     * Return whether the index must have unique values
+     *
+     * @return true if unique, false otherwise
+     */
+    public boolean isUnique() {
+        return impl.isUnique();
     }
 
     @Override
-    public String getMessage() {
-        StringBuffer buf = new StringBuffer();
-
-        Throwable t = this;
-        //we are getting only the first exception which is wrapped,
-        //should we get messages from all the exceptions in the chain?
-        if (t.getCause() != null) {
-            t = t.getCause();
-        }
-
-        if (t != this) {
-            if (t instanceof SQLException) {
-                SQLException e = (SQLException) t;
-                buf.append("Error code ").append(e.getErrorCode());
-                buf.append(", SQL state ").append(e.getSQLState());
-                buf.append("\n");
-            }
-            buf.append(super.getMessage() + " " + t.getMessage());
-        } else {
-            buf.append(super.getMessage());
-        }
-
-        return buf.toString();
+    public String toString() {
+        return impl.toString();
     }
 }

@@ -45,7 +45,7 @@ package com.tools.data.db.api;
 import com.tools.data.db.exception.DatabaseException;
 import com.tools.data.db.lib.ddl.adaptors.DefaultAdaptor;
 import com.tools.data.db.lib.ddl.impl.*;
-import com.tools.data.db.metadata.model.api.*;
+import com.tools.data.db.metadata.api.*;
 
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
