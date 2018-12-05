@@ -64,7 +64,6 @@ public interface CreateProcedureCommand extends DDLCommand
     public String getText();
 
     /** Sets name of table
-    *@param cname New code of procedure
     */
     public void setText(String text);
 
@@ -72,7 +71,7 @@ public interface CreateProcedureCommand extends DDLCommand
     public Vector getArguments();
 
     /** Sets argument array
-    *@param cname New argument array
+    *@param args New argument array
     */
     public void setArguments(Vector args);
 }

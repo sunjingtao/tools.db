@@ -52,7 +52,6 @@ import java.util.Set;
 import java.util.Vector;
 
 import java.text.MessageFormat;
-import org.openide.util.NbBundle;
 
 /** Reader for "plist" format. This format uses {} brackets to enclose dictionary
 * data (Map) and () braces for array data (Collection). Returns Map with data.
@@ -147,7 +146,6 @@ public class PListReader {
 
     /** Reads data from tokenizer.
     * Parses given data tokenizer and produces data.
-    * @param tokenizer Used tokenizer
     * @return Parsed data structure.
     */
     public HashMap getData()
@@ -181,7 +179,7 @@ public class PListReader {
                 charr[0] = (char)charcode;
                 //throw new ParseException("expected '"+new String(charr)+"', found: "+tokenizer.toString(), tokenizer.lineno());
                 throw new ParseException(
-                    MessageFormat.format(NbBundle.getBundle("org.netbeans.lib.ddl.resources.Bundle").getString("EXC_Expected"), // NOI18N
+                    MessageFormat.format("expected {0}, found: {1}", // NOI18N
                         new String[] {new String(charr), tokenizer.toString()}),
                     tokenizer.lineno());
             }
@@ -190,7 +188,6 @@ public class PListReader {
         /** Parses expected character from stream.
         * Throws ParseException if expected character was not found.
         * @param tokenizer Used tokenizer
-        * @param charcode Expected character code
         */
         public Object parseNumber(StreamTokenizer tokenizer)
         throws IOException
@@ -260,7 +257,7 @@ public class PListReader {
                         throw new EOFException();
                     default:
                         //throw new ParseException("unexpected key, found: "+tokenizer.toString(), tokenizer.lineno());
-                        throw new ParseException( MessageFormat.format(NbBundle.getBundle("org.netbeans.lib.ddl.resources.Bundle").getString("EXC_UnexpectedKey"), // NOI18N
+                        throw new ParseException( MessageFormat.format("unexpected key, found: {0}", // NOI18N
                                                     new String[] { tokenizer.toString() } ),
                                                 tokenizer.lineno());
                     }
@@ -287,7 +284,7 @@ public class PListReader {
                         object = parseNumber(tokenizer);
                         break;
                     default:
-                        throw new ParseException( MessageFormat.format(NbBundle.getBundle("org.netbeans.lib.ddl.resources.Bundle").getString("EXC_ExpectedObject"), // NOI18N
+                        throw new ParseException( MessageFormat.format("expected object, found: {0}", // NOI18N
                                                                             new String[] { tokenizer.toString() } ),
                                                                         tokenizer.lineno());
                     }
@@ -375,7 +372,7 @@ public class PListReader {
                         object = parseNumber(tokenizer);
                         break;
                     default:
-                        throw new ParseException( MessageFormat.format(NbBundle.getBundle("org.netbeans.lib.ddl.resources.Bundle").getString("EXC_ExpectedObject"), // NOI18N
+                        throw new ParseException( MessageFormat.format("expected object, found: {0}", // NOI18N
                                                     new String[] { tokenizer.toString() } ),
                                                 tokenizer.lineno());
                     }
@@ -391,7 +388,7 @@ public class PListReader {
                         break;
                     default:
                         throw new ParseException(
-                            MessageFormat.format(NbBundle.getBundle("org.netbeans.lib.ddl.resources.Bundle").getString("EXC_Expected"), // NOI18N
+                            MessageFormat.format("expected {0}, found: {1}", // NOI18N
                                 new String[] {"','", tokenizer.toString()}), // NOI18N
                             tokenizer.lineno());
                             }

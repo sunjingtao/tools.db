@@ -67,7 +67,7 @@ public interface DriverSpecificationFactory {
 
     /** Returns true if driver (specified by driverName) is
     * supported by system. Does not throw exception if it doesn't.
-    * @param ddriverName Driver product name as given from DatabaseMetaData
+    * @param driverName Driver product name as given from DatabaseMetaData
     * @return True if driver product is supported.
     */	
     public boolean isDriverSupported(String driverName);

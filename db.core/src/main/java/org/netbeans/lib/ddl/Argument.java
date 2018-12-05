@@ -66,7 +66,7 @@ public interface Argument {
     public int getType();
 
     /** Sets type of argument
-    * @param aatypename New type.
+    * @param atype New type.
     */
     public void setType(int atype);
 
@@ -74,7 +74,7 @@ public interface Argument {
     public int getDataType();
 
     /** Sets datatype of argument
-    * @param aatypename New type.
+    * @param atype New type.
     */
     public void setDataType(int dtype);
 }

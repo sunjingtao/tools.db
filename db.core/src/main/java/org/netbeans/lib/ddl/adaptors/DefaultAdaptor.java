@@ -47,17 +47,9 @@ package org.netbeans.lib.ddl.adaptors;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.Serializable;
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.RowIdLifetime;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.ResourceBundle;
-
-import org.openide.util.NbBundle;
 
 public class DefaultAdaptor implements DatabaseMetaDataAdaptor, Serializable {
     
@@ -66,8 +58,6 @@ public class DefaultAdaptor implements DatabaseMetaDataAdaptor, Serializable {
     protected Map properties;
     private transient PropertyChangeSupport propertySupport;
 
-    private ResourceBundle bundle = NbBundle.getBundle("org.netbeans.lib.ddl.resources.Bundle"); // NOI18N
-    
     public static final int NOT_SET = 0;
     public static final String NOT_SET_STRING = "";
 
@@ -348,7 +338,7 @@ public class DefaultAdaptor implements DatabaseMetaDataAdaptor, Serializable {
         Boolean proceduresAreCallable = (Boolean)properties.get(PROP_PROCEDURES_ARE_CALLABLE);
         if (proceduresAreCallable == null) {
             if (dmd != null) proceduresAreCallable = dmd.allProceduresAreCallable() ? Boolean.TRUE : Boolean.FALSE;
-            else throw new SQLException(bundle.getString("EXC_NoDBMetadata")); // NOI18N
+            else throw new SQLException("no database metadata available"); // NOI18N
             properties.put(PROP_PROCEDURES_ARE_CALLABLE, proceduresAreCallable);
         }
 
@@ -372,7 +362,7 @@ public class DefaultAdaptor implements DatabaseMetaDataAdaptor, Serializable {
         Boolean tablesAreSelectable = (Boolean)properties.get(PROP_TABLES_ARE_SELECTABLE);
         if (tablesAreSelectable == null) {
             if (dmd != null) tablesAreSelectable = dmd.allTablesAreSelectable() ? Boolean.TRUE : Boolean.FALSE;
-            else throw new SQLException(bundle.getString("EXC_NoDBMetadata")); // NOI18N
+            else throw new SQLException("no database metadata available"); // NOI18N
             properties.put(PROP_TABLES_ARE_SELECTABLE, tablesAreSelectable);
         }
 
@@ -435,7 +425,7 @@ public class DefaultAdaptor implements DatabaseMetaDataAdaptor, Serializable {
             if (dmd != null)
                 readonly = dmd.isReadOnly() ? Boolean.TRUE : Boolean.FALSE;
             else
-                throw new SQLException(bundle.getString("EXC_NoDBMetadata")); // NOI18N
+                throw new SQLException("no database metadata available"); // NOI18N
             properties.put(PROP_READONLY, readonly);
         }
 
@@ -469,7 +459,7 @@ public class DefaultAdaptor implements DatabaseMetaDataAdaptor, Serializable {
         Integer nullSort = (Integer)properties.get(PROP_NULL_SORT);
         if (nullSort != null) return (nullSort.intValue() == NULLSORT_HIGH);
         if (dmd != null) return dmd.nullsAreSortedAtStart();
-        throw new SQLException(bundle.getString("EXC_NoDBMetadata")); // NOI18N
+        throw new SQLException("no database metadata available"); // NOI18N
     }
 
     public boolean nullsAreSortedLow() throws SQLException
@@ -477,7 +467,7 @@ public class DefaultAdaptor implements DatabaseMetaDataAdaptor, Serializable {
         Integer nullSort = (Integer)properties.get(PROP_NULL_SORT);
         if (nullSort != null) return (nullSort.intValue() == NULLSORT_LOW);
         if (dmd != null) return dmd.nullsAreSortedLow();
-        throw new SQLException(bundle.getString("EXC_NoDBMetadata")); // NOI18N
+        throw new SQLException("no database metadata available"); // NOI18N
     }
 
     public boolean nullsAreSortedAtStart() throws SQLException
@@ -485,7 +475,7 @@ public class DefaultAdaptor implements DatabaseMetaDataAdaptor, Serializable {
         Integer nullSort = (Integer)properties.get(PROP_NULL_SORT);
         if (nullSort != null) return (nullSort.intValue() == NULLSORT_START);
         if (dmd != null) return dmd.nullsAreSortedAtStart();
-        throw new SQLException(bundle.getString("EXC_NoDBMetadata")); // NOI18N
+        throw new SQLException("no database metadata available"); // NOI18N
     }
 
     public boolean nullsAreSortedAtEnd() throws SQLException
@@ -493,7 +483,7 @@ public class DefaultAdaptor implements DatabaseMetaDataAdaptor, Serializable {
         Integer nullSort = (Integer)properties.get(PROP_NULL_SORT);
         if (nullSort != null) return (nullSort.intValue() == NULLSORT_END);
         if (dmd != null) return dmd.nullsAreSortedAtEnd();
-        throw new SQLException(bundle.getString("EXC_NoDBMetadata")); // NOI18N
+        throw new SQLException("no database metadata available"); // NOI18N
     }
 
     // product
@@ -630,7 +620,7 @@ public class DefaultAdaptor implements DatabaseMetaDataAdaptor, Serializable {
         Boolean localFiles = (Boolean)properties.get(PROP_LOCAL_FILES);
         if (localFiles == null) {
             if (dmd != null) localFiles = dmd.usesLocalFiles() ? Boolean.TRUE : Boolean.FALSE;
-            else throw new SQLException(bundle.getString("EXC_NoDBMetadata")); // NOI18N
+            else throw new SQLException("no database metadata available"); // NOI18N
             properties.put(PROP_LOCAL_FILES, localFiles);
         }
 
@@ -657,7 +647,7 @@ public class DefaultAdaptor implements DatabaseMetaDataAdaptor, Serializable {
         Boolean filePerTable = (Boolean)properties.get(PROP_FILE_PER_TABLE);
         if (filePerTable == null) {
             if (dmd != null) filePerTable = dmd.usesLocalFilePerTable() ? Boolean.TRUE : Boolean.FALSE;
-            else throw new SQLException(bundle.getString("EXC_NoDBMetadata")); // NOI18N
+            else throw new SQLException("no database metadata available"); // NOI18N
             properties.put(PROP_FILE_PER_TABLE, filePerTable);
         }
 
@@ -684,7 +674,7 @@ public class DefaultAdaptor implements DatabaseMetaDataAdaptor, Serializable {
         Boolean mixedCaseIdentifiers = (Boolean)properties.get(PROP_MIXEDCASE_IDENTIFIERS);
         if (mixedCaseIdentifiers == null) {
             if (dmd != null) mixedCaseIdentifiers = dmd.supportsMixedCaseIdentifiers() ? Boolean.TRUE : Boolean.FALSE;
-            else throw new SQLException(bundle.getString("EXC_NoDBMetadata")); // NOI18N
+            else throw new SQLException("no database metadata available"); // NOI18N
             properties.put(PROP_MIXEDCASE_IDENTIFIERS, mixedCaseIdentifiers);
         }
 
@@ -724,7 +714,7 @@ public class DefaultAdaptor implements DatabaseMetaDataAdaptor, Serializable {
         Integer identStore = (Integer)properties.get(PROP_IDENTIFIER_STORE);
         if (identStore != null) return (identStore.intValue() == STORE_UPPERCASE);
         if (dmd != null) return dmd.storesUpperCaseIdentifiers();
-        else throw new SQLException(bundle.getString("EXC_NoDBMetadata")); // NOI18N
+        else throw new SQLException("no database metadata available"); // NOI18N
     }
 
     /**
@@ -738,7 +728,7 @@ public class DefaultAdaptor implements DatabaseMetaDataAdaptor, Serializable {
         Integer identStore = (Integer)properties.get(PROP_IDENTIFIER_STORE);
         if (identStore != null) return (identStore.intValue() == STORE_LOWERCASE);
         if (dmd != null) return dmd.storesLowerCaseIdentifiers();
-        else throw new SQLException(bundle.getString("EXC_NoDBMetadata")); // NOI18N
+        else throw new SQLException("no database metadata available"); // NOI18N
     }
 
     /**
@@ -752,7 +742,7 @@ public class DefaultAdaptor implements DatabaseMetaDataAdaptor, Serializable {
         Integer identStore = (Integer)properties.get(PROP_IDENTIFIER_STORE);
         if (identStore != null) return (identStore.intValue() == STORE_MIXEDCASE);
         if (dmd != null) return dmd.storesLowerCaseIdentifiers();
-        else throw new SQLException(bundle.getString("EXC_NoDBMetadata")); // NOI18N
+        else throw new SQLException("no database metadata available"); // NOI18N
     }
 
     /**
@@ -767,7 +757,7 @@ public class DefaultAdaptor implements DatabaseMetaDataAdaptor, Serializable {
         Boolean mixedCaseQuotedIdentifiers = (Boolean)properties.get(PROP_MIXEDCASE_QUOTED_IDENTIFIERS);
         if (mixedCaseQuotedIdentifiers == null) {
             if (dmd != null) mixedCaseQuotedIdentifiers = dmd.supportsMixedCaseQuotedIdentifiers() ? Boolean.TRUE : Boolean.FALSE;
-            else throw new SQLException(bundle.getString("EXC_NoDBMetadata")); // NOI18N
+            else throw new SQLException("no database metadata available"); // NOI18N
             properties.put(PROP_MIXEDCASE_QUOTED_IDENTIFIERS, mixedCaseQuotedIdentifiers);
         }
 
@@ -807,7 +797,7 @@ public class DefaultAdaptor implements DatabaseMetaDataAdaptor, Serializable {
         Integer identQuotedStore = (Integer)properties.get(PROP_QUOTED_IDENTS);
         if (identQuotedStore != null) return (identQuotedStore.intValue() == STORE_UPPERCASE);
         if (dmd != null) return dmd.storesUpperCaseQuotedIdentifiers();
-        throw new SQLException(bundle.getString("EXC_NoDBMetadata")); // NOI18N
+        throw new SQLException("no database metadata available"); // NOI18N
     }
 
     /**
@@ -821,7 +811,7 @@ public class DefaultAdaptor implements DatabaseMetaDataAdaptor, Serializable {
         Integer identQuotedStore = (Integer)properties.get(PROP_QUOTED_IDENTS);
         if (identQuotedStore != null) return (identQuotedStore.intValue() == STORE_LOWERCASE);
         if (dmd != null) return dmd.storesLowerCaseQuotedIdentifiers();
-        throw new SQLException(bundle.getString("EXC_NoDBMetadata")); // NOI18N
+        throw new SQLException("no database metadata available"); // NOI18N
     }
 
     /**
@@ -834,7 +824,7 @@ public class DefaultAdaptor implements DatabaseMetaDataAdaptor, Serializable {
         Integer identQuotedStore = (Integer)properties.get(PROP_QUOTED_IDENTS);
         if (identQuotedStore != null) return (identQuotedStore.intValue() == STORE_MIXEDCASE);
         if (dmd != null) return dmd.storesMixedCaseQuotedIdentifiers();
-        throw new SQLException(bundle.getString("EXC_NoDBMetadata")); // NOI18N
+        throw new SQLException("no database metadata available"); // NOI18N
     }
 
     /**
@@ -1036,7 +1026,7 @@ public class DefaultAdaptor implements DatabaseMetaDataAdaptor, Serializable {
         Boolean alterAdd = (Boolean)properties.get(PROP_ALTER_ADD);
         if (alterAdd == null) {
             if (dmd != null) alterAdd = dmd.supportsAlterTableWithAddColumn() ? Boolean.TRUE : Boolean.FALSE;
-            else throw new SQLException(bundle.getString("EXC_NoDBMetadata")); // NOI18N
+            else throw new SQLException("no database metadata available"); // NOI18N
             properties.put(PROP_ALTER_ADD, alterAdd);
         }
 
@@ -1063,7 +1053,7 @@ public class DefaultAdaptor implements DatabaseMetaDataAdaptor, Serializable {
         Boolean alterDrop = (Boolean)properties.get(PROP_ALTER_DROP);
         if (alterDrop == null) {
             if (dmd != null) alterDrop = dmd.supportsAlterTableWithDropColumn() ? Boolean.TRUE : Boolean.FALSE;
-            else throw new SQLException(bundle.getString("EXC_NoDBMetadata")); // NOI18N
+            else throw new SQLException("no database metadata available"); // NOI18N
             properties.put(PROP_ALTER_DROP, alterDrop);
         }
 
@@ -1092,7 +1082,7 @@ public class DefaultAdaptor implements DatabaseMetaDataAdaptor, Serializable {
         Boolean columnAliasing = (Boolean)properties.get(PROP_COLUMN_ALIASING);
         if (columnAliasing == null) {
             if (dmd != null) columnAliasing = dmd.supportsColumnAliasing() ? Boolean.TRUE : Boolean.FALSE;
-            else throw new SQLException(bundle.getString("EXC_NoDBMetadata")); // NOI18N
+            else throw new SQLException("no database metadata available"); // NOI18N
             properties.put(PROP_COLUMN_ALIASING, columnAliasing);
         }
 
@@ -1119,7 +1109,7 @@ public class DefaultAdaptor implements DatabaseMetaDataAdaptor, Serializable {
         Boolean nullPlusNull = (Boolean)properties.get(PROP_NULL_PLUS_NULL_IS_NULL);
         if (nullPlusNull == null) {
             if (dmd != null) nullPlusNull = dmd.nullPlusNonNullIsNull() ? Boolean.TRUE : Boolean.FALSE;
-            else throw new SQLException(bundle.getString("EXC_NoDBMetadata")); // NOI18N
+            else throw new SQLException("no database metadata available"); // NOI18N
             properties.put(PROP_NULL_PLUS_NULL_IS_NULL, nullPlusNull);
         }
 
@@ -1146,7 +1136,7 @@ public class DefaultAdaptor implements DatabaseMetaDataAdaptor, Serializable {
         Boolean supportsConvert = (Boolean)properties.get(PROP_CONVERT);
         if (supportsConvert == null) {
             if (dmd != null) supportsConvert = dmd.supportsConvert() ? Boolean.TRUE : Boolean.FALSE;
-            else throw new SQLException(bundle.getString("EXC_NoDBMetadata")); // NOI18N
+            else throw new SQLException("no database metadata available"); // NOI18N
             properties.put(PROP_CONVERT, supportsConvert);
         }
 
@@ -1172,7 +1162,7 @@ public class DefaultAdaptor implements DatabaseMetaDataAdaptor, Serializable {
     public boolean supportsConvert(int fromType, int toType) throws SQLException
     {
         if (dmd != null) return dmd.supportsConvert(fromType, toType);
-        else throw new SQLException(bundle.getString("EXC_NoDBMetadata")); // NOI18N
+        else throw new SQLException("no database metadata available"); // NOI18N
     }
 
     /**
@@ -1186,7 +1176,7 @@ public class DefaultAdaptor implements DatabaseMetaDataAdaptor, Serializable {
         Boolean nameCorrelation = (Boolean)properties.get(PROP_TABLE_CORRELATION_NAMES);
         if (nameCorrelation == null) {
             if (dmd != null) nameCorrelation = dmd.supportsTableCorrelationNames() ? Boolean.TRUE : Boolean.FALSE;
-            else throw new SQLException(bundle.getString("EXC_NoDBMetadata")); // NOI18N
+            else throw new SQLException("no database metadata available"); // NOI18N
             properties.put(PROP_TABLE_CORRELATION_NAMES, nameCorrelation);
         }
 
@@ -1213,7 +1203,7 @@ public class DefaultAdaptor implements DatabaseMetaDataAdaptor, Serializable {
         Boolean tableCorrelation = (Boolean)properties.get(PROP_DIFF_TABLE_CORRELATION_NAMES);
         if (tableCorrelation == null) {
             if (dmd != null) tableCorrelation = dmd.supportsDifferentTableCorrelationNames() ? Boolean.TRUE : Boolean.FALSE;
-            else throw new SQLException(bundle.getString("EXC_NoDBMetadata")); // NOI18N
+            else throw new SQLException("no database metadata available"); // NOI18N
             properties.put(PROP_DIFF_TABLE_CORRELATION_NAMES, tableCorrelation);
         }
 
@@ -1240,7 +1230,7 @@ public class DefaultAdaptor implements DatabaseMetaDataAdaptor, Serializable {
         Boolean ordering = (Boolean)properties.get(PROP_EXPRESSIONS_IN_ORDERBY);
         if (ordering == null) {
             if (dmd != null) ordering = dmd.supportsExpressionsInOrderBy() ? Boolean.TRUE : Boolean.FALSE;
-            else throw new SQLException(bundle.getString("EXC_NoDBMetadata")); // NOI18N
+            else throw new SQLException("no database metadata available"); // NOI18N
             properties.put(PROP_EXPRESSIONS_IN_ORDERBY, ordering);
         }
 
@@ -1267,7 +1257,7 @@ public class DefaultAdaptor implements DatabaseMetaDataAdaptor, Serializable {
         Boolean unrelatedOrdering = (Boolean)properties.get(PROP_ORDER_BY_UNRELATED);
         if (unrelatedOrdering == null) {
             if (dmd != null) unrelatedOrdering = dmd.supportsOrderByUnrelated() ? Boolean.TRUE : Boolean.FALSE;
-            else throw new SQLException(bundle.getString("EXC_NoDBMetadata")); // NOI18N
+            else throw new SQLException("no database metadata available"); // NOI18N
             properties.put(PROP_ORDER_BY_UNRELATED, unrelatedOrdering);
         }
 
@@ -1293,7 +1283,7 @@ public class DefaultAdaptor implements DatabaseMetaDataAdaptor, Serializable {
         Boolean groupBy = (Boolean)properties.get(PROP_GROUP_BY);
         if (groupBy == null) {
             if (dmd != null) groupBy = dmd.supportsGroupBy() ? Boolean.TRUE : Boolean.FALSE;
-            else throw new SQLException(bundle.getString("EXC_NoDBMetadata")); // NOI18N
+            else throw new SQLException("no database metadata available"); // NOI18N
             properties.put(PROP_GROUP_BY, groupBy);
         }
 
@@ -1320,7 +1310,7 @@ public class DefaultAdaptor implements DatabaseMetaDataAdaptor, Serializable {
         Boolean unrelatedGroupBy = (Boolean)properties.get(PROP_UNRELATED_GROUP_BY);
         if (unrelatedGroupBy == null) {
             if (dmd != null) unrelatedGroupBy = dmd.supportsGroupByUnrelated() ? Boolean.TRUE : Boolean.FALSE;
-            else throw new SQLException(bundle.getString("EXC_NoDBMetadata")); // NOI18N
+            else throw new SQLException("no database metadata available"); // NOI18N
             properties.put(PROP_UNRELATED_GROUP_BY, unrelatedGroupBy);
         }
 
@@ -1347,7 +1337,7 @@ public class DefaultAdaptor implements DatabaseMetaDataAdaptor, Serializable {
         Boolean beyondGroupBy = (Boolean)properties.get(PROP_BEYOND_GROUP_BY);
         if (beyondGroupBy == null) {
             if (dmd != null) beyondGroupBy = dmd.supportsGroupByBeyondSelect() ? Boolean.TRUE : Boolean.FALSE;
-            else throw new SQLException(bundle.getString("EXC_NoDBMetadata")); // NOI18N
+            else throw new SQLException("no database metadata available"); // NOI18N
             properties.put(PROP_BEYOND_GROUP_BY, beyondGroupBy);
         }
 
@@ -1375,7 +1365,7 @@ public class DefaultAdaptor implements DatabaseMetaDataAdaptor, Serializable {
         Boolean escapeLike = (Boolean)properties.get(PROP_ESCAPE_LIKE);
         if (escapeLike == null) {
             if (dmd != null) escapeLike = dmd.supportsLikeEscapeClause() ? Boolean.TRUE : Boolean.FALSE;
-            else throw new SQLException(bundle.getString("EXC_NoDBMetadata")); // NOI18N
+            else throw new SQLException("no database metadata available"); // NOI18N
             properties.put(PROP_ESCAPE_LIKE, escapeLike);
         }
 
@@ -1402,7 +1392,7 @@ public class DefaultAdaptor implements DatabaseMetaDataAdaptor, Serializable {
         Boolean multipleResultSets = (Boolean)properties.get(PROP_MULTIPLE_RS);
         if (multipleResultSets == null) {
             if (dmd != null) multipleResultSets = dmd.supportsMultipleResultSets() ? Boolean.TRUE : Boolean.FALSE;
-            else throw new SQLException(bundle.getString("EXC_NoDBMetadata")); // NOI18N
+            else throw new SQLException("no database metadata available"); // NOI18N
             properties.put(PROP_MULTIPLE_RS, multipleResultSets);
         }
 
@@ -1430,7 +1420,7 @@ public class DefaultAdaptor implements DatabaseMetaDataAdaptor, Serializable {
         Boolean multipleTransactions = (Boolean)properties.get(PROP_MULTIPLE_TRANSACTIONS);
         if (multipleTransactions == null) {
             if (dmd != null) multipleTransactions = dmd.supportsMultipleTransactions() ? Boolean.TRUE : Boolean.FALSE;
-            else throw new SQLException(bundle.getString("EXC_NoDBMetadata")); // NOI18N
+            else throw new SQLException("no database metadata available"); // NOI18N
             properties.put(PROP_MULTIPLE_TRANSACTIONS, multipleTransactions);
         }
 
@@ -1457,7 +1447,7 @@ public class DefaultAdaptor implements DatabaseMetaDataAdaptor, Serializable {
         Boolean nunNullableColumns = (Boolean)properties.get(PROP_NON_NULL_COLUMNSS);
         if (nunNullableColumns == null) {
             if (dmd != null) nunNullableColumns = dmd.supportsNonNullableColumns() ? Boolean.TRUE : Boolean.FALSE;
-            else throw new SQLException(bundle.getString("EXC_NoDBMetadata")); // NOI18N
+            else throw new SQLException("no database metadata available"); // NOI18N
             properties.put(PROP_NON_NULL_COLUMNSS, nunNullableColumns);
         }
 
@@ -1485,7 +1475,7 @@ public class DefaultAdaptor implements DatabaseMetaDataAdaptor, Serializable {
         Boolean minimumSQLGrammar = (Boolean)properties.get(PROP_MINUMUM_SQL_GRAMMAR);
         if (minimumSQLGrammar == null) {
             if (dmd != null) minimumSQLGrammar = dmd.supportsMinimumSQLGrammar() ? Boolean.TRUE : Boolean.FALSE;
-            else throw new SQLException(bundle.getString("EXC_NoDBMetadata")); // NOI18N
+            else throw new SQLException("no database metadata available"); // NOI18N
             properties.put(PROP_MINUMUM_SQL_GRAMMAR, minimumSQLGrammar);
         }
 
@@ -1512,7 +1502,7 @@ public class DefaultAdaptor implements DatabaseMetaDataAdaptor, Serializable {
         Boolean coreSQLGrammar = (Boolean)properties.get(PROP_CORE_SQL_GRAMMAR);
         if (coreSQLGrammar == null) {
             if (dmd != null) coreSQLGrammar = dmd.supportsCoreSQLGrammar() ? Boolean.TRUE : Boolean.FALSE;
-            else throw new SQLException(bundle.getString("EXC_NoDBMetadata")); // NOI18N
+            else throw new SQLException("no database metadata available"); // NOI18N
             properties.put(PROP_CORE_SQL_GRAMMAR, coreSQLGrammar);
         }
 
@@ -1538,7 +1528,7 @@ public class DefaultAdaptor implements DatabaseMetaDataAdaptor, Serializable {
         Boolean extendedSQLGrammar = (Boolean)properties.get(PROP_EXTENDED_SQL_GRAMMAR);
         if (extendedSQLGrammar == null) {
             if (dmd != null) extendedSQLGrammar = dmd.supportsExtendedSQLGrammar() ? Boolean.TRUE : Boolean.FALSE;
-            else throw new SQLException(bundle.getString("EXC_NoDBMetadata")); // NOI18N
+            else throw new SQLException("no database metadata available"); // NOI18N
             properties.put(PROP_EXTENDED_SQL_GRAMMAR, extendedSQLGrammar);
         }
 
@@ -1566,7 +1556,7 @@ public class DefaultAdaptor implements DatabaseMetaDataAdaptor, Serializable {
         Boolean ansiSQLGrammar = (Boolean)properties.get(PROP_ANSI_SQL_GRAMMAR);
         if (ansiSQLGrammar == null) {
             if (dmd != null) ansiSQLGrammar = dmd.supportsANSI92EntryLevelSQL() ? Boolean.TRUE : Boolean.FALSE;
-            else throw new SQLException(bundle.getString("EXC_NoDBMetadata")); // NOI18N
+            else throw new SQLException("no database metadata available"); // NOI18N
             properties.put(PROP_ANSI_SQL_GRAMMAR, ansiSQLGrammar);
         }
 
@@ -1592,7 +1582,7 @@ public class DefaultAdaptor implements DatabaseMetaDataAdaptor, Serializable {
         Boolean ansiInterSQLGrammar = (Boolean)properties.get(PROP_INTERMEDIATE_SQL_GRAMMAR);
         if (ansiInterSQLGrammar == null) {
             if (dmd != null) ansiInterSQLGrammar = dmd.supportsANSI92IntermediateSQL() ? Boolean.TRUE : Boolean.FALSE;
-            else throw new SQLException(bundle.getString("EXC_NoDBMetadata")); // NOI18N
+            else throw new SQLException("no database metadata available"); // NOI18N
             properties.put(PROP_INTERMEDIATE_SQL_GRAMMAR, ansiInterSQLGrammar);
         }
 
@@ -1618,7 +1608,7 @@ public class DefaultAdaptor implements DatabaseMetaDataAdaptor, Serializable {
         Boolean ansiFullSQLGrammar = (Boolean)properties.get(PROP_FULL_SQL_GRAMMAR);
         if (ansiFullSQLGrammar == null) {
             if (dmd != null) ansiFullSQLGrammar = dmd.supportsANSI92FullSQL() ? Boolean.TRUE : Boolean.FALSE;
-            else throw new SQLException(bundle.getString("EXC_NoDBMetadata")); // NOI18N
+            else throw new SQLException("no database metadata available"); // NOI18N
             properties.put(PROP_FULL_SQL_GRAMMAR, ansiFullSQLGrammar);
         }
 
@@ -1645,7 +1635,7 @@ public class DefaultAdaptor implements DatabaseMetaDataAdaptor, Serializable {
         Boolean integrityEnh = (Boolean)properties.get(PROP_INTEGRITY_ENHANCEMENT);
         if (integrityEnh == null) {
             if (dmd != null) integrityEnh = dmd.supportsIntegrityEnhancementFacility() ? Boolean.TRUE : Boolean.FALSE;
-            else throw new SQLException(bundle.getString("EXC_NoDBMetadata")); // NOI18N
+            else throw new SQLException("no database metadata available"); // NOI18N
             properties.put(PROP_INTEGRITY_ENHANCEMENT, integrityEnh);
         }
 
@@ -1672,7 +1662,7 @@ public class DefaultAdaptor implements DatabaseMetaDataAdaptor, Serializable {
         Boolean outerJoins = (Boolean)properties.get(PROP_OUTER_JOINS);
         if (outerJoins == null) {
             if (dmd != null) outerJoins = dmd.supportsOuterJoins() ? Boolean.TRUE : Boolean.FALSE;
-            else throw new SQLException(bundle.getString("EXC_NoDBMetadata")); // NOI18N
+            else throw new SQLException("no database metadata available"); // NOI18N
             properties.put(PROP_OUTER_JOINS, outerJoins);
         }
 
@@ -1699,7 +1689,7 @@ public class DefaultAdaptor implements DatabaseMetaDataAdaptor, Serializable {
         Boolean fullOuterJoins = (Boolean)properties.get(PROP_FULL_OUTER_JOINS);
         if (fullOuterJoins == null) {
             if (dmd != null) fullOuterJoins = dmd.supportsFullOuterJoins() ? Boolean.TRUE : Boolean.FALSE;
-            else throw new SQLException(bundle.getString("EXC_NoDBMetadata")); // NOI18N
+            else throw new SQLException("no database metadata available"); // NOI18N
             properties.put(PROP_FULL_OUTER_JOINS, fullOuterJoins);
         }
 
@@ -1727,7 +1717,7 @@ public class DefaultAdaptor implements DatabaseMetaDataAdaptor, Serializable {
         Boolean limiterOuterJoins = (Boolean)properties.get(PROP_LIMITED_OUTER_JOINS);
         if (limiterOuterJoins == null) {
             if (dmd != null) limiterOuterJoins = dmd.supportsLimitedOuterJoins() ? Boolean.TRUE : Boolean.FALSE;
-            else throw new SQLException(bundle.getString("EXC_NoDBMetadata")); // NOI18N
+            else throw new SQLException("no database metadata available"); // NOI18N
             properties.put(PROP_LIMITED_OUTER_JOINS, limiterOuterJoins);
         }
 
@@ -1826,7 +1816,7 @@ public class DefaultAdaptor implements DatabaseMetaDataAdaptor, Serializable {
             if (dmd != null)
                 catalogAtStart = dmd.isCatalogAtStart() ? Boolean.TRUE : Boolean.FALSE;
             else
-                throw new SQLException(bundle.getString("EXC_NoDBMetadata")); // NOI18N
+                throw new SQLException("no database metadata available"); // NOI18N
             properties.put(PROP_CATALOG_AT_START, catalogAtStart);
         }
 
@@ -1875,7 +1865,7 @@ public class DefaultAdaptor implements DatabaseMetaDataAdaptor, Serializable {
         Boolean schemasInDM = (Boolean)properties.get(PROP_SCHEMAS_IN_DML);
         if (schemasInDM == null) {
             if (dmd != null) schemasInDM = dmd.supportsSchemasInDataManipulation() ? Boolean.TRUE : Boolean.FALSE;
-            else throw new SQLException(bundle.getString("EXC_NoDBMetadata")); // NOI18N
+            else throw new SQLException("no database metadata available"); // NOI18N
             properties.put(PROP_SCHEMAS_IN_DML, schemasInDM);
         }
 
@@ -1902,7 +1892,7 @@ public class DefaultAdaptor implements DatabaseMetaDataAdaptor, Serializable {
         Boolean schemasInProcedureCalls = (Boolean)properties.get(PROP_SCHEMAS_IN_PROCEDURE_CALL);
         if (schemasInProcedureCalls == null) {
             if (dmd != null) schemasInProcedureCalls = dmd.supportsSchemasInProcedureCalls() ? Boolean.TRUE : Boolean.FALSE;
-            else throw new SQLException(bundle.getString("EXC_NoDBMetadata")); // NOI18N
+            else throw new SQLException("no database metadata available"); // NOI18N
             properties.put(PROP_SCHEMAS_IN_PROCEDURE_CALL, schemasInProcedureCalls);
         }
 
@@ -1929,7 +1919,7 @@ public class DefaultAdaptor implements DatabaseMetaDataAdaptor, Serializable {
         Boolean schemasInTable = (Boolean)properties.get(PROP_SCHEMAS_IN_TABLE_DEFINITION);
         if (schemasInTable == null) {
             if (dmd != null) schemasInTable = dmd.supportsSchemasInTableDefinitions() ? Boolean.TRUE : Boolean.FALSE;
-            else throw new SQLException(bundle.getString("EXC_NoDBMetadata")); // NOI18N
+            else throw new SQLException("no database metadata available"); // NOI18N
             properties.put(PROP_SCHEMAS_IN_TABLE_DEFINITION, schemasInTable);
         }
 
@@ -1956,7 +1946,7 @@ public class DefaultAdaptor implements DatabaseMetaDataAdaptor, Serializable {
         Boolean schemasInIndex = (Boolean)properties.get(PROP_SCHEMAS_IN_INDEX);
         if (schemasInIndex == null) {
             if (dmd != null) schemasInIndex = dmd.supportsSchemasInIndexDefinitions() ? Boolean.TRUE : Boolean.FALSE;
-            else throw new SQLException(bundle.getString("EXC_NoDBMetadata")); // NOI18N
+            else throw new SQLException("no database metadata available"); // NOI18N
             properties.put(PROP_SCHEMAS_IN_INDEX, schemasInIndex);
         }
 
@@ -1983,7 +1973,7 @@ public class DefaultAdaptor implements DatabaseMetaDataAdaptor, Serializable {
         Boolean schemasInPriv = (Boolean)properties.get(PROP_SCHEMAS_IN_PRIVILEGE_DEFINITION);
         if (schemasInPriv == null) {
             if (dmd != null) schemasInPriv = dmd.supportsSchemasInPrivilegeDefinitions() ? Boolean.TRUE : Boolean.FALSE;
-            else throw new SQLException(bundle.getString("EXC_NoDBMetadata")); // NOI18N
+            else throw new SQLException("no database metadata available"); // NOI18N
             properties.put(PROP_SCHEMAS_IN_PRIVILEGE_DEFINITION, schemasInPriv);
         }
 
@@ -2010,7 +2000,7 @@ public class DefaultAdaptor implements DatabaseMetaDataAdaptor, Serializable {
         Boolean catalogInDM = (Boolean)properties.get(PROP_CATALOGS_IN_DML);
         if (catalogInDM == null) {
             if (dmd != null) catalogInDM = dmd.supportsCatalogsInDataManipulation() ? Boolean.TRUE : Boolean.FALSE;
-            else throw new SQLException(bundle.getString("EXC_NoDBMetadata")); // NOI18N
+            else throw new SQLException("no database metadata available"); // NOI18N
             properties.put(PROP_CATALOGS_IN_DML, catalogInDM);
         }
 
@@ -2037,7 +2027,7 @@ public class DefaultAdaptor implements DatabaseMetaDataAdaptor, Serializable {
         Boolean catalogInProc = (Boolean)properties.get(PROP_CATALOGS_IN_PROCEDURE_CALL);
         if (catalogInProc == null) {
             if (dmd != null) catalogInProc = dmd.supportsCatalogsInProcedureCalls() ? Boolean.TRUE : Boolean.FALSE;
-            else throw new SQLException(bundle.getString("EXC_NoDBMetadata")); // NOI18N
+            else throw new SQLException("no database metadata available"); // NOI18N
             properties.put(PROP_CATALOGS_IN_PROCEDURE_CALL, catalogInProc);
         }
 
@@ -2064,7 +2054,7 @@ public class DefaultAdaptor implements DatabaseMetaDataAdaptor, Serializable {
         Boolean catalogInTable = (Boolean)properties.get(PROP_CATALOGS_IN_TABLE_DEFINITION);
         if (catalogInTable == null) {
             if (dmd != null) catalogInTable = dmd.supportsCatalogsInTableDefinitions() ? Boolean.TRUE : Boolean.FALSE;
-            else throw new SQLException(bundle.getString("EXC_NoDBMetadata")); // NOI18N
+            else throw new SQLException("no database metadata available"); // NOI18N
             properties.put(PROP_CATALOGS_IN_TABLE_DEFINITION, catalogInTable);
         }
 
@@ -2091,7 +2081,7 @@ public class DefaultAdaptor implements DatabaseMetaDataAdaptor, Serializable {
         Boolean catalogInIndex = (Boolean)properties.get(PROP_CATALOGS_IN_INDEX);
         if (catalogInIndex == null) {
             if (dmd != null) catalogInIndex = dmd.supportsCatalogsInIndexDefinitions() ? Boolean.TRUE : Boolean.FALSE;
-            else throw new SQLException(bundle.getString("EXC_NoDBMetadata")); // NOI18N
+            else throw new SQLException("no database metadata available"); // NOI18N
             properties.put(PROP_CATALOGS_IN_INDEX, catalogInIndex);
         }
 
@@ -2118,7 +2108,7 @@ public class DefaultAdaptor implements DatabaseMetaDataAdaptor, Serializable {
         Boolean catalogInPriv = (Boolean)properties.get(PROP_CATALOGS_IN_PRIVILEGE_DEFINITION);
         if (catalogInPriv == null) {
             if (dmd != null) catalogInPriv = dmd.supportsCatalogsInPrivilegeDefinitions() ? Boolean.TRUE : Boolean.FALSE;
-            else throw new SQLException(bundle.getString("EXC_NoDBMetadata")); // NOI18N
+            else throw new SQLException("no database metadata available"); // NOI18N
             properties.put(PROP_CATALOGS_IN_PRIVILEGE_DEFINITION, catalogInPriv);
         }
 
@@ -2145,7 +2135,7 @@ public class DefaultAdaptor implements DatabaseMetaDataAdaptor, Serializable {
         Boolean posDelete = (Boolean)properties.get(PROP_POSITIONED_DELETE);
         if (posDelete == null) {
             if (dmd != null) posDelete = dmd.supportsPositionedDelete() ? Boolean.TRUE : Boolean.FALSE;
-            else throw new SQLException(bundle.getString("EXC_NoDBMetadata")); // NOI18N
+            else throw new SQLException("no database metadata available"); // NOI18N
             properties.put(PROP_POSITIONED_DELETE, posDelete);
         }
 
@@ -2172,7 +2162,7 @@ public class DefaultAdaptor implements DatabaseMetaDataAdaptor, Serializable {
         Boolean posUpdate = (Boolean)properties.get(PROP_POSITIONED_UPDATE);
         if (posUpdate == null) {
             if (dmd != null) posUpdate = dmd.supportsPositionedUpdate() ? Boolean.TRUE : Boolean.FALSE;
-            else throw new SQLException(bundle.getString("EXC_NoDBMetadata")); // NOI18N
+            else throw new SQLException("no database metadata available"); // NOI18N
             properties.put(PROP_POSITIONED_UPDATE, posUpdate);
         }
 
@@ -2199,7 +2189,7 @@ public class DefaultAdaptor implements DatabaseMetaDataAdaptor, Serializable {
         Boolean selectForUpdate = (Boolean)properties.get(PROP_SELECT_FOR_UPDATE);
         if (selectForUpdate == null) {
             if (dmd != null) selectForUpdate = dmd.supportsSelectForUpdate() ? Boolean.TRUE : Boolean.FALSE;
-            else throw new SQLException(bundle.getString("EXC_NoDBMetadata")); // NOI18N
+            else throw new SQLException("no database metadata available"); // NOI18N
             properties.put(PROP_SELECT_FOR_UPDATE, selectForUpdate);
         }
 
@@ -2227,7 +2217,7 @@ public class DefaultAdaptor implements DatabaseMetaDataAdaptor, Serializable {
         Boolean storedProcedures = (Boolean)properties.get(PROP_STORED_PROCEDURES);
         if (storedProcedures == null) {
             if (dmd != null) storedProcedures = dmd.supportsStoredProcedures() ? Boolean.TRUE : Boolean.FALSE;
-            else throw new SQLException(bundle.getString("EXC_NoDBMetadata")); // NOI18N
+            else throw new SQLException("no database metadata available"); // NOI18N
             properties.put(PROP_STORED_PROCEDURES, storedProcedures);
         }
 
@@ -2255,7 +2245,7 @@ public class DefaultAdaptor implements DatabaseMetaDataAdaptor, Serializable {
         Boolean subqueryComp = (Boolean)properties.get(PROP_SUBQUERY_IN_COMPARSIONS);
         if (subqueryComp == null) {
             if (dmd != null) subqueryComp = dmd.supportsSubqueriesInComparisons() ? Boolean.TRUE : Boolean.FALSE;
-            else throw new SQLException(bundle.getString("EXC_NoDBMetadata")); // NOI18N
+            else throw new SQLException("no database metadata available"); // NOI18N
             properties.put(PROP_SUBQUERY_IN_COMPARSIONS, subqueryComp);
         }
 
@@ -2283,7 +2273,7 @@ public class DefaultAdaptor implements DatabaseMetaDataAdaptor, Serializable {
         Boolean subqueryExist = (Boolean)properties.get(PROP_SUBQUERY_IN_EXISTS);
         if (subqueryExist == null) {
             if (dmd != null) subqueryExist = dmd.supportsSubqueriesInExists() ? Boolean.TRUE : Boolean.FALSE;
-            else throw new SQLException(bundle.getString("EXC_NoDBMetadata")); // NOI18N
+            else throw new SQLException("no database metadata available"); // NOI18N
             properties.put(PROP_SUBQUERY_IN_EXISTS, subqueryExist);
         }
 
@@ -2310,7 +2300,7 @@ public class DefaultAdaptor implements DatabaseMetaDataAdaptor, Serializable {
         Boolean subqueryIns = (Boolean)properties.get(PROP_SUBQUERY_IN_INS);
         if (subqueryIns == null) {
             if (dmd != null) subqueryIns = dmd.supportsSubqueriesInIns() ? Boolean.TRUE : Boolean.FALSE;
-            else throw new SQLException(bundle.getString("EXC_NoDBMetadata")); // NOI18N
+            else throw new SQLException("no database metadata available"); // NOI18N
             properties.put(PROP_SUBQUERY_IN_INS, subqueryIns);
         }
 
@@ -2338,7 +2328,7 @@ public class DefaultAdaptor implements DatabaseMetaDataAdaptor, Serializable {
         Boolean subqueryQuant = (Boolean)properties.get(PROP_SUBQUERY_IN_QUANTIFIEDS);
         if (subqueryQuant == null) {
             if (dmd != null) subqueryQuant = dmd.supportsSubqueriesInQuantifieds() ? Boolean.TRUE : Boolean.FALSE;
-            else throw new SQLException(bundle.getString("EXC_NoDBMetadata")); // NOI18N
+            else throw new SQLException("no database metadata available"); // NOI18N
             properties.put(PROP_SUBQUERY_IN_QUANTIFIEDS, subqueryQuant);
         }
 
@@ -2366,7 +2356,7 @@ public class DefaultAdaptor implements DatabaseMetaDataAdaptor, Serializable {
         Boolean subqueryCorr = (Boolean)properties.get(PROP_CORRELATED_SUBQUERIES);
         if (subqueryCorr == null) {
             if (dmd != null) subqueryCorr = dmd.supportsCorrelatedSubqueries() ? Boolean.TRUE : Boolean.FALSE;
-            else throw new SQLException(bundle.getString("EXC_NoDBMetadata")); // NOI18N
+            else throw new SQLException("no database metadata available"); // NOI18N
             properties.put(PROP_CORRELATED_SUBQUERIES, subqueryCorr);
         }
 
@@ -2393,7 +2383,7 @@ public class DefaultAdaptor implements DatabaseMetaDataAdaptor, Serializable {
         Boolean union = (Boolean)properties.get(PROP_UNION);
         if (union == null) {
             if (dmd != null) union = dmd.supportsUnion() ? Boolean.TRUE : Boolean.FALSE;
-            else throw new SQLException(bundle.getString("EXC_NoDBMetadata")); // NOI18N
+            else throw new SQLException("no database metadata available"); // NOI18N
             properties.put(PROP_UNION, union);
         }
 
@@ -2420,7 +2410,7 @@ public class DefaultAdaptor implements DatabaseMetaDataAdaptor, Serializable {
         Boolean unionAll = (Boolean)properties.get(PROP_UNION_ALL);
         if (unionAll == null) {
             if (dmd != null) unionAll = dmd.supportsUnionAll() ? Boolean.TRUE : Boolean.FALSE;
-            else throw new SQLException(bundle.getString("EXC_NoDBMetadata")); // NOI18N
+            else throw new SQLException("no database metadata available"); // NOI18N
             properties.put(PROP_UNION_ALL, unionAll);
         }
 
@@ -2447,7 +2437,7 @@ public class DefaultAdaptor implements DatabaseMetaDataAdaptor, Serializable {
         Boolean cursorInCommit = (Boolean)properties.get(PROP_OPEN_CURSORS_ACROSS_COMMIT);
         if (cursorInCommit == null) {
             if (dmd != null) cursorInCommit = dmd.supportsOpenCursorsAcrossCommit() ? Boolean.TRUE : Boolean.FALSE;
-            else throw new SQLException(bundle.getString("EXC_NoDBMetadata")); // NOI18N
+            else throw new SQLException("no database metadata available"); // NOI18N
             properties.put(PROP_OPEN_CURSORS_ACROSS_COMMIT, cursorInCommit);
         }
 
@@ -2474,7 +2464,7 @@ public class DefaultAdaptor implements DatabaseMetaDataAdaptor, Serializable {
         Boolean cursorInRollback = (Boolean)properties.get(PROP_OPEN_CURSORS_ACROSS_ROLLBACK);
         if (cursorInRollback == null) {
             if (dmd != null) cursorInRollback = dmd.supportsOpenCursorsAcrossRollback() ? Boolean.TRUE : Boolean.FALSE;
-            else throw new SQLException(bundle.getString("EXC_NoDBMetadata")); // NOI18N
+            else throw new SQLException("no database metadata available"); // NOI18N
             properties.put(PROP_OPEN_CURSORS_ACROSS_ROLLBACK, cursorInRollback);
         }
 
@@ -2501,7 +2491,7 @@ public class DefaultAdaptor implements DatabaseMetaDataAdaptor, Serializable {
         Boolean statementInCommit = (Boolean)properties.get(PROP_OPEN_STATEMENTS_ACROSS_COMMIT);
         if (statementInCommit == null) {
             if (dmd != null) statementInCommit = dmd.supportsOpenStatementsAcrossCommit() ? Boolean.TRUE : Boolean.FALSE;
-            else throw new SQLException(bundle.getString("EXC_NoDBMetadata")); // NOI18N
+            else throw new SQLException("no database metadata available"); // NOI18N
             properties.put(PROP_OPEN_STATEMENTS_ACROSS_COMMIT, statementInCommit);
         }
 
@@ -2528,7 +2518,7 @@ public class DefaultAdaptor implements DatabaseMetaDataAdaptor, Serializable {
         Boolean statementInRollback = (Boolean)properties.get(PROP_OPEN_STATEMENTS_ACROSS_ROLLBACK);
         if (statementInRollback == null) {
             if (dmd != null) statementInRollback = dmd.supportsOpenStatementsAcrossRollback() ? Boolean.TRUE : Boolean.FALSE;
-            else throw new SQLException(bundle.getString("EXC_NoDBMetadata")); // NOI18N
+            else throw new SQLException("no database metadata available"); // NOI18N
             properties.put(PROP_OPEN_STATEMENTS_ACROSS_ROLLBACK, statementInRollback);
         }
 
@@ -2886,7 +2876,7 @@ public class DefaultAdaptor implements DatabaseMetaDataAdaptor, Serializable {
         Boolean rowSizeBlobs = (Boolean)properties.get(PROP_ROWSIZE_INCLUDING_BLOBS);
         if (rowSizeBlobs == null) {
             if (dmd != null) rowSizeBlobs = dmd.doesMaxRowSizeIncludeBlobs() ? Boolean.TRUE : Boolean.FALSE;
-            else throw new SQLException(bundle.getString("EXC_NoDBMetadata")); // NOI18N
+            else throw new SQLException("no database metadata available"); // NOI18N
             properties.put(PROP_ROWSIZE_INCLUDING_BLOBS, rowSizeBlobs);
         }
 
@@ -3047,7 +3037,7 @@ public class DefaultAdaptor implements DatabaseMetaDataAdaptor, Serializable {
         Boolean trans = (Boolean)properties.get(PROP_TRANSACTIONS);
         if (trans == null) {
             if (dmd != null) trans = dmd.doesMaxRowSizeIncludeBlobs() ? Boolean.TRUE : Boolean.FALSE;
-            else throw new SQLException(bundle.getString("EXC_NoDBMetadata")); // NOI18N
+            else throw new SQLException("no database metadata available"); // NOI18N
             properties.put(PROP_TRANSACTIONS, trans);
         }
 
@@ -3073,7 +3063,7 @@ public class DefaultAdaptor implements DatabaseMetaDataAdaptor, Serializable {
     public boolean supportsTransactionIsolationLevel(int level) throws SQLException
     {
         if (dmd != null) return dmd.supportsTransactionIsolationLevel(level);
-        else throw new SQLException(bundle.getString("EXC_NoDBMetadata")); // NOI18N
+        else throw new SQLException("no database metadata available"); // NOI18N
     }
 
     /**
@@ -3087,7 +3077,7 @@ public class DefaultAdaptor implements DatabaseMetaDataAdaptor, Serializable {
         Boolean flag = (Boolean)properties.get(PROP_DDL_AND_DML_TRANSACTIONS);
         if (flag == null) {
             if (dmd != null) flag = dmd.doesMaxRowSizeIncludeBlobs() ? Boolean.TRUE : Boolean.FALSE;
-            else throw new SQLException(bundle.getString("EXC_NoDBMetadata")); // NOI18N
+            else throw new SQLException("no database metadata available"); // NOI18N
             properties.put(PROP_DDL_AND_DML_TRANSACTIONS, flag);
         }
 
@@ -3115,7 +3105,7 @@ public class DefaultAdaptor implements DatabaseMetaDataAdaptor, Serializable {
         Boolean flag = (Boolean)properties.get(PROP_DML_TRANSACTIONS_ONLY);
         if (flag == null) {
             if (dmd != null) flag = dmd.supportsDataManipulationTransactionsOnly() ? Boolean.TRUE : Boolean.FALSE;
-            else throw new SQLException(bundle.getString("EXC_NoDBMetadata")); // NOI18N
+            else throw new SQLException("no database metadata available"); // NOI18N
             properties.put(PROP_DML_TRANSACTIONS_ONLY, flag);
         }
 
@@ -3143,7 +3133,7 @@ public class DefaultAdaptor implements DatabaseMetaDataAdaptor, Serializable {
         Boolean flag = (Boolean)properties.get(PROP_DDL_CAUSES_COMMIT);
         if (flag == null) {
             if (dmd != null) flag = dmd.dataDefinitionCausesTransactionCommit() ? Boolean.TRUE : Boolean.FALSE;
-            else throw new SQLException(bundle.getString("EXC_NoDBMetadata")); // NOI18N
+            else throw new SQLException("no database metadata available"); // NOI18N
             properties.put(PROP_DDL_CAUSES_COMMIT, flag);
         }
 
@@ -3170,7 +3160,7 @@ public class DefaultAdaptor implements DatabaseMetaDataAdaptor, Serializable {
         Boolean flag = (Boolean)properties.get(PROP_DDL_IGNORED_IN_TRANSACTIONS);
         if (flag == null) {
             if (dmd != null) flag = dmd.dataDefinitionIgnoredInTransactions() ? Boolean.TRUE : Boolean.FALSE;
-            else throw new SQLException(bundle.getString("EXC_NoDBMetadata")); // NOI18N
+            else throw new SQLException("no database metadata available"); // NOI18N
             properties.put(PROP_DDL_IGNORED_IN_TRANSACTIONS, flag);
         }
 
@@ -3202,10 +3192,10 @@ public class DefaultAdaptor implements DatabaseMetaDataAdaptor, Serializable {
                 stmt.setString(2, schemaPattern);
                 stmt.setString(3, procedureNamePattern);
                 return stmt.executeQuery();
-            } else throw new SQLException(bundle.getString("EXC_NoConnection")); // NOI18N
+            } else throw new SQLException("no connection available"); // NOI18N
         }
 
-        if (dmd == null) throw new SQLException(bundle.getString("EXC_NoDBMetadata")); // NOI18N
+        if (dmd == null) throw new SQLException("no database metadata available"); // NOI18N
         return dmd.getProcedures(catalog, schemaPattern, procedureNamePattern);
     }
 
@@ -3235,10 +3225,10 @@ public class DefaultAdaptor implements DatabaseMetaDataAdaptor, Serializable {
                 stmt.setString(3, procedureNamePattern);
                 stmt.setString(4, columnNamePattern);
                 return stmt.executeQuery();
-            } else throw new SQLException(bundle.getString("EXC_NoConnection")); // NOI18N
+            } else throw new SQLException("no connection available"); // NOI18N
         }
 
-        if (dmd == null) throw new SQLException(bundle.getString("EXC_NoDBMetadata")); // NOI18N
+        if (dmd == null) throw new SQLException("no database metadata available"); // NOI18N
         return dmd.getProcedureColumns(catalog, schemaPattern, procedureNamePattern, columnNamePattern);
     }
 
@@ -3261,10 +3251,10 @@ public class DefaultAdaptor implements DatabaseMetaDataAdaptor, Serializable {
         String query = (String)properties.get(PROP_PROCEDURE_COLUMNS_QUERY);
         if (query != null) {
             if (con != null) return con.createStatement().executeQuery(query);
-            else throw new SQLException(bundle.getString("EXC_NoConnection")); // NOI18N
+            else throw new SQLException("no connection available"); // NOI18N
         }
 
-        if (dmd == null) throw new SQLException(bundle.getString("EXC_NoDBMetadata")); // NOI18N
+        if (dmd == null) throw new SQLException("no database metadata available"); // NOI18N
         return dmd.getSchemas();
     }
 
@@ -3288,10 +3278,10 @@ public class DefaultAdaptor implements DatabaseMetaDataAdaptor, Serializable {
         String query = (String)properties.get(PROP_CATALOGS_QUERY);
         if (query != null) {
             if (con != null) return con.createStatement().executeQuery(query);
-            else throw new SQLException(bundle.getString("EXC_NoConnection")); // NOI18N
+            else throw new SQLException("no connection available"); // NOI18N
         }
 
-        if (dmd == null) throw new SQLException(bundle.getString("EXC_NoDBMetadata")); // NOI18N
+        if (dmd == null) throw new SQLException("no database metadata available"); // NOI18N
         return dmd.getCatalogs();
     }
 
@@ -3314,10 +3304,10 @@ public class DefaultAdaptor implements DatabaseMetaDataAdaptor, Serializable {
         String query = (String)properties.get(PROP_TABLE_TYPES_QUERY);
         if (query != null) {
             if (con != null) return con.createStatement().executeQuery(query);
-            else throw new SQLException(bundle.getString("EXC_NoConnection")); // NOI18N
+            else throw new SQLException("no connection available"); // NOI18N
         }
 
-        if (dmd == null) throw new SQLException(bundle.getString("EXC_NoDBMetadata")); // NOI18N
+        if (dmd == null) throw new SQLException("no database metadata available"); // NOI18N
         return dmd.getCatalogs();
     }
 
@@ -3347,10 +3337,10 @@ public class DefaultAdaptor implements DatabaseMetaDataAdaptor, Serializable {
                 stmt.setString(3, tableNamePattern);
                 stmt.setString(4, columnNamePattern);
                 return stmt.executeQuery();
-            } else throw new SQLException(bundle.getString("EXC_NoConnection")); // NOI18N
+            } else throw new SQLException("no connection available"); // NOI18N
         }
 
-        if (dmd == null) throw new SQLException(bundle.getString("EXC_NoDBMetadata")); // NOI18N
+        if (dmd == null) throw new SQLException("no database metadata available"); // NOI18N
         return dmd.getColumns(catalog, schemaPattern, tableNamePattern, columnNamePattern);
     }
 
@@ -3379,10 +3369,10 @@ public class DefaultAdaptor implements DatabaseMetaDataAdaptor, Serializable {
                 stmt.setString(3, table);
                 stmt.setString(4, columnNamePattern);
                 return stmt.executeQuery();
-            } else throw new SQLException(bundle.getString("EXC_NoConnection")); // NOI18N
+            } else throw new SQLException("no connection available"); // NOI18N
         }
 
-        if (dmd == null) throw new SQLException(bundle.getString("EXC_NoDBMetadata")); // NOI18N
+        if (dmd == null) throw new SQLException("no database metadata available"); // NOI18N
         return dmd.getColumnPrivileges(catalog, schema, table, columnNamePattern);
     }
 
@@ -3423,10 +3413,10 @@ public class DefaultAdaptor implements DatabaseMetaDataAdaptor, Serializable {
 
                 stmt.setString(4, typebuff.toString());
                 return stmt.executeQuery();
-            } else throw new SQLException(bundle.getString("EXC_NoConnection")); // NOI18N
+            } else throw new SQLException("no connection available"); // NOI18N
         }
 
-        if (dmd == null) throw new SQLException(bundle.getString("EXC_NoDBMetadata")); // NOI18N
+        if (dmd == null) throw new SQLException("no database metadata available"); // NOI18N
         return dmd.getTables(catalog, schemaPattern, tableNamePattern, types);
     }
 
@@ -3458,10 +3448,10 @@ public class DefaultAdaptor implements DatabaseMetaDataAdaptor, Serializable {
                 stmt.setString(2, schemaPattern);
                 stmt.setString(3, tableNamePattern);
                 return stmt.executeQuery();
-            } else throw new SQLException(bundle.getString("EXC_NoConnection")); // NOI18N
+            } else throw new SQLException("no connection available"); // NOI18N
         }
 
-        if (dmd == null) throw new SQLException(bundle.getString("EXC_NoDBMetadata")); // NOI18N
+        if (dmd == null) throw new SQLException("no database metadata available"); // NOI18N
         return dmd.getTablePrivileges(catalog, schemaPattern, tableNamePattern);
     }
 
@@ -3492,10 +3482,10 @@ public class DefaultAdaptor implements DatabaseMetaDataAdaptor, Serializable {
                 stmt.setInt(4, scope);
                 stmt.setBoolean(5, nullable);
                 return stmt.executeQuery();
-            } else throw new SQLException(bundle.getString("EXC_NoConnection")); // NOI18N
+            } else throw new SQLException("no connection available"); // NOI18N
         }
 
-        if (dmd == null) throw new SQLException(bundle.getString("EXC_NoDBMetadata")); // NOI18N
+        if (dmd == null) throw new SQLException("no database metadata available"); // NOI18N
         return dmd.getBestRowIdentifier(catalog, schema, table, scope, nullable);
     }
 
@@ -3525,10 +3515,10 @@ public class DefaultAdaptor implements DatabaseMetaDataAdaptor, Serializable {
                 stmt.setString(2, schema);
                 stmt.setString(3, table);
                 return stmt.executeQuery();
-            } else throw new SQLException(bundle.getString("EXC_NoConnection")); // NOI18N
+            } else throw new SQLException("no connection available"); // NOI18N
         }
 
-        if (dmd == null) throw new SQLException(bundle.getString("EXC_NoDBMetadata")); // NOI18N
+        if (dmd == null) throw new SQLException("no database metadata available"); // NOI18N
         return dmd.getVersionColumns(catalog, schema, table);
     }
 
@@ -3557,10 +3547,10 @@ public class DefaultAdaptor implements DatabaseMetaDataAdaptor, Serializable {
                 stmt.setString(2, schema);
                 stmt.setString(3, table);
                 return stmt.executeQuery();
-            } else throw new SQLException(bundle.getString("EXC_NoConnection")); // NOI18N
+            } else throw new SQLException("no connection available"); // NOI18N
         }
 
-        if (dmd == null) throw new SQLException(bundle.getString("EXC_NoDBMetadata")); // NOI18N
+        if (dmd == null) throw new SQLException("no database metadata available"); // NOI18N
         return dmd.getPrimaryKeys(catalog, schema, table);
     }
 
@@ -3592,10 +3582,10 @@ public class DefaultAdaptor implements DatabaseMetaDataAdaptor, Serializable {
                 stmt.setString(2, schema);
                 stmt.setString(3, table);
                 return stmt.executeQuery();
-            } else throw new SQLException(bundle.getString("EXC_NoConnection")); // NOI18N
+            } else throw new SQLException("no connection available"); // NOI18N
         }
 
-        if (dmd == null) throw new SQLException(bundle.getString("EXC_NoDBMetadata")); // NOI18N
+        if (dmd == null) throw new SQLException("no database metadata available"); // NOI18N
         return dmd.getImportedKeys(catalog, schema, table);
     }
 
@@ -3627,10 +3617,10 @@ public class DefaultAdaptor implements DatabaseMetaDataAdaptor, Serializable {
                 stmt.setString(2, schema);
                 stmt.setString(3, table);
                 return stmt.executeQuery();
-            } else throw new SQLException(bundle.getString("EXC_NoConnection")); // NOI18N
+            } else throw new SQLException("no connection available"); // NOI18N
         }
 
-        if (dmd == null) throw new SQLException(bundle.getString("EXC_NoDBMetadata")); // NOI18N
+        if (dmd == null) throw new SQLException("no database metadata available"); // NOI18N
         return dmd.getExportedKeys(catalog, schema, table);
     }
 
@@ -3667,10 +3657,10 @@ public class DefaultAdaptor implements DatabaseMetaDataAdaptor, Serializable {
                 stmt.setString(5, foreignSchema);
                 stmt.setString(6, foreignTable);
                 return stmt.executeQuery();
-            } else throw new SQLException(bundle.getString("EXC_NoConnection")); // NOI18N
+            } else throw new SQLException("no connection available"); // NOI18N
         }
 
-        if (dmd == null) throw new SQLException(bundle.getString("EXC_NoDBMetadata")); // NOI18N
+        if (dmd == null) throw new SQLException("no database metadata available"); // NOI18N
         return dmd.getCrossReference(catalog, schema, table, foreignCatalog, foreignSchema, foreignTable);
     }
 
@@ -3694,10 +3684,10 @@ public class DefaultAdaptor implements DatabaseMetaDataAdaptor, Serializable {
         String query = (String)properties.get(PROP_TYPE_INFO_QUERY);
         if (query != null) {
             if (con != null) return con.createStatement().executeQuery(query);
-            else throw new SQLException(bundle.getString("EXC_NoConnection")); // NOI18N
+            else throw new SQLException("no connection available"); // NOI18N
         }
 
-        if (dmd == null) throw new SQLException(bundle.getString("EXC_NoDBMetadata")); // NOI18N
+        if (dmd == null) throw new SQLException("no database metadata available"); // NOI18N
         return dmd.getTypeInfo();
     }
 
@@ -3729,10 +3719,10 @@ public class DefaultAdaptor implements DatabaseMetaDataAdaptor, Serializable {
                 stmt.setBoolean(4, unique);
                 stmt.setBoolean(5, approximate);
                 return stmt.executeQuery();
-            } else throw new SQLException(bundle.getString("EXC_NoConnection")); // NOI18N
+            } else throw new SQLException("no connection available"); // NOI18N
         }
 
-        if (dmd == null) throw new SQLException(bundle.getString("EXC_NoDBMetadata")); // NOI18N
+        if (dmd == null) throw new SQLException("no database metadata available"); // NOI18N
         return dmd.getIndexInfo(catalog, schema, table, unique, approximate);
     }
 
@@ -3756,7 +3746,7 @@ public class DefaultAdaptor implements DatabaseMetaDataAdaptor, Serializable {
     public boolean supportsResultSetType(int type) throws SQLException
     {
         if (dmd != null) return dmd.supportsResultSetType(type);
-        else throw new SQLException(bundle.getString("EXC_NoDBMetadata")); // NOI18N
+        else throw new SQLException("no database metadata available"); // NOI18N
     }
 
     /**
@@ -3771,47 +3761,47 @@ public class DefaultAdaptor implements DatabaseMetaDataAdaptor, Serializable {
     public boolean supportsResultSetConcurrency(int type, int concurrency) throws SQLException
     {
         if (dmd != null) return dmd.supportsResultSetConcurrency(type, concurrency);
-        else throw new SQLException(bundle.getString("EXC_NoDBMetadata")); // NOI18N
+        else throw new SQLException("no database metadata available"); // NOI18N
     }
 
     /**
     * Indicates whether a result set's own updates are visible.
-    * @param result set type, i.e. ResultSet.TYPE_XXX
+    * @param type set type, i.e. ResultSet.TYPE_XXX
     * @exception SQLException if a database access error occurs
     */
     public boolean ownUpdatesAreVisible(int type) throws SQLException
     {
         if (dmd != null) return dmd.ownUpdatesAreVisible(type);
-        else throw new SQLException(bundle.getString("EXC_NoDBMetadata")); // NOI18N
+        else throw new SQLException("no database metadata available"); // NOI18N
     }
 
     /**
     * Indicates whether a result set's own deletes are visible.
-    * @param result set type, i.e. ResultSet.TYPE_XXX
+    * @param type set type, i.e. ResultSet.TYPE_XXX
     * @return <code>true</code> if deletes are visible for the result set type
     * @exception SQLException if a database access error occurs
     */
     public boolean ownDeletesAreVisible(int type) throws SQLException
     {
         if (dmd != null) return dmd.ownDeletesAreVisible(type);
-        else throw new SQLException(bundle.getString("EXC_NoDBMetadata")); // NOI18N
+        else throw new SQLException("no database metadata available"); // NOI18N
     }
 
     /**
     * Indicates whether a result set's own inserts are visible.
-    * @param result set type, i.e. ResultSet.TYPE_XXX
+    * @param type set type, i.e. ResultSet.TYPE_XXX
     * @return <code>true</code> if inserts are visible for the result set type
     * @exception SQLException if a database access error occurs
     */
     public boolean ownInsertsAreVisible(int type) throws SQLException
     {
         if (dmd != null) return dmd.ownInsertsAreVisible(type);
-        else throw new SQLException(bundle.getString("EXC_NoDBMetadata")); // NOI18N
+        else throw new SQLException("no database metadata available"); // NOI18N
     }
 
     /**
     * Indicates whether updates made by others are visible.
-    * @param result set type, i.e. ResultSet.TYPE_XXX
+    * @param type set type, i.e. ResultSet.TYPE_XXX
     * @return <code>true</code> if updates made by others
     * are visible for the result set type
     * @exception SQLException if a database access error occurs
@@ -3819,12 +3809,12 @@ public class DefaultAdaptor implements DatabaseMetaDataAdaptor, Serializable {
     public boolean othersUpdatesAreVisible(int type) throws SQLException
     {
         if (dmd != null) return dmd.othersUpdatesAreVisible(type);
-        else throw new SQLException(bundle.getString("EXC_NoDBMetadata")); // NOI18N
+        else throw new SQLException("no database metadata available"); // NOI18N
     }
 
     /**
     * Indicates whether deletes made by others are visible.
-    * @param result set type, i.e. ResultSet.TYPE_XXX
+    * @param type set type, i.e. ResultSet.TYPE_XXX
     * @return <code>true</code> if deletes made by others
     * are visible for the result set type
     * @exception SQLException if a database access error occurs
@@ -3832,12 +3822,12 @@ public class DefaultAdaptor implements DatabaseMetaDataAdaptor, Serializable {
     public boolean othersDeletesAreVisible(int type) throws SQLException
     {
         if (dmd != null) return dmd.othersDeletesAreVisible(type);
-        else throw new SQLException(bundle.getString("EXC_NoDBMetadata")); // NOI18N
+        else throw new SQLException("no database metadata available"); // NOI18N
     }
 
     /**
     * Indicates whether inserts made by others are visible.
-    * @param result set type, i.e. ResultSet.TYPE_XXX
+    * @param type set type, i.e. ResultSet.TYPE_XXX
     * @return true if updates are visible for the result set type
     * @return <code>true</code> if inserts made by others
     * are visible for the result set type
@@ -3846,47 +3836,47 @@ public class DefaultAdaptor implements DatabaseMetaDataAdaptor, Serializable {
     public boolean othersInsertsAreVisible(int type) throws SQLException
     {
         if (dmd != null) return dmd.othersInsertsAreVisible(type);
-        else throw new SQLException(bundle.getString("EXC_NoDBMetadata")); // NOI18N
+        else throw new SQLException("no database metadata available"); // NOI18N
     }
 
     /**
     * Indicates whether or not a visible row update can be detected by 
     * calling the method <code>ResultSet.rowUpdated</code>.
-    * @param result set type, i.e. ResultSet.TYPE_XXX
+    * @param type set type, i.e. ResultSet.TYPE_XXX
     * @return <code>true</code> if changes are detected by the result set type
     * @exception SQLException if a database access error occurs
     */
     public boolean updatesAreDetected(int type) throws SQLException
     {
         if (dmd != null) return dmd.updatesAreDetected(type);
-        else throw new SQLException(bundle.getString("EXC_NoDBMetadata")); // NOI18N
+        else throw new SQLException("no database metadata available"); // NOI18N
     }
 
     /**
     * Indicates whether or not a visible row delete can be detected by 
     * calling ResultSet.rowDeleted().  If deletesAreDetected()
     * returns false, then deleted rows are removed from the result set.
-    * @param result set type, i.e. ResultSet.TYPE_XXX
+    * @param type set type, i.e. ResultSet.TYPE_XXX
     * @return true if changes are detected by the resultset type
     * @exception SQLException if a database access error occurs
     */
     public boolean deletesAreDetected(int type) throws SQLException
     {
         if (dmd != null) return dmd.deletesAreDetected(type);
-        else throw new SQLException(bundle.getString("EXC_NoDBMetadata")); // NOI18N
+        else throw new SQLException("no database metadata available"); // NOI18N
     }
 
     /**
     * Indicates whether or not a visible row insert can be detected
     * by calling ResultSet.rowInserted().
-    * @param result set type, i.e. ResultSet.TYPE_XXX
+    * @param type set type, i.e. ResultSet.TYPE_XXX
     * @return true if changes are detected by the resultset type
     * @exception SQLException if a database access error occurs
     */
     public boolean insertsAreDetected(int type) throws SQLException
     {
         if (dmd != null) return dmd.insertsAreDetected(type);
-        else throw new SQLException(bundle.getString("EXC_NoDBMetadata")); // NOI18N
+        else throw new SQLException("no database metadata available"); // NOI18N
     }
 
     /**
@@ -3904,7 +3894,7 @@ public class DefaultAdaptor implements DatabaseMetaDataAdaptor, Serializable {
                     //bug #27858 (http://db.netbeans.org/issues/show_bug.cgi?id=27858)
                 }
             else
-                throw new SQLException(bundle.getString("EXC_NoDBMetadata")); // NOI18N
+                throw new SQLException("no database metadata available"); // NOI18N
             properties.put(PROP_BATCH_UPDATES, flag);
         }
 
@@ -3945,10 +3935,10 @@ public class DefaultAdaptor implements DatabaseMetaDataAdaptor, Serializable {
 
                 stmt.setString(4, typebuff.toString());
                 return stmt.executeQuery();
-            } else throw new SQLException(bundle.getString("EXC_NoConnection")); // NOI18N
+            } else throw new SQLException("no connection available"); // NOI18N
         }
 
-        if (dmd == null) throw new SQLException(bundle.getString("EXC_NoDBMetadata")); // NOI18N
+        if (dmd == null) throw new SQLException("no database metadata available"); // NOI18N
         return dmd.getUDTs(catalog, schemaPattern, typeNamePattern, types);
     }
 

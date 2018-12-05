@@ -48,8 +48,6 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.openide.util.NbBundle;
-
 import org.netbeans.lib.ddl.DDLException;
 import org.netbeans.lib.ddl.util.CommandFormatter;
 
@@ -204,10 +202,10 @@ public class AbstractTableColumn implements Serializable {
         if (addprops != null) args.putAll(addprops);
         if (oname != null) args.put("object.name", 
             newObject ? oname : cmd.quote(oname)); // NOI18N
-        else throw new DDLException(NbBundle.getBundle("org.netbeans.lib.ddl.resources.Bundle").getString("EXC_Unknown")); // NOI18N
+        else throw new DDLException("unknown object name"); // NOI18N
         if (cname != null) args.put("column.name",
             newColumn ? cname : cmd.quote(cname)); // NOI18N
-        else throw new DDLException(NbBundle.getBundle("org.netbeans.lib.ddl.resources.Bundle").getString("EXC_Unknown")); // NOI18N
+        else throw new DDLException("unknown object name"); // NOI18N
 
         if (reftab != null) args.put("fkobject.name", cmd.quote(reftab)); // NOI18N
         if (refcol != null) args.put("fkcolumn.name", cmd.quote(refcol)); // NOI18N
@@ -225,7 +223,7 @@ public class AbstractTableColumn implements Serializable {
     throws DDLException
     {
         Map cprops;
-        if (format == null) throw new DDLException(NbBundle.getBundle("org.netbeans.lib.ddl.resources.Bundle").getString("EXC_NoFormatSpec")); //NOI18N
+        if (format == null) throw new DDLException("no format specified"); //NOI18N
         try {
             cprops = getColumnProperties(cmd);
             return CommandFormatter.format(format, cprops);

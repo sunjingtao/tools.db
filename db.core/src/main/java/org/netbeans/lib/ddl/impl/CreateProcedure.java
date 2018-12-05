@@ -49,8 +49,6 @@ import java.util.Enumeration;
 import java.util.Map;
 import java.util.Vector;
 
-import org.openide.util.NbBundle;
-
 import org.netbeans.lib.ddl.Argument;
 import org.netbeans.lib.ddl.DDLException;
 import org.netbeans.lib.ddl.ProcedureDescriptor;
@@ -139,7 +137,7 @@ public class CreateProcedure extends AbstractCommand implements ProcedureDescrip
                 Map typemap = (Map)gprops.get(tname);
                 if (typemap == null) throw new InstantiationException(
                     MessageFormat.format(
-                        NbBundle.getBundle("org.netbeans.lib.ddl.resources.Bundle").getString("EXC_UnableLocateObject"), // NOI18N
+                        "unable to locate binded object {0}", // NOI18N
                         new String[] {tname}));
                 Class typeclass = Class.forName((String)typemap.get("Class")); // NOI18N
                 String format = (String)typemap.get("Format"); // NOI18N
@@ -151,7 +149,7 @@ public class CreateProcedure extends AbstractCommand implements ProcedureDescrip
                 return (Argument)arg;
             } else throw new InstantiationException(
                         MessageFormat.format(
-                            NbBundle.getBundle("org.netbeans.lib.ddl.resources.Bundle").getString("EXC_UnableLocateType"), // NOI18N
+                            "unable to locate type {0} in: {1}", // NOI18N
                             new String[] {String.valueOf(type), bindmap.toString() }));
         } catch (Exception e) {
             throw new DDLException(e.getMessage());

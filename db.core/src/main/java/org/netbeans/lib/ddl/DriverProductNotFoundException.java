@@ -60,7 +60,7 @@ public class DriverProductNotFoundException extends Exception
     private String drvName;
 
     /** Creates new exception
-    * @param desc The text describing the exception
+    * @param spec The text describing the exception
     */
     public DriverProductNotFoundException(String spec) {
         super ();

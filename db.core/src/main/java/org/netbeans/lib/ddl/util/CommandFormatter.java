@@ -44,13 +44,13 @@
 
 package org.netbeans.lib.ddl.util;
 
+import org.netbeans.util.MapFormat;
+
 import java.text.ParseException;
 import java.util.Enumeration;
 import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.Vector;
-
-import org.openide.util.MapFormat;
 
 /**
 * The message formatter, It handles [] brackets as optional keys.

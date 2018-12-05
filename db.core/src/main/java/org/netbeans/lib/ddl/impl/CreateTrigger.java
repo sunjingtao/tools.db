@@ -49,7 +49,6 @@ import java.util.Enumeration;
 import java.util.Map;
 import java.util.Vector;
 
-import org.openide.util.NbBundle;
 import org.netbeans.lib.ddl.CreateTriggerCommand;
 import org.netbeans.lib.ddl.DDLException;
 
@@ -184,7 +183,7 @@ public class CreateTrigger extends AbstractCommand implements CreateTriggerComma
                 Map typemap = (Map)gprops.get(tname);
                 if (typemap == null) throw new InstantiationException(
                     MessageFormat.format(
-                        NbBundle.getBundle("org.netbeans.lib.ddl.resources.Bundle").getString("EXC_UnableLocateObject"), // NOI18N
+                        "unable to locate binded object {0}", // NOI18N
                         new String[] {tname}));
                 Class typeclass = Class.forName((String)typemap.get("Class")); // NOI18N
                 String format = (String)typemap.get("Format"); // NOI18N
@@ -196,7 +195,7 @@ public class CreateTrigger extends AbstractCommand implements CreateTriggerComma
                 return (TriggerEvent)evt;
             } else throw new InstantiationException(
                     MessageFormat.format(
-                        NbBundle.getBundle("org.netbeans.lib.ddl.resources.Bundle").getString("EXC_UnableLocateType"), // NOI18N
+                        "unable to locate type {0} in: {1}", // NOI18N
                         new String[] {"EVENT", bindmap.toString() })); // NOI18N
         } catch (Exception e) {
             throw new DDLException(e.getMessage());

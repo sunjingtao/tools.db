@@ -104,7 +104,7 @@ public interface DatabaseSpecification {
     * returns null if command specified by commandName was not found. Used 
     * system allows developers to extend db-specification files and simply 
     * address new commands (everybody can implement createXXXCommand()).
-    * @param command Name of command. 
+    * @param commandName Name of command.
     */
     public DDLCommand createCommand(String commandName) throws CommandNotSupportedException;
 

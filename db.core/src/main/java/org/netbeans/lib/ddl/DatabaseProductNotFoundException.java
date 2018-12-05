@@ -60,7 +60,7 @@ public class DatabaseProductNotFoundException extends Exception
 
     static final long serialVersionUID =-1108211224066947350L;
     /** Creates new exception
-    * @param desc The text describing the exception
+    * @param spec The text describing the exception
     */
     public DatabaseProductNotFoundException (String spec) {
         super ();

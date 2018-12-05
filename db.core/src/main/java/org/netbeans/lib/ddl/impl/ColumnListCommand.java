@@ -49,8 +49,6 @@ import java.util.Enumeration;
 import java.util.Map;
 import java.util.Vector;
 
-import org.openide.util.NbBundle;
-
 import org.netbeans.lib.ddl.DDLException;
 
 /**
@@ -112,11 +110,11 @@ public class ColumnListCommand extends AbstractCommand
                 columns.add(column);
             } else throw new InstantiationException(
                     MessageFormat.format(
-                        NbBundle.getBundle("org.netbeans.lib.ddl.resources.Bundle").getString("EXC_UnableLocateType"), // NOI18N
+                        "unable to locate type {0} in: {1}", // NOI18N
                         new String[] {tname, props.keySet().toString() } ));
         } else throw new InstantiationException(
                     MessageFormat.format(
-                        NbBundle.getBundle("org.netbeans.lib.ddl.resources.Bundle").getString("EXC_UnableToBind"), // NOI18N
+                        "unable bind type {0}, table: {1}", // NOI18N
                         new String[] {type, bindmap.toString() } ));
         return column;
     }

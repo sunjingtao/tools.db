@@ -47,8 +47,6 @@ package org.netbeans.lib.ddl.impl;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.openide.util.NbBundle;
-
 import org.netbeans.lib.ddl.DDLException;
 import org.netbeans.lib.ddl.util.CommandFormatter;
 
@@ -140,7 +138,7 @@ public class TriggerEvent {
     throws DDLException
     {
         Map cprops;
-        if (format == null) throw new DDLException(NbBundle.getBundle("org.netbeans.lib.ddl.resources.Bundle").getString("EXC_NoFormatSpec")); //NOI18N
+        if (format == null) throw new DDLException("no format specified"); //NOI18N
         try {
             cprops = getColumnProperties(cmd);
             return CommandFormatter.format(format, cprops);

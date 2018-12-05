@@ -47,8 +47,6 @@ package org.netbeans.lib.ddl.impl;
 import java.text.MessageFormat;
 import java.util.Map;
 
-import org.openide.util.NbBundle;
-
 import org.netbeans.lib.ddl.DDLException;
 
 /**
@@ -83,7 +81,7 @@ public class ColumnCommand extends AbstractCommand
         if (tname != null) {
             Map typemap = (Map)gprops.get(tname);
             if (typemap == null) throw new InstantiationException(
-                                                MessageFormat.format(NbBundle.getBundle("org.netbeans.lib.ddl.resources.Bundle").getString("EXC_UnableLocateObject"), // NOI18N
+                                                MessageFormat.format("unable to locate binded object {0}", // NOI18N
                                                     new String[] {tname}));
             Class typeclass = Class.forName((String)typemap.get("Class")); // NOI18N
             String format = (String)typemap.get("Format"); // NOI18N
@@ -94,7 +92,7 @@ public class ColumnCommand extends AbstractCommand
             column.setFormat(format);
             column.setNewObject(newObject);
             column.setNewColumn(newColumn);
-        } else throw new InstantiationException(MessageFormat.format(NbBundle.getBundle("org.netbeans.lib.ddl.resources.Bundle").getString("EXC_UnableLocateType"), // NOI18N
+        } else throw new InstantiationException(MessageFormat.format("unable to locate type {0} in: {1}", // NOI18N
                                                     new String[] {type, bindmap.toString() }));
 
         return column;

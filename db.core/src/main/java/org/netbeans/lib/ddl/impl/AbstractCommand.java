@@ -53,10 +53,6 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.openide.DialogDisplayer;
-import org.openide.NotifyDescriptor;
-import org.openide.util.NbBundle;
-
 import org.netbeans.lib.ddl.DatabaseSpecification;
 import org.netbeans.lib.ddl.DDLCommand;
 import org.netbeans.lib.ddl.DDLException;
@@ -179,7 +175,7 @@ public class AbstractCommand implements Serializable, DDLCommand {
             args.put("object.name", 
                 newObject ? getObjectName() : quote(getObjectName())); // NOI18N
         else
-            throw new DDLException(NbBundle.getBundle("org.netbeans.lib.ddl.resources.Bundle").getString("EXC_Unknown")); // NOI18N
+            throw new DDLException("unknown object name"); // NOI18N
         args.put("object.owner", quote(getObjectOwner())); // NOI18N
 
         return args;
@@ -203,7 +199,6 @@ public class AbstractCommand implements Serializable, DDLCommand {
         } catch (Exception e) {
             Logger.getLogger("global").log(Level.INFO, null, e);
             executionWithException = true;
-            DialogDisplayer.getDefault().notify(new NotifyDescriptor.Message(NbBundle.getBundle("org.netbeans.lib.ddl.resources.Bundle").getString("EXC_UnableToFormat")+"\n" + format + "\n" + e.getMessage(), NotifyDescriptor.ERROR_MESSAGE)); // NOI18N
             return;
         }
 
@@ -226,7 +221,7 @@ public class AbstractCommand implements Serializable, DDLCommand {
             if (opened && fcon != null)
                 spec.closeJDBCConnection();
 
-            throw new DDLException(NbBundle.getBundle("org.netbeans.lib.ddl.resources.Bundle").getString("EXC_UnableToExecute")+"\n" + fcmd + "\n" + e.getMessage()); // NOI18N
+            throw new DDLException("Unable to execute command:\n" + fcmd + "\n" + e.getMessage()); // NOI18N
         }
 
         if (opened)
@@ -242,7 +237,7 @@ public class AbstractCommand implements Serializable, DDLCommand {
     */
     public String getCommand() throws DDLException {
         if (format == null)
-            throw new DDLException(NbBundle.getBundle("org.netbeans.lib.ddl.resources.Bundle").getString("EXC_NoFormatSpec")); // NOI18N
+            throw new DDLException("no format specified"); // NOI18N
         try {
             Map props = getCommandProperties();
             return CommandFormatter.format(format, props);
