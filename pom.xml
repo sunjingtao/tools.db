@@ -10,10 +10,7 @@
     <version>1.0</version>
 
     <modules>
-        <module>db</module>
         <module>db.core</module>
-        <module>db.dataview</module>
         <module>db.mysql</module>
-        <module>db.sql.editor</module>
     </modules>
 </project>

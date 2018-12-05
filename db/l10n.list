@@ -1,3 +1,0 @@
-# db
-read global
-${l10n-module}/libsrc/**/Bundle.properties 

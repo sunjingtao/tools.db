@@ -1,9 +1,0 @@
-SET @PreviousDay = dateAdd(d, -1, @StartDate)
-# comment
-select |
-
---
-<unknown>
-  customers*
-    customer
-      customer_id
