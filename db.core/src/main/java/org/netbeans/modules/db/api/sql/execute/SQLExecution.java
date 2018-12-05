@@ -44,8 +44,9 @@
 
 package org.netbeans.modules.db.api.sql.execute;
 
+import org.netbeans.modules.db.explorer.DatabaseConnection;
+
 import java.beans.PropertyChangeListener;
-import org.netbeans.api.db.explorer.DatabaseConnection;
 
 /**
  *

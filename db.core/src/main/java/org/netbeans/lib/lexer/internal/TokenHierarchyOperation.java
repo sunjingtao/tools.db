@@ -44,39 +44,19 @@
 
 package org.netbeans.lib.lexer.internal;
 
-import java.io.IOException;
-import java.io.Reader;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.swing.event.EventListenerList;
-import org.netbeans.api.lexer.Language;
-import org.netbeans.api.lexer.TokenHierarchyEvent;
-import org.netbeans.api.lexer.TokenHierarchyListener;
-import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.lib.lexer.*;
-import org.netbeans.lib.lexer.inc.IncTokenList;
-import org.netbeans.lib.lexer.inc.TokenHierarchyEventInfo;
 import org.netbeans.lib.lexer.internal.inc.IncTokenList;
 import org.netbeans.lib.lexer.internal.inc.TokenHierarchyEventInfo;
 import org.netbeans.lib.lexer.internal.inc.TokenHierarchyUpdate;
 import org.netbeans.lib.lexer.internal.inc.TokenListChange;
-import org.netbeans.spi.lexer.MutableTextInput;
-import org.netbeans.api.lexer.InputAttributes;
-import org.netbeans.api.lexer.LanguagePath;
-import org.netbeans.api.lexer.TokenHierarchyEventType;
-import org.netbeans.api.lexer.TokenId;
-import org.netbeans.api.lexer.TokenSequence;
-import org.netbeans.lib.editor.util.ArrayUtilities;
-import org.netbeans.lib.lexer.inc.TokenHierarchyUpdate;
-import org.netbeans.lib.lexer.inc.TokenListChange;
 import org.netbeans.util.ArrayUtilities;
+
+import javax.swing.event.EventListenerList;
+import java.io.IOException;
+import java.io.Reader;
+import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Token hierarchy operation services tasks of its associated token hierarchy.

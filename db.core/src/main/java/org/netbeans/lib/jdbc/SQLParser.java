@@ -52,7 +52,7 @@ import static org.netbeans.lib.jdbc.JdbcCCTProvider.*;
  *
  * @author Tomas Hurka
  */
-class SQLParser {
+public class SQLParser {
     
     Object[] commands = {
         "ALTER", SQL_COMMAND_ALTER,     // NOI18N
@@ -79,7 +79,7 @@ class SQLParser {
     private final Pattern wordPattern;
     private final StringCache strings;
 
-    SQLParser() {
+    public SQLParser() {
         StringBuffer pattern = new StringBuffer();
         
         for (int i =0; i < commands.length; i+=2) {

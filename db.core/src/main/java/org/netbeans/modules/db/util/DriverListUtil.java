@@ -44,12 +44,12 @@
 
 package org.netbeans.modules.db.util;
 
+import org.netbeans.api.db.explorer.JDBCDriver;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
-import org.netbeans.api.db.explorer.JDBCDriver;
-import org.netbeans.api.db.explorer.JDBCDriverManager;
 
 public class DriverListUtil {
 
@@ -393,23 +393,5 @@ public class DriverListUtil {
         
         return "";
     }
-    
-    public static String findFreeName(String name) {
-        String ret;
-        List<String> names = new ArrayList<>();
-        JDBCDriver[] drivers = JDBCDriverManager.getDefault().getDrivers();
-        for (int i = 0; i < drivers.length; i++) {
-            names.add(drivers[i].getDisplayName());
-        }
-        if (names.contains(name)) {
-            for (int i = 1;; i++) {
-                ret = name + " (" + i + ")"; // NOI18N
-                if (!names.contains(ret)) {
-                    return ret;
-                }
-            }
-        } else {
-            return name;
-        }
-    }
+
 }

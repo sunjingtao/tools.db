@@ -50,8 +50,6 @@ package org.netbeans.modules.db.sql.querymodel;
  *      INNER JOIN employees e ON e.id = e.id
  */
 
-import org.netbeans.modules.db.sql.visualeditor.querybuilder.QueryBuilderMetaData;
-
 import java.util.Collection;
 
 import org.netbeans.modules.db.core.SQLIdentifiers;

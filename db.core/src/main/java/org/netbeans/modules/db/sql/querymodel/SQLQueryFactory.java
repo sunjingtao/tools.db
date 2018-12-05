@@ -43,15 +43,16 @@
  */
 package org.netbeans.modules.db.sql.querymodel;
 
-import org.netbeans.modules.db.sql.visualeditor.parser.SQLParser;
-import org.netbeans.modules.db.sql.visualeditor.parser.ParseException;
+import org.netbeans.lib.jdbc.SQLParser;
+
 import java.util.ArrayList;
 
 public class SQLQueryFactory {
 
-    public static Query parse(String query) throws ParseException {
-        SQLParser parser = new SQLParser(new java.io.StringReader(query));
-        return (Query)parser.SQLQuery();
+    public static Query parse(String query) throws Exception {
+//        SQLParser parser = new SQLParser(new java.io.StringReader(query));
+//        return (Query)parser.SQLQuery();
+        return null;
     }
 
     public static Where createWhere(Expression expr) {

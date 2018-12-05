@@ -121,14 +121,6 @@ public interface DBConnection extends java.io.Serializable
     */
     public void setDriverName(String name);
 
-    /** Returns if password should be remembered */
-    public boolean rememberPassword();
-
-    /** Sets password should be remembered
-    * @param flag New flag
-    */
-    public void setRememberPassword(boolean flag);
-
     /** Returns password */
     public String getPassword();
 

@@ -41,7 +41,7 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  */
-package org.netbeans.modules.db.schema.util;
+package org.netbeans.util;
 
 import java.sql.Types;
 import java.util.ResourceBundle;
@@ -49,19 +49,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class SQLTypeUtil extends Object {
-
-    // ===================== i18n utilities ===========================
-    /**
-     * Computes the localized string for the key.
-     *
-     * @param key The key of the string.
-     * @return the localized string.
-     */
-    public static String getString(String key) {
-        return ResourceBundle.getBundle("org.netbeans.modules.dbschema.resources.Bundle").getString(key);
-    }
-
-	// ===================== sql type utilities ===========================
+    // ===================== sql type utilities ===========================
     /**
      * Convert sql types to String for display
      *
@@ -219,8 +207,8 @@ public class SQLTypeUtil extends Object {
      * lob type; false otherwise
      */
     static public boolean isLob(int type) {
-        return (isBlob(type) 
-                || (Types.CLOB == type) 
+        return (isBlob(type)
+                || (Types.CLOB == type)
                 || (Types.LONGVARCHAR == type));
     }
 
@@ -237,4 +225,5 @@ public class SQLTypeUtil extends Object {
                 || (isNumeric(type1) && isNumeric(type2))
                 || (isBlob(type1) && isBlob(type2)));
     }
+
 }

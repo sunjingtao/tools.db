@@ -42,7 +42,6 @@
 
 package org.netbeans.modules.db.explorer;
 
-import org.netbeans.api.db.explorer.DatabaseConnection;
 import org.netbeans.api.db.explorer.DatabaseException;
 import org.netbeans.lib.ddl.DDLException;
 import org.netbeans.lib.ddl.DatabaseProductNotFoundException;

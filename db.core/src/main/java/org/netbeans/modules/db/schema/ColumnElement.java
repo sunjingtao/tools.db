@@ -44,9 +44,9 @@
 
 package org.netbeans.modules.db.schema;
 
-import java.sql.Types;
+import org.netbeans.util.SQLTypeUtil;
 
-import org.netbeans.modules.dbschema.util.SQLTypeUtil;
+import java.sql.Types;
 
 /** Describes a column in a table.
  */

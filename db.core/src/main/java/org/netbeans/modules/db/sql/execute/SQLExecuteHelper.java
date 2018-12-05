@@ -66,20 +66,8 @@ public final class SQLExecuteHelper {
      * @param sqlScript the SQL script to execute. If it contains multiple lines
      * they have to be delimited by '\n' characters.
      */
-    public static SQLExecutionResults execute(String sqlScript, int startOffset, int endOffset,
-                                              DatabaseConnection conn, SQLExecutionLogger executionLogger) {
-        return execute(sqlScript, startOffset, endOffset, conn, executionLogger,10);
-    }
-
-    /**
-     * Executes a SQL string, possibly containing multiple statements. Returns the execution
-     * result, but only if the string contained a single statement.
-     *
-     * @param sqlScript the SQL script to execute. If it contains multiple lines
-     * they have to be delimited by '\n' characters.
-     */
-    public static SQLExecutionResults execute(String sqlScript, int startOffset, int endOffset,
-            DatabaseConnection conn, SQLExecutionLogger executionLogger, int pageSize) {
+    public static void execute(String sqlScript, int startOffset, int endOffset,
+            DatabaseConnection conn, int pageSize) {
 
         boolean cancelled = false;
 
@@ -123,21 +111,12 @@ public final class SQLExecuteHelper {
 //            results.add(result);
         }
 
-        long end = System.currentTimeMillis();
-
-        if (!cancelled) {
-            executionLogger.finish(end - start);
-        } else {
-            LOGGER.log(Level.FINE, "Execution cancelled"); // NOI18N
-            executionLogger.cancel();
-        }
 
 //        if (!cancelled) {
 //            return new SQLExecutionResults(results);
 //        } else {
 //            return null;
 //        }
-        return null;
     }
 
     static Compatibility getCompatibility(DatabaseConnection conn) {

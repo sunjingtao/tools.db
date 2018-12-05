@@ -44,6 +44,9 @@
 
 package org.netbeans.lib.ddl.impl;
 
+import org.netbeans.lib.ddl.*;
+import org.netbeans.lib.ddl.adaptors.DatabaseMetaDataAdaptor;
+
 import java.beans.Beans;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
@@ -53,11 +56,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import org.openide.util.NbBundle;
-
-import org.netbeans.lib.ddl.*;
-import org.netbeans.lib.ddl.adaptors.DatabaseMetaDataAdaptor;
 
 
 public class Specification implements DatabaseSpecification {
@@ -181,8 +179,8 @@ public class Specification implements DatabaseSpecification {
                         dmdAdaptor = (DatabaseMetaData) Beans.instantiate(loader, adc);
                         if (dmdAdaptor instanceof DatabaseMetaDataAdaptor) {
                             ((DatabaseMetaDataAdaptor)dmdAdaptor).setConnection(jdbccon);
-                        } else throw new ClassNotFoundException(NbBundle.getBundle("org.netbeans.lib.ddl.resources.Bundle").getString("EXC_AdaptorInterface")); //NOI18N
-                    } else throw new ClassNotFoundException(NbBundle.getBundle("org.netbeans.lib.ddl.resources.Bundle").getString("EXC_AdaptorUnspecClass")); //NOI18N
+                        } else throw new ClassNotFoundException("adaptor should implement DatabaseAdaptor interface"); //NOI18N
+                    } else throw new ClassNotFoundException(("unspecified adaptor class")); //NOI18N
                 }
             }
 
@@ -203,13 +201,13 @@ public class Specification implements DatabaseSpecification {
     public Connection openJDBCConnection()
     throws DDLException
     {
-        if (jdbccon != null) throw new DDLException(NbBundle.getBundle("org.netbeans.lib.ddl.resources.Bundle").getString("EXC_ConnOpen")); //NOI18N
+        if (jdbccon != null) throw new DDLException("connection open"); //NOI18N
         DBConnection dbcon = getConnection();
-        if (dbcon == null) throw new DDLException(NbBundle.getBundle("org.netbeans.lib.ddl.resources.Bundle").getString("EXC_ConnNot")); //NOI18N
+        if (dbcon == null) throw new DDLException("no connection specified"); //NOI18N
         try {
             jdbccon = dbcon.createJDBCConnection();
         } catch (Exception e) {
-            throw new DDLException(NbBundle.getBundle("org.netbeans.lib.ddl.resources.Bundle").getString("EXC_ConnNot"));
+            throw new DDLException("no connection specified");
         }
 
         return jdbccon;
@@ -231,12 +229,12 @@ public class Specification implements DatabaseSpecification {
     public void closeJDBCConnection()
     throws DDLException
     {
-        if (jdbccon == null) throw new DDLException(NbBundle.getBundle("org.netbeans.lib.ddl.resources.Bundle").getString("EXC_ConnNot")); //NOI18n
+        if (jdbccon == null) throw new DDLException("no connection specified"); //NOI18n
         try {
             jdbccon.close();
             jdbccon = null;
         } catch (SQLException e) {
-            throw new DDLException(NbBundle.getBundle("org.netbeans.lib.ddl.resources.Bundle").getString("EXC_ConnUnableClose")); //NOI18N
+            throw new DDLException("unable to close connection"); //NOI18N
         }
     }
 
@@ -268,13 +266,13 @@ public class Specification implements DatabaseSpecification {
         if (cprops != null) classname = (String)cprops.get("Class"); // NOI18N
         //else throw new CommandNotSupportedException(commandName, "command "+commandName+" is not supported by system");
         else throw new CommandNotSupportedException(commandName,
-            MessageFormat.format(NbBundle.getBundle("org.netbeans.lib.ddl.resources.Bundle").getString("EXC_CommandNotSupported"), commandName)); // NOI18N
+            MessageFormat.format("Command Not Supported : {0}", commandName)); // NOI18N
         try {
             cmdclass = Class.forName(classname);
             cmd = (AbstractCommand)cmdclass.newInstance();
         } catch (Exception e) {
             throw new CommandNotSupportedException(commandName,
-                MessageFormat.format(NbBundle.getBundle("org.netbeans.lib.ddl.resources.Bundle").getString("EXC_UnableFindOrInitCommand"), classname, commandName, e.getMessage())); // NOI18N
+                MessageFormat.format("Unable Find Or Init Command , {0} {1} {2}", classname, commandName, e.getMessage())); // NOI18N
         }
 
         cmd.setObjectName(tableName);
@@ -358,7 +356,6 @@ public class Specification implements DatabaseSpecification {
     }
 
     /** Create index
-    * @param indexName Name of index
     * @param tableName Name of the table
     */
     public CreateIndex createCommandCreateIndex(String tableName)
@@ -369,7 +366,7 @@ public class Specification implements DatabaseSpecification {
     }
 
     /** Drop index
-    * @param indexName Name of index
+    * @param tablename Name of index
     */
     public DropIndex createCommandDropIndex(String tablename)
     throws CommandNotSupportedException
@@ -399,7 +396,7 @@ public class Specification implements DatabaseSpecification {
     }
 
     /** Comment view command
-    * @param tableName Name of the view
+    * @param viewName Name of the view
     * @param comment New comment
     */
     public CommentView createCommandCommentView(String viewName, String comment)
@@ -420,7 +417,7 @@ public class Specification implements DatabaseSpecification {
     }
 
     /** Create procedure
-    * @param viewname Name of procedure
+    * @param name Name of procedure
     */
     public CreateProcedure createCommandCreateProcedure(String name)
     throws CommandNotSupportedException
@@ -429,7 +426,7 @@ public class Specification implements DatabaseSpecification {
     }
 
     /** Drop procedure
-    * @param viewname Name of procedure
+    * @param name Name of procedure
     */
     public AbstractCommand createCommandDropProcedure(String name)
     throws CommandNotSupportedException
@@ -438,7 +435,7 @@ public class Specification implements DatabaseSpecification {
     }
 
     /** Create function
-    * @param viewname Name of function
+    * @param name Name of function
     */
     public CreateFunction createCommandCreateFunction(String name)
     throws CommandNotSupportedException
@@ -447,7 +444,7 @@ public class Specification implements DatabaseSpecification {
     }
 
     /** Drop function
-    * @param viewname Name of function
+    * @param name Name of function
     */
     public AbstractCommand createCommandDropFunction(String name)
     throws CommandNotSupportedException
@@ -456,7 +453,7 @@ public class Specification implements DatabaseSpecification {
     }
 
     /** Create trigger
-    * @param viewname Name of trigger
+    * @param name Name of trigger
     */
     public CreateTrigger createCommandCreateTrigger(String name, String tablename, int timing)
     throws CommandNotSupportedException
@@ -468,7 +465,7 @@ public class Specification implements DatabaseSpecification {
     }
 
     /** Drop trigger
-    * @param viewname Name of trigger
+    * @param name Name of trigger
     */
     public AbstractCommand createCommandDropTrigger(String name)
     throws CommandNotSupportedException

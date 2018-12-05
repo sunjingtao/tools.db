@@ -45,36 +45,22 @@
 package org.netbeans.modules.db.explorer;
 
 
-
-
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeSupport;
-import java.beans.PropertyVetoException;
-import java.io.ObjectStreamException;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.sql.SQLWarning;
-import java.text.MessageFormat;
-import java.util.*;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import com.sun.org.apache.xerces.internal.util.MessageFormat;
 import org.netbeans.api.db.explorer.DatabaseException;
 import org.netbeans.api.db.explorer.JDBCDriver;
-import org.netbeans.api.db.explorer.JDBCDriverManager;
-import org.netbeans.api.keyring.Keyring;
 import org.netbeans.lib.ddl.CommandNotSupportedException;
 import org.netbeans.lib.ddl.DBConnection;
 import org.netbeans.lib.ddl.DDLException;
 import org.netbeans.lib.ddl.impl.Specification;
 import org.netbeans.modules.db.ExceptionListener;
 import org.netbeans.modules.db.metadata.model.api.MetadataModel;
+
+import java.io.ObjectStreamException;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.text.MessageFormat;
+import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Connection information
@@ -129,9 +115,6 @@ public final class DatabaseConnection implements DBConnection {
 
     private String connectionFileName;
 
-    /** The support for firing property changes */
-    private PropertyChangeSupport propertySupport;
-
     /** Connection name */
     private String name;
 
@@ -162,7 +145,7 @@ public final class DatabaseConnection implements DBConnection {
     /**
      * The API DatabaseConnection (delegates to this instance)
      */
-    private transient org.netbeans.api.db.explorer.DatabaseConnection dbconn;
+    private transient DatabaseConnection dbconn;
 
     private static final String SUPPORT = "_schema_support"; //NOI18N
     public static final String PROP_DRIVER = "driver"; //NOI18N
@@ -187,8 +170,6 @@ public final class DatabaseConnection implements DBConnection {
     /** Default constructor */
     @SuppressWarnings("LeakingThisInConstructor")
     public DatabaseConnection() {
-        dbconn = DatabaseConnectionAccessor.DEFAULT.createDatabaseConnection(this);
-        propertySupport = new PropertyChangeSupport(this);
     }
 
     /** Advanced constructor
@@ -248,7 +229,8 @@ public final class DatabaseConnection implements DBConnection {
      * @return matching JDBC driver for connection or NULL if no match is found
      */
     public JDBCDriver findJDBCDriver() {
-        JDBCDriver[] drvs = JDBCDriverManager.getDefault().getDrivers(drv);
+//        JDBCDriver[] drvs = JDBCDriverManager.getDefault().getDrivers(drv);
+        JDBCDriver[] drvs = null;
         if (drivers == null || !Arrays.equals(drvs, drivers)) {
             drivers = drvs;
 
@@ -270,23 +252,6 @@ public final class DatabaseConnection implements DBConnection {
         return jdbcdrv;
     }
 
-    public Connection getJDBCConnection(boolean test) {
-        Connection conn = getJDBCConnection();
-        if (test) {
-            if (! test()) {
-                try {
-                    disconnect();
-                } catch (DatabaseException e) {
-                    LOGGER.log(Level.FINE, null, e);
-                }
-
-                return null;
-            }
-        }
-
-        return conn;
-    }
-
     public void setMetadataModel(MetadataModel model) {
         metadataModel = model;
     }
@@ -294,122 +259,6 @@ public final class DatabaseConnection implements DBConnection {
     public MetadataModel getMetadataModel() {
         return metadataModel;
     }
-
-    public boolean isVitalConnection() {
-        if (this.getJDBCConnection() == null) {
-            return false;
-        }
-        try {
-            return !checkClosedWithTimeout(this.getJDBCConnection());
-        } catch (Exception ex) {
-            if (dbconn != null) {
-                try {
-                    this.disconnect();
-                } catch (DatabaseException ex1) {
-                    LOGGER.log(Level.FINE, "While trying vitality of connection: " + ex1.getLocalizedMessage(), ex1);
-                }
-            }
-            LOGGER.log(Level.FINE, "While trying vitality of connection: " + ex.getLocalizedMessage(), ex);
-            return false;
-        }
-    }
-
-    /**
-     * Check whether a connection is closed, using a reasonable timeout. See bug
-     * #221602.
-     */
-    private static boolean checkClosedWithTimeout(final Connection connection) {
-        Callable<Boolean> task = new Callable<Boolean>() {
-            @Override
-            public Boolean call() {
-                try {
-                    SQLWarning warnings = connection.getWarnings();
-                    if (LOGGER.isLoggable(Level.FINE) && warnings != null) {
-                        LOGGER.log(
-                                Level.FINE,
-                                "Warnings while trying vitality of connection: {0}",
-                                warnings);
-                    }
-                    return connection.isClosed();
-                } catch (SQLException ex) {
-                    LOGGER.log(Level.FINE,
-                            "While trying vitality of connection: " //NOI18N
-                            + ex.getLocalizedMessage(), ex);
-                    return false;
-                }
-            }
-        };
-        Future<Boolean> future = RP.submit(task);
-        try {
-            return future.get(1, TimeUnit.SECONDS);
-        } catch (TimeoutException | InterruptedException e) {
-            return false;
-        } catch (ExecutionException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private boolean test() {
-        try {
-            if (! this.isVitalConnection()) {
-                return false;
-            }
-
-            // Send a command to the server, if it fails we know the connection is invalid.
-            try {
-                return getJDBCConnection().isValid(10 * 1000);
-            } catch (Throwable err) {
-                // In case JDBC driver does not implement method
-                getJDBCConnection().getMetaData().getTables(null, null, " ", new String[] { "TABLE" }).close();
-            }
-        } catch (SQLException | NullPointerException e) {
-            if("net.sourceforge.jtds.jdbc.Driver".equals(getDriver())
-                    && e instanceof SQLException
-                    && "07009".equals(((SQLException) e).getSQLState())) {
-                // This state is reached when "set showplan_* ON" is run
-                // in this case metadata is broken on sql server
-                return true;
-            }
-            LOGGER.log(Level.INFO, NbBundle.getMessage(DatabaseConnection.class,
-                    "MSG_TestFailed", getName(), e.getMessage()));
-            LOGGER.log(Level.FINE, null, e);
-            return false;
-        }
-        return true;
-
-    }
-
-     private Collection<? extends OpenConnectionInterface> getOpenConnections() {
-         if (openConnectionServices == null) {
-             openConnectionServices = openConnectionLookupResult.allInstances();
-         }
-         return openConnectionServices;
-     }
-
-     private OpenConnectionInterface getOpenConnection() {
-         if (openConnection != null) {
-            return openConnection;
-        }
-
-         openConnection = new OpenConnection();
-         String driver = getDriver();
-         if (driver == null) {
-             return openConnection;
-         }
-
-         // For Java Studio Enterprise. Create instanceof OpenConnection
-         try {
-             for (OpenConnectionInterface oci : getOpenConnections()) {
-                 if (oci.isFor(driver)) {
-                     openConnection = oci;
-                     break;
-                 }
-             }
-         } catch(Exception ex) {
-             LOGGER.log(Level.INFO, null, ex);
-         }
-         return openConnection;
-     }
 
     /** Returns driver class */
     @Override
@@ -429,7 +278,6 @@ public final class DatabaseConnection implements DBConnection {
 
         String olddrv = drv;
         drv = driver;
-        propertySupport.firePropertyChange(PROP_DRIVER, olddrv, drv);
         openConnection = null;
     }
 
@@ -446,9 +294,6 @@ public final class DatabaseConnection implements DBConnection {
 
         String olddrv = drvname;
         drvname = name;
-        if (propertySupport != null) {
-            propertySupport.firePropertyChange(PROP_DRIVERNAME, olddrv, drvname);
-        }
     }
 
     /** Returns database URL */
@@ -477,14 +322,6 @@ public final class DatabaseConnection implements DBConnection {
         db = database;
         name = null;
         name = getName();
-        String newDisplayName = getDisplayName();
-        if (propertySupport != null) {
-            propertySupport.firePropertyChange(PROP_DATABASE, olddb, db);
-            propertySupport.firePropertyChange(PROP_NAME, oldName, name);
-            if(! oldDisplayName.equals(newDisplayName)) {
-                propertySupport.firePropertyChange(PROP_DISPLAY_NAME, oldDisplayName, newDisplayName);
-        }
-    }
     }
 
     /** Returns user login name */
@@ -513,14 +350,6 @@ public final class DatabaseConnection implements DBConnection {
         usr = user;
         name = null;
         name = getName();
-        String newDisplayName = getDisplayName();
-        if (propertySupport != null) {
-            propertySupport.firePropertyChange(PROP_USER, oldusr, usr);
-            propertySupport.firePropertyChange(PROP_NAME, oldName, name);
-            if(! oldDisplayName.equals(displayName)) {
-                propertySupport.firePropertyChange(PROP_DISPLAY_NAME, oldDisplayName, newDisplayName);
-        }
-    }
     }
 
     /** Returns name of the connection */
@@ -528,10 +357,10 @@ public final class DatabaseConnection implements DBConnection {
     public String getName() {
         if(name == null) {
             if((getSchema()==null)||(getSchema().length()==0)) {
-                name = MessageFormat.format(DatabaseConnection.class, "ConnectionNodeUniqueName", getDatabase(), getUser(),
-                        MessageFormat.format(DatabaseConnection.class, "SchemaIsNotSet")); //NOI18N
+                name = MessageFormat.format("{0} [{1} on {2}]", getDatabase(), getUser(),
+                       "Default schema"); //NOI18N
             } else {
-                name = MessageFormat.format(DatabaseConnection.class, "ConnectionNodeUniqueName", getDatabase(), getUser(), getSchema()); //NOI18N
+                name = MessageFormat.format("{0} [{1} on {2}]", getDatabase(), getUser(), getSchema()); //NOI18N
             }
         }
         return name;
@@ -549,9 +378,6 @@ public final class DatabaseConnection implements DBConnection {
 
         String old = name;
         name = value;
-        if (propertySupport != null) {
-            propertySupport.firePropertyChange(PROP_NAME, old, name);
-        }
     }
 
     @Override
@@ -567,9 +393,6 @@ public final class DatabaseConnection implements DBConnection {
 
         String old = displayName;
         displayName = value;
-        if (propertySupport != null) {
-            propertySupport.firePropertyChange(PROP_DISPLAY_NAME, old, displayName);
-        }
     }
 
     @Override
@@ -585,7 +408,6 @@ public final class DatabaseConnection implements DBConnection {
         } else {
             this.connectionProperties = (Properties) connectionProperties.clone();
         }
-        propertySupport.firePropertyChange(PROP_CONNECTIONPROPERTIES, old, connectionProperties);
     }
 
     /** Returns user schema name */
@@ -618,31 +440,10 @@ public final class DatabaseConnection implements DBConnection {
         schema = schema_name;
         name = getName();
         String newDisplayName = getDisplayName();
-        if (propertySupport != null) {
-            propertySupport.firePropertyChange(PROP_SCHEMA, oldschema, schema);
-            propertySupport.firePropertyChange(PROP_NAME, oldName, name);
-            if(! oldDisplayName.equals(displayName)) {
-                propertySupport.firePropertyChange(PROP_DISPLAY_NAME, oldDisplayName, newDisplayName);
-        }
-    }
-    }
-
-    public void setDefaultCatalog(String val) throws CommandNotSupportedException, DDLException {
-        DDLHelper.setDefaultDatabase(getConnector().getDatabaseSpecification(), val);
-        String oldVal = defaultCatalog;
-        defaultCatalog = val;
-
-        if (propertySupport != null) {
-            propertySupport.firePropertyChange(PROP_DEFCATALOG, oldVal, defaultCatalog);
-        }
-    }
-
-    public String getDefaultCatalog() {
-        return defaultCatalog;
     }
 
     public void setDefaultSchema(String newDefaultSchema) throws Exception {
-        DDLHelper.setDefaultSchema(getConnector().getDatabaseSpecification(), newDefaultSchema);
+//        DDLHelper.setDefaultSchema(getConnector().getDatabaseSpecification(), newDefaultSchema);
 
         String oldName = name;
         name = null;
@@ -651,12 +452,6 @@ public final class DatabaseConnection implements DBConnection {
         defaultSchema = newDefaultSchema;
 
         name = getName();
-
-        if (propertySupport != null) {
-            propertySupport.firePropertyChange(PROP_DEFSCHEMA, oldDefaultSchema, defaultSchema);
-            propertySupport.firePropertyChange(PROP_SCHEMA, schema, getSchema());
-            propertySupport.firePropertyChange(PROP_NAME, oldName, name);
-        }
     }
 
     public String getDefaultSchema() {
@@ -667,23 +462,10 @@ public final class DatabaseConnection implements DBConnection {
         this.connectionFileName = connectionFileName;
     }
 
-    /** Sets password should be remembered
-     * @param flag New flag
-     */
-    @Override
-    public void setRememberPassword(boolean flag) {
-        Boolean oldrpwd = rpwd;
-        rpwd = flag;
-        if (propertySupport != null) {
-            propertySupport.firePropertyChange(PROP_REMEMBER_PASSWORD, oldrpwd, rpwd);
-        }
-    }
-
     /** Returns password */
     @Override
     public String getPassword() {
         if (pwd == null) {
-            restorePassword();
         }
         return pwd;
     }
@@ -703,9 +485,6 @@ public final class DatabaseConnection implements DBConnection {
         } else {
             pwd = password;
         }
-        if (propertySupport != null) {
-            propertySupport.firePropertyChange(PROP_PASSWORD, oldpwd, pwd);
-        }
     }
 
     /** Creates JDBC connection
@@ -718,7 +497,7 @@ public final class DatabaseConnection implements DBConnection {
         LOGGER.log(Level.FINE, "createJDBCConnection()");
 
         if (drv == null || db == null || usr == null ) {
-            throw new DDLException(NbBundle.getMessage(DatabaseConnection.class, "EXC_InsufficientConnInfo")); // NOI18N
+            throw new DDLException("insufficient information to create a connection"); // NOI18N
         }
 
         Properties dbprops;
@@ -737,13 +516,6 @@ public final class DatabaseConnection implements DBConnection {
         try {
             setState(State.connecting);
 
-            // For Java Studio Enterprise.
-            getOpenConnection().enable();
-            startRuntimes();
-
-            // hack for Derby
-            DerbyConectionEventListener.getDefault().beforeConnect(this);
-
             JDBCDriver useDriver = findJDBCDriver();
             if (useDriver == null) {
                 // will be loaded through DriverManager, make sure it is loaded
@@ -757,17 +529,11 @@ public final class DatabaseConnection implements DBConnection {
 
             setState(State.connected);
 
-            // For Java Studio Enterprise.
-            getOpenConnection().disable();
-
             return connection;
         } catch (SQLException e) {
             String message = MessageFormat.format("Cannot establish a connection to {0} using {1} ({2})", db, drv, e.getMessage()); // NOI18N
 
             setState(State.failed);
-
-            // For Java Studio Enterprise.
-            getOpenConnection().disable();
 
             initSQLException(e);
             throw new DDLException(message, e);
@@ -776,8 +542,6 @@ public final class DatabaseConnection implements DBConnection {
 
             setState(State.failed);
 
-            // For Java Studio Enterprise.
-            getOpenConnection().disable();
             throw new DDLException(message, exc);
         }
     }
@@ -805,7 +569,7 @@ public final class DatabaseConnection implements DBConnection {
     @SuppressWarnings("deprecation")
     private void doConnect() throws DDLException {
         if (drv == null || db == null || usr == null ) {
-            sendException(new DDLException(NbBundle.getMessage(DatabaseConnection.class, "EXC_InsufficientConnInfo")));
+            sendException(new DDLException("insufficient information to create a connection"));
         }
 
         Properties dbprops;
@@ -824,11 +588,6 @@ public final class DatabaseConnection implements DBConnection {
         Connection conn = null;
         try {
             setState(State.connecting);
-
-            // For Java Studio Enterprise.
-            getOpenConnection().enable();
-
-            startRuntimes();
 
             JDBCDriver useDriver = findJDBCDriver();
             if (useDriver == null) {
@@ -889,7 +648,6 @@ public final class DatabaseConnection implements DBConnection {
                         db, drv, t.getMessage());
             setState(State.failed);
         } finally {
-            getOpenConnection().disable();
         }
     }
 
@@ -946,22 +704,6 @@ public final class DatabaseConnection implements DBConnection {
         return jdbcConnection;
     }
 
-    /** Add property change listener
-     * Registers a listener for the PropertyChange event. The connection object
-     * should fire a PropertyChange event whenever somebody changes driver, database,
-     * login name or password.
-     */
-    public void addPropertyChangeListener(PropertyChangeListener l) {
-        propertySupport.addPropertyChangeListener(l);
-    }
-
-    /** Remove property change listener
-     * Remove a listener for the PropertyChange event.
-     */
-    public void removePropertyChangeListener(PropertyChangeListener l) {
-        propertySupport.removePropertyChangeListener(l);
-    }
-
     @Override
     public int hashCode() {
         return Objects.hashCode(drv) + Objects.hashCode(db) + Objects.hashCode(usr);
@@ -1016,8 +758,6 @@ public final class DatabaseConnection implements DBConnection {
         }
         name = null;
         name = getName();
-
-        dbconn = DatabaseConnectionAccessor.DEFAULT.createDatabaseConnection(this);
     }
 
     /** Writes object to stream */
@@ -1048,10 +788,6 @@ public final class DatabaseConnection implements DBConnection {
         return connector;
     }
 
-    public void notifyChange() {
-        propertySupport.firePropertyChange("changed", null, null);
-    }
-
     public void disconnect() throws DatabaseException {
         if (jdbcConnection != null) {
             try {
@@ -1066,10 +802,6 @@ public final class DatabaseConnection implements DBConnection {
     }
 
     private Object readResolve() throws ObjectStreamException {
-        // sometimes deserialized objects have a null propertySuppport, not sure why
-        if (propertySupport == null) {
-            propertySupport = new PropertyChangeSupport(this);
-        }
         return this;
     }
 
@@ -1087,14 +819,12 @@ public final class DatabaseConnection implements DBConnection {
         }
         List<String> oldList = new ArrayList<>(importantSchemas);
         importantSchemas.add(schema);
-        propertySupport.firePropertyChange("importantSchemas", oldList, importantSchemas); //NOI18N
     }
 
     public void removeImportantSchema(String schema) {
         if (importantSchemas != null) {
             List<String> oldList = new ArrayList<>(importantSchemas);
             importantSchemas.remove(schema);
-            propertySupport.firePropertyChange("importantSchemas", oldList, importantSchemas); //NOI18N
         }
     }
 
@@ -1116,14 +846,12 @@ public final class DatabaseConnection implements DBConnection {
         }
         List<String> oldList = new ArrayList<>(importantCatalogs);
         importantCatalogs.add(database);
-        propertySupport.firePropertyChange("importantCatalogs", oldList, importantCatalogs); //NOI18N
     }
 
     public void removeImportantCatalog(String database) {
         if (importantCatalogs != null) {
             List<String> oldList = new ArrayList<>(importantCatalogs);
             importantCatalogs.remove(database);
-            propertySupport.firePropertyChange("importantCatalogs", oldList, importantCatalogs); //NOI18N
         }
     }
 
@@ -1138,27 +866,9 @@ public final class DatabaseConnection implements DBConnection {
     public void setSeparateSystemTables(boolean separateSystemTables) {
         boolean oldVal = this.separateSystemTables;
         this.separateSystemTables = separateSystemTables;
-        propertySupport.firePropertyChange("separateSystemTables", oldVal, separateSystemTables); //NOI18N
     }
 
-    /**
-     * Decide whether scrollable cursors should be used by the connection.
-     */
-    private boolean isUseScrollableCursorsByDefault() {
-        return false;
-    }
 
-    public boolean isUseScrollableCursors() {
-        return useScrollableCursors == null
-                ? isUseScrollableCursorsByDefault()
-                : useScrollableCursors;
-    }
-
-    public void setUseScrollableCursors(boolean useScrollableCursors) {
-        boolean oldVal = isUseScrollableCursors();
-        this.useScrollableCursors = useScrollableCursors;
-        propertySupport.firePropertyChange("useScrollableCursors", oldVal, useScrollableCursors); //NOI18N
-    }
 
     public State getState() {
         return state;
@@ -1167,6 +877,5 @@ public final class DatabaseConnection implements DBConnection {
     private void setState(State state) {
         State oldState = this.state;
         this.state = state;
-        propertySupport.firePropertyChange("state", oldState, state);
     }
 }

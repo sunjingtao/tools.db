@@ -42,17 +42,18 @@
 
 package org.netbeans.modules.db.metadata.model.jdbc;
 
+import org.netbeans.modules.db.metadata.model.MetadataUtilities;
+import org.netbeans.modules.db.metadata.model.api.*;
+import org.netbeans.modules.db.metadata.model.api.Index.IndexType;
+import org.netbeans.modules.db.metadata.model.spi.TableImplementation;
+
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.MessageFormat;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.netbeans.modules.db.metadata.model.MetadataUtilities;
-import org.netbeans.modules.db.metadata.model.api.Index.IndexType;
-import org.netbeans.modules.db.metadata.model.api.*;
-import org.netbeans.modules.db.metadata.model.spi.TableImplementation;
-import org.openide.util.NbBundle;
 
 /**
  *
@@ -359,16 +360,12 @@ public class JDBCTable extends TableImplementation {
     
     private void throwColumnNotFoundException(Table table, String colname)
             throws MetadataException {
-        String message = getMessage("ERR_COL_NOT_FOUND", //NOI18N
+        String message = MessageFormat.format("The column named {3} in catalog {0}, schema {1}, table {2} can not be found", //NOI18N
                 table.getParent().getParent().getName(),
                 table.getParent().getName(), table.getName(), colname);
         MetadataException e = new MetadataException(message);
         LOGGER.log(Level.INFO, message, e);
         throw e;
-    }
-
-    private String getMessage(String key, String ... args) {
-        return NbBundle.getMessage(JDBCTable.class, key, args);
     }
 
     private Table findReferredTable(ResultSet rs) {
@@ -384,7 +381,7 @@ public class JDBCTable extends TableImplementation {
             } else {
                 catalog = metadata.getCatalog(catalogName);
                 if (catalog == null) {
-                    throw new MetadataException(getMessage("ERR_CATALOG_NOT_FOUND", catalogName)); // NOI18N
+                    throw new MetadataException(MessageFormat.format("The catalog {0} can not be found", catalogName)); // NOI18N
                 }
             }
 
@@ -395,7 +392,7 @@ public class JDBCTable extends TableImplementation {
             } else {
                 schema = catalog.getSchema(schemaName);
                 if (schema == null) {
-                    throw new MetadataException(getMessage("ERR_SCHEMA_NOT_FOUND", schemaName, catalog.getName()));
+                    throw new MetadataException(MessageFormat.format("The schema named {0} can not be found in the catalog {1}", schemaName, catalog.getName()));
                 }
             }
 
@@ -403,7 +400,7 @@ public class JDBCTable extends TableImplementation {
             table = schema.getTable(tableName);
 
             if (table == null) {
-                throw new MetadataException(getMessage("ERR_TABLE_NOT_FOUND", catalogName, schemaName, tableName));
+                throw new MetadataException(MessageFormat.format("The table named {2} in catalog {0}, schema {1} can not be found", catalogName, schemaName, tableName));
             }
 
         } catch (SQLException e) {

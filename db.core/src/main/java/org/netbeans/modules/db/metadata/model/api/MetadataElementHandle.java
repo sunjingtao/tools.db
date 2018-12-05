@@ -46,7 +46,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import org.openide.util.Parameters;
 
 /**
  * Represents the handle of a metadata element.
@@ -98,7 +97,8 @@ public class MetadataElementHandle<T extends MetadataElement> {
      * @return the handle for the given metadata element.
      */
     public static <T extends MetadataElement> MetadataElementHandle<T> create(T element) {
-        Parameters.notNull("element", element);
+        if(element == null)
+            throw new IllegalArgumentException("parameter element cann't be null");
         List<String> names = new ArrayList<String>();
         List<Kind> kinds = new ArrayList<Kind>();
         MetadataElement current = element;
