@@ -41,7 +41,7 @@
  */
 package com.tools.data.db.modules.db.sql.analyzer;
 
-import com.tools.data.db.lib.lexer.TokenSequence;
+import com.tools.lib.lexer.TokenSequence;
 import com.tools.data.db.modules.db.core.SQLIdentifiers;
 import com.tools.data.db.modules.db.sql.lexer.SQLTokenId;
 

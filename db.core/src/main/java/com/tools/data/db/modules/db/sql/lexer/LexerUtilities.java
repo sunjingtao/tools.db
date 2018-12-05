@@ -42,10 +42,10 @@
 package com.tools.data.db.modules.db.sql.lexer;
 
 import com.tools.data.db.util.OffsetRange;
-import com.tools.data.db.lib.lexer.Token;
-import com.tools.data.db.lib.lexer.TokenHierarchy;
-import com.tools.data.db.lib.lexer.TokenId;
-import com.tools.data.db.lib.lexer.TokenSequence;
+import com.tools.lib.lexer.Token;
+import com.tools.lib.lexer.TokenHierarchy;
+import com.tools.lib.lexer.TokenId;
+import com.tools.lib.lexer.TokenSequence;
 
 import javax.swing.text.Document;
 import java.util.List;

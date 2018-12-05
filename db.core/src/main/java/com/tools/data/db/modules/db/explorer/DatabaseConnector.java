@@ -42,7 +42,7 @@
 
 package com.tools.data.db.modules.db.explorer;
 
-import com.tools.data.db.api.db.explorer.DatabaseException;
+import com.tools.data.db.exception.DatabaseException;
 import com.tools.data.db.lib.ddl.adaptors.DefaultAdaptor;
 import com.tools.data.db.lib.ddl.impl.*;
 import com.tools.data.db.modules.db.metadata.model.api.*;

@@ -45,13 +45,12 @@
 package com.tools.data.db.modules.db.explorer;
 
 
-import com.tools.data.db.api.db.explorer.DatabaseException;
+import com.tools.data.db.exception.DatabaseException;
 import com.tools.data.db.api.db.explorer.JDBCDriver;
 import com.tools.data.db.lib.ddl.CommandNotSupportedException;
 import com.tools.data.db.lib.ddl.DBConnection;
 import com.tools.data.db.lib.ddl.DDLException;
 import com.tools.data.db.lib.ddl.impl.Specification;
-import com.tools.data.db.modules.db.ExceptionListener;
 import com.tools.data.db.modules.db.metadata.model.api.MetadataModel;
 
 import java.io.ObjectStreamException;
@@ -82,7 +81,6 @@ public final class DatabaseConnection implements DBConnection {
 
     static final long serialVersionUID =4554639187416958735L;
 
-    private final Set<ExceptionListener> exceptionListeners = Collections.synchronizedSet (new HashSet<ExceptionListener> ());
     private Connection jdbcConnection;
 
     /** Driver URL and name */
@@ -569,7 +567,7 @@ public final class DatabaseConnection implements DBConnection {
     @SuppressWarnings("deprecation")
     private void doConnect() throws DDLException {
         if (drv == null || db == null || usr == null ) {
-            sendException(new DDLException("insufficient information to create a connection"));
+            throw new DDLException("insufficient information to create a connection");
         }
 
         Properties dbprops;
@@ -670,29 +668,6 @@ public final class DatabaseConnection implements DBConnection {
             }
             current = next;
             next = current.getNextException();
-        }
-    }
-
-    public void addExceptionListener(ExceptionListener l) {
-        if (l != null) {
-            exceptionListeners.add(l);
-        }
-    }
-
-    public void removeExceptionListener(ExceptionListener l) {
-        exceptionListeners.remove(l);
-    }
-
-    private void sendException(Exception exc) {
-        List<ExceptionListener> listeners = new ArrayList<>();
-        synchronized (exceptionListeners) {
-            for (ExceptionListener l : exceptionListeners) {
-                listeners.add(l);
-            }
-        }
-
-        for (ExceptionListener listener : listeners) {
-            listener.exceptionOccurred(exc);
         }
     }
 

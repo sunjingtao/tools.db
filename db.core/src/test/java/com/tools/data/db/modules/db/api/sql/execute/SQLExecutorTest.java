@@ -42,7 +42,7 @@
 
 package com.tools.data.db.modules.db.api.sql.execute;
 
-import com.tools.data.db.api.db.explorer.DatabaseException;
+import com.tools.data.db.exception.DatabaseException;
 import org.junit.Assert;
 import org.netbeans.api.db.explorer.ConnectionManager;
 import org.netbeans.api.db.explorer.DatabaseConnection;

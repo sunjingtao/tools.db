@@ -50,6 +50,7 @@ import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Objects;
 
+import com.tools.data.db.exception.DatabaseException;
 import com.tools.data.db.modules.db.explorer.DbDriverManager;
 
 /**

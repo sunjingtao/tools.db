@@ -41,7 +41,7 @@
  */
 package com.tools.data.db.modules.db.sql.lexer;
 
-import com.tools.data.db.lib.lexer.*;
+import com.tools.lib.lexer.*;
 import com.tools.data.db.modules.db.core.SQLKeywords;
 
 /**
