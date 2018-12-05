@@ -48,7 +48,6 @@ import java.sql.*;
 import java.util.*;
 
 import org.netbeans.modules.db.schema.*;
-import org.netbeans.modules.dbschema.util.*;
 
 public class IndexElementImpl extends DBMemberElementImpl implements IndexElement.Impl {
 

@@ -50,7 +50,6 @@ import java.io.OutputStream;
 import java.io.RandomAccessFile;
 import java.sql.Blob;
 import java.sql.SQLException;
-import org.openide.util.Exceptions;
 
 /**
  * A storage implementing a _subset_ of the Blob Interface backed by a file
@@ -91,12 +90,12 @@ public class FileBackedBlob implements Blob {
             try {
                 if(os != null) os.close();
             } catch (IOException ex) {
-                Exceptions.printStackTrace(ex);
+                ex.printStackTrace();
             }
             try {
                 if(is != null) is.close();
             } catch (IOException ex) {
-                Exceptions.printStackTrace(ex);
+                ex.printStackTrace();
             }
         }
     }
@@ -125,7 +124,7 @@ public class FileBackedBlob implements Blob {
             try {
                 is.close();
             } catch (IOException ex) {
-                Exceptions.printStackTrace(ex);
+                ex.printStackTrace();
             }
         }
     }
@@ -182,7 +181,7 @@ public class FileBackedBlob implements Blob {
             try {
                 raf.close();
             } catch (IOException ex) {
-                Exceptions.printStackTrace(ex);
+                ex.printStackTrace();
             }
         }
 
@@ -221,7 +220,7 @@ public class FileBackedBlob implements Blob {
             try {
                 raf.close();
             } catch (IOException ex) {
-                Exceptions.printStackTrace(ex);
+                ex.printStackTrace();
             }
         }
     }

@@ -41,7 +41,7 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  */
-package org.netbeans.modules.dbschema.util;
+package org.netbeans.modules.db.schema.util;
 
 import java.sql.Types;
 import java.util.ResourceBundle;

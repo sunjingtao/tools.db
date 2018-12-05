@@ -44,6 +44,8 @@
 
 package org.netbeans.modules.db.explorer;
 
+import org.netbeans.api.db.explorer.DatabaseConnection;
+
 /**
  * Provides access to the api.DatabaseConnection constructor by the
  * {@link #createDatabaseConnection} method.
@@ -64,5 +66,5 @@ public abstract class DatabaseConnectionAccessor {
         }
     }
     
-    public abstract org.netbeans.api.db.explorer.DatabaseConnection createDatabaseConnection(DatabaseConnection conn);
+    public abstract DatabaseConnection createDatabaseConnection(DatabaseConnection conn);
 }

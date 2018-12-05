@@ -42,20 +42,19 @@
  * made subject to such option by the copyright holder.
  */
 
-package org.netbeans.modules.dbschema;
+package org.netbeans.modules.db.schema;
 
 import java.io.*;
 import java.text.MessageFormat;
 import java.util.*;
 
-import org.netbeans.modules.dbschema.util.*;
+import org.netbeans.modules.db.schema.util.*;
 
-import org.netbeans.modules.dbschema.migration.archiver.*;
-import org.openide.nodes.Node;
+import org.netbeans.modules.db.schema.migration.archiver.*;
 
 /** Describes an entire database schema.
  */
-public class SchemaElement extends DBElement implements Node.Cookie {
+public class SchemaElement extends DBElement {
     /** Status when the schema element is not yet prepared. */
     public static final int STATUS_NOT = 0;
 
@@ -169,9 +168,6 @@ public class SchemaElement extends DBElement implements Node.Cookie {
      * @return the SchemaElement object for the given schema name
      */
     public static SchemaElement forName(String name, Object obj) {
-        if (IDEUtil.isIDERunning())
-            return SchemaElementUtil.forName(name, obj);
- 
         if (obj == null)
             return forNameInternal(name, SchemaElement.class.getClassLoader());
         if (obj instanceof ClassLoader)
@@ -252,7 +248,7 @@ public class SchemaElement extends DBElement implements Node.Cookie {
     }
 
     /** Sets the schema name of this schema snapshot.
-     * @param id the schema name, or <code>null</code>
+     * @param schema the schema name, or <code>null</code>
      * @exception DBException if the operation cannot proceed
      */
     public void setSchema(DBIdentifier schema) throws DBException {
@@ -268,7 +264,7 @@ public class SchemaElement extends DBElement implements Node.Cookie {
     }
 
     /** Sets the catalog name of this schema snapshot.
-     * @param id the catalog name, or <code>null</code>
+     * @param catalog the catalog name, or <code>null</code>
      * @exception DBException if the operation cannot proceed
      */
     public void setCatalog(DBIdentifier catalog) throws DBException {
@@ -664,7 +660,7 @@ public class SchemaElement extends DBElement implements Node.Cookie {
 
 		/** Changes set of elements.
 		 * @param elems elements to change
-		 * @exception SourceException if the action cannot be handled
+		 * @exception DBException if the action cannot be handled
 		 */
 		public synchronized void changeTables(TableElement[] elems, int action) throws DBException {
 			initTables();

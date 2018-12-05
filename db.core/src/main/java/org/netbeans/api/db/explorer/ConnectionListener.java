@@ -50,7 +50,6 @@ import java.util.EventListener;
  * Listener for changes to ConnectionManager (adding and removing
  * database connection from the DatabaseExplorer).
  *
- * @see ConnectionManager
  *
  * @author Andrei Badea
  */

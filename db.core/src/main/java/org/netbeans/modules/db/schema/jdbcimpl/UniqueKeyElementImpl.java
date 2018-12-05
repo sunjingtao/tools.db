@@ -68,7 +68,7 @@ public class UniqueKeyElementImpl extends KeyElementImpl implements UniqueKeyEle
     }
   
     /** Set the primary key flag of the unique key.
-     * @param flag the flag
+     * @param primary the flag
      * @throws DBException if impossible
      */
     public void setPrimaryKey(boolean primary) throws DBException {

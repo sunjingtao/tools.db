@@ -43,13 +43,13 @@
 package org.netbeans.modules.db.util;
 
 import java.net.MalformedURLException;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import org.netbeans.api.db.explorer.JDBCDriver;
-import org.openide.util.NbBundle;
 
 /**
  * An abstraction for a JDBC URL that lets us set and get the various
@@ -179,8 +179,7 @@ public class JdbcUrl extends HashMap<String, String> {
         }
         if (driver != null && driver.getDisplayName() != null
                 && !driver.getDisplayName().equals(displayName)) {
-            return NbBundle.getMessage(DriverListUtil.class,
-                    "JDBC_URL_DRIVER_NAME", //NOI18N
+            return MessageFormat.format("{0} on {1}", //NOI18N
                     nameAndType, driver.getDisplayName());
         } else {
             return nameAndType;
@@ -251,7 +250,7 @@ public class JdbcUrl extends HashMap<String, String> {
     }
 
     private MalformedURLException createMalformedURLException() {
-        return new MalformedURLException(NbBundle.getMessage (JdbcUrl.class, "ERR_InvalidURL", getUrlTemplate()));
+        return new MalformedURLException(MessageFormat.format ("Invalid URL, should be of the form \\n{0}", getUrlTemplate()));
     }
 
     private boolean isOptionalStart(String component) {

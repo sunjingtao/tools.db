@@ -43,14 +43,9 @@
  */
 package org.netbeans.modules.db.dataview.meta;
 
-import java.util.Collections;
-import java.util.List;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import org.netbeans.modules.db.dataview.util.DataViewUtils;
+import java.util.*;
 
 /**
  * Holds DB PrimaryKey meta info of a given table.
@@ -78,7 +73,7 @@ public final class DBPrimaryKey extends DBObject<DBTable> {
 
             name = rs.getString(RS_COLUMN_NAME);
             String tmpName = rs.getString(RS_KEY_NAME);
-            if (!DataViewUtils.isNullString(tmpName) && name == null) {
+            if (tmpName!=null && name == null) {
                 name = tmpName;
             }
         }

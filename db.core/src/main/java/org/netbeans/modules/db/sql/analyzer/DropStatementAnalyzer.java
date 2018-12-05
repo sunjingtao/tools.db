@@ -41,8 +41,8 @@
  */
 package org.netbeans.modules.db.sql.analyzer;
 
-import org.netbeans.api.db.sql.support.SQLIdentifiers.Quoter;
-import org.netbeans.api.lexer.TokenSequence;
+import org.netbeans.lib.lexer.TokenSequence;
+import org.netbeans.modules.db.core.SQLIdentifiers;
 import org.netbeans.modules.db.sql.analyzer.SQLStatement.Context;
 import org.netbeans.modules.db.sql.lexer.SQLTokenId;
 
@@ -54,11 +54,11 @@ class DropStatementAnalyzer extends SQLStatementAnalyzer {
 
     private QualIdent table = null;
 
-    private DropStatementAnalyzer(TokenSequence<SQLTokenId> seq, Quoter quoter) {
+    private DropStatementAnalyzer(TokenSequence<SQLTokenId> seq, SQLIdentifiers.Quoter quoter) {
         super(seq, quoter);
     }
 
-    public static DropStatement analyze(TokenSequence<SQLTokenId> seq, Quoter quoter) {
+    public static DropStatement analyze(TokenSequence<SQLTokenId> seq, SQLIdentifiers.Quoter quoter) {
         seq.moveStart();
         if (!seq.moveNext()) {
             return null;

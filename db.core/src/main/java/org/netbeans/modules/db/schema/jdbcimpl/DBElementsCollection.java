@@ -118,7 +118,6 @@ public class DBElementsCollection implements DBElementProperties {
 
 		/** Find method that looks in member elements
 		 * @param id the identifier (or null)
-		 * @param types array of types to test (or null)
 		 * @return the element or null
 		 */
         public DBElement find(DBIdentifier id) {

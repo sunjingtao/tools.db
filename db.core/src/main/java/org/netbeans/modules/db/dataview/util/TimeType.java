@@ -52,7 +52,6 @@ import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.netbeans.modules.db.dataview.meta.DBException;
-import org.openide.util.NbBundle;
 
 /**
  * Implements a date type which can generate instances of java.sql.Date and other JDBC
@@ -103,11 +102,11 @@ public class TimeType {
         } else if (value instanceof String) {
             Date dVal = doParse ((String) value);
             if (dVal == null) {
-                throw new DBException(NbBundle.getMessage(TimeType.class,"LBL_invalid_time"));
+                throw new DBException("Invalid Time");
             }
             return getNormalizedTime(dVal.getTime());
         } else {
-            throw new DBException(NbBundle.getMessage(TimeType.class,"LBL_invalid_time"));
+            throw new DBException("Invalid Time");
         }
     }
 

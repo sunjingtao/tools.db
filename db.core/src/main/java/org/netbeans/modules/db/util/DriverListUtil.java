@@ -50,7 +50,6 @@ import java.util.Set;
 import java.util.TreeSet;
 import org.netbeans.api.db.explorer.JDBCDriver;
 import org.netbeans.api.db.explorer.JDBCDriverManager;
-import org.openide.util.NbBundle;
 
 public class DriverListUtil {
 
@@ -122,23 +121,23 @@ public class DriverListUtil {
         "RmiJdbc.RJDriver",
         "jdbc:rmi://<HOST>[:<PORT>]/jdbc:cloudscape:<DB>");
         
-        add(NbBundle.getMessage(DriverListUtil.class, "DRIVERNAME_JavaDbEmbedded"),
+        add("Java DB (Embedded)",
         "org.apache.derby.jdbc.EmbeddedDriver",
         "jdbc:derby:<DB>[;<ADDITIONAL>]", true);
         
-        add(NbBundle.getMessage(DriverListUtil.class, "DRIVERNAME_JavaDbNetwork"),
+        add("Java DB (Network)",
         "org.apache.derby.jdbc.ClientDriver",
         "jdbc:derby://<HOST>[:<PORT>]/<DB>[;<ADDITIONAL>]", true);
         
-        add(NbBundle.getMessage(DriverListUtil.class, "DRIVERNAME_DB2JCC"),
+        add("IBM DB2 Universal Driver",
             "com.ibm.db2.jcc.DB2Driver",
             "jdbc:db2://<HOST>:<PORT>/<DB>[:<ADDITIONAL>]", true);
         
-        add(NbBundle.getMessage(DriverListUtil.class, "DRIVERNAME_DB2JCC"), NbBundle.getMessage(DriverListUtil.class, "TYPE_IDS"),
+        add("IBM DB2 Universal Driver", "Informix Dynamic Server (IDS)",
                 "com.ibm.db2.jcc.DB2Driver",
                 "jdbc:ids://<HOST>:<PORT>/<DB>[:<ADDITIONAL>]", true);
         
-        add(NbBundle.getMessage(DriverListUtil.class, "DRIVERNAME_DB2JCC"), NbBundle.getMessage(DriverListUtil.class, "TYPE_Cloudscape"),
+        add("IBM DB2 Universal Driver", "Cloudscape Server",
                 "com.ibm.db2.jcc.DB2Driver",
                 "jdbc:db2j:net://<HOST>:<PORT>/<DB>[:<ADDITIONAL>]", true);
 
@@ -206,11 +205,11 @@ public class DriverListUtil {
         "org.hsql.jdbcDriver",
         "jdbc:HypersonicSQL:<DB>");
         
-        add(NbBundle.getMessage(DriverListUtil.class, "DRIVERNAME_JTDS"), NbBundle.getMessage(DriverListUtil.class, "TYPE_ForSQLServer"),
+        add("jTDS", "Microsoft SQL Server",
         "net.sourceforge.jtds.jdbc.Driver",
         "jdbc:jtds:sqlserver://<HOST>[:<PORT>][/<DB>][;<ADDITIONAL>]", true);
         
-        add(NbBundle.getMessage(DriverListUtil.class, "DRIVERNAME_JTDS"), NbBundle.getMessage(DriverListUtil.class, "TYPE_ForSybase"),
+        add("jTDS", "Sybase ASE",
         "net.sourceforge.jtds.jdbc.Driver",
         "jdbc:jtds:sybase://<HOST>[:<PORT>][/<DB>][;<ADDITIONAL>]", true);
 
@@ -238,11 +237,11 @@ public class DriverListUtil {
         "com.microsoft.jdbc.sqlserver.SQLServerDriver",
         "jdbc:microsoft:sqlserver://<HOST>[:<PORT>][;DatabaseName=<DB>]");
 
-        add(NbBundle.getMessage(DriverListUtil.class, "DRIVERNAME_MSSQL2005"),
+        add("Microsoft SQL Server 2005",
         "com.microsoft.sqlserver.jdbc.SQLServerDriver",
         "jdbc:sqlserver://[<HOST>[\\<INSTANCE>][:<PORT>]][;databaseName=<DB>][;<ADDITIONAL>]", true);
         
-        url = add(NbBundle.getMessage(DriverListUtil.class, "DRIVERNAME_MySQL"),
+        url = add("MySQL (Connector/J driver)",
                 "com.mysql.jdbc.Driver", 
                 "jdbc:mysql://[<HOST>[:<PORT>]][/<DB>][?<ADDITIONAL>]", true); // NOI18N
         url.setSampleUrl("jdbc:mysql://localhost:3306/mysql?zeroDateTimeBehavior=convertToNull");
@@ -253,45 +252,45 @@ public class DriverListUtil {
         "org.gjt.mm.mysql.Driver",
         "jdbc:mysql://<HOST>[:<PORT>]/<DB>");
         
-        url = add(NbBundle.getMessage(DriverListUtil.class, "DRIVERNAME_OracleThin"),
-                NbBundle.getMessage(DriverListUtil.class, "TYPE_SID"), "oracle.jdbc.OracleDriver",
+        url = add("Oracle Thin",
+                "Service ID (SID)", "oracle.jdbc.OracleDriver",
                 "jdbc:oracle:thin:@<HOST>:<PORT>:<SID>[?<ADDITIONAL>]", true); // NOI18N
         url.setSampleUrl("jdbc:oracle:thin:@localhost:1521:XE");
         url.setSampleUser("hr");
         url.setSamplePassword("hr");
         
-        url = add(NbBundle.getMessage(DriverListUtil.class, "DRIVERNAME_OracleThin"),
-                NbBundle.getMessage(DriverListUtil.class, "TYPE_Service"), "oracle.jdbc.OracleDriver",
+        url = add("Oracle Thin",
+                "Service Name", "oracle.jdbc.OracleDriver",
                 "jdbc:oracle:thin:@//<HOST>[:<PORT>][/<SERVICE>][?<ADDITIONAL>]", true); // NOI18N
         
-        url = add(NbBundle.getMessage(DriverListUtil.class, "DRIVERNAME_OracleThin"),
-                NbBundle.getMessage(DriverListUtil.class, "TYPE_TNSName"), "oracle.jdbc.OracleDriver",
+        url = add("Oracle Thin",
+                "TNS Name (v10.2.0.1.0 or later)", "oracle.jdbc.OracleDriver",
                 "jdbc:oracle:thin:@<TNSNAME>[?<ADDITIONAL>]", true); // NOI18N
                 
-        url = add(NbBundle.getMessage(DriverListUtil.class, "DRIVERNAME_OracleOCI"),
-                "OCI8 " + NbBundle.getMessage(DriverListUtil.class, "TYPE_SID"), "oracle.jdbc.driver.OracleDriver",
+        url = add("Oracle OCI",
+                "OCI8 " + "Service ID (SID)", "oracle.jdbc.driver.OracleDriver",
                 "jdbc:oracle:oci8:@<HOST>:<PORT>:<SID>[?<ADDITIONAL>]", true); // NOI18N
         url.setSampleUrl("jdbc:oracle:oci8:@localhost:1521:XE");
         url.setSampleUser("hr");
         url.setSamplePassword("hr");
         
-        url = add(NbBundle.getMessage(DriverListUtil.class, "DRIVERNAME_OracleOCI"),
-                "OCI8 " + NbBundle.getMessage(DriverListUtil.class, "TYPE_Service"), "oracle.jdbc.driver.OracleDriver",
+        url = add("Oracle OCI",
+                "OCI8 " + "Service Name", "oracle.jdbc.driver.OracleDriver",
                 "jdbc:oracle:oci8:@//<HOST>[:<PORT>][/<SERVICE>][?<ADDITIONAL>]", true); // NOI18N
         
-        url = add(NbBundle.getMessage(DriverListUtil.class, "DRIVERNAME_OracleOCI"),
-                NbBundle.getMessage(DriverListUtil.class, "TYPE_TNSName"), "oracle.jdbc.driver.OracleDriver",
+        url = add("Oracle OCI",
+                "TNS Name (v10.2.0.1.0 or later)", "oracle.jdbc.driver.OracleDriver",
                 "jdbc:oracle:oci:@<TNSNAME>[?<ADDITIONAL>]", true); // NOI18N
         
-        url = add(NbBundle.getMessage(DriverListUtil.class, "DRIVERNAME_OracleOCI"),
-                NbBundle.getMessage(DriverListUtil.class, "TYPE_SID"), "oracle.jdbc.driver.OracleDriver",
+        url = add("Oracle OCI",
+                "Service ID (SID)", "oracle.jdbc.driver.OracleDriver",
                 "jdbc:oracle:oci:@<HOST>:<PORT>:<SID>[?<ADDITIONAL>]", true); // NOI18N
         url.setSampleUrl("jdbc:oracle:oci:@localhost:1521:XE");
         url.setSampleUser("hr");
         url.setSamplePassword("hr");
         
-        add(NbBundle.getMessage(DriverListUtil.class, "DRIVERNAME_OracleOCI"),
-                NbBundle.getMessage(DriverListUtil.class, "TYPE_Service"), "oracle.jdbc.driver.OracleDriver",
+        add("Oracle OCI",
+                "Service Name", "oracle.jdbc.driver.OracleDriver",
                 "jdbc:oracle:oci:@//<HOST>[:<PORT>][/<SERVICE>][?<ADDITIONAL>]", true); // NOI18N
         
         add("Oracle (DataDirect Connect for JDBC)",
@@ -302,7 +301,7 @@ public class DriverListUtil {
                 "postgresql.Driver",
                 "jdbc:postgresql:[//<HOST>[:<PORT>]/]<DB>[?<ADDITIONAL>]");
         
-        url = add(NbBundle.getMessage(DriverListUtil.class, "DRIVERNAME_PostgreSQL"), // 7.0 and later
+        url = add("PostgreSQL", // 7.0 and later
                 "org.postgresql.Driver",
                 "jdbc:postgresql:[//<HOST>[:<PORT>]/]<DB>[?<ADDITIONAL>]", true);
         url.setSampleUrl("jdbc:postgresql://localhost:5432/postgres");

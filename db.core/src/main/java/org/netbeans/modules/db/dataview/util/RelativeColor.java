@@ -164,9 +164,6 @@ public class RelativeColor implements UIDefaults.LazyValue {
      * @param actual Either a Color object or a UIManager String key resolvable 
      *  to a color, which represents the
      *  actual color, which may or may not match the target color
-     * @param mustContrast Either a Color object or a UIManager String key 
-     *  resolvable to a color which must contrast sufficiently with the derived
-     *  color that text will be readable
      */
     public RelativeColor(Color base, Color target, Object actual) {
         this (base, target, actual, null);

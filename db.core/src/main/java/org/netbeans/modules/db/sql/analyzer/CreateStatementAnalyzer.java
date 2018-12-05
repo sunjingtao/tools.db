@@ -43,8 +43,9 @@ package org.netbeans.modules.db.sql.analyzer;
 
 import java.util.Collections;
 import java.util.List;
-import org.netbeans.api.db.sql.support.SQLIdentifiers.Quoter;
-import org.netbeans.api.lexer.TokenSequence;
+
+import org.netbeans.lib.lexer.TokenSequence;
+import org.netbeans.modules.db.core.SQLIdentifiers;
 import org.netbeans.modules.db.sql.analyzer.SQLStatement.Context;
 import org.netbeans.modules.db.sql.lexer.SQLTokenId;
 
@@ -65,7 +66,7 @@ class CreateStatementAnalyzer extends SQLStatementAnalyzer {
     private int bodyStartOffset;
     private int bodyEndOffset;
 
-    public static CreateStatement analyze(TokenSequence<SQLTokenId> seq, Quoter quoter) {
+    public static CreateStatement analyze(TokenSequence<SQLTokenId> seq, SQLIdentifiers.Quoter quoter) {
         seq.moveStart();
         if (!seq.moveNext()) {
             return null;
@@ -75,7 +76,7 @@ class CreateStatementAnalyzer extends SQLStatementAnalyzer {
         return new CreateStatement(sa.startOffset, seq.offset() + seq.token().length(), sa.offset2Context, sa.bodyStartOffset, sa.bodyEndOffset, null, Collections.unmodifiableList(sa.subqueries));
     }
 
-    private CreateStatementAnalyzer(TokenSequence<SQLTokenId> seq, Quoter quoter) {
+    private CreateStatementAnalyzer(TokenSequence<SQLTokenId> seq, SQLIdentifiers.Quoter quoter) {
         super(seq, quoter);
     }
 

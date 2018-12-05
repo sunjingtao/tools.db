@@ -41,13 +41,14 @@
  */
 package org.netbeans.modules.db.sql.lexer;
 
-import java.util.List;
+import org.netbeans.lib.lexer.Token;
+import org.netbeans.lib.lexer.TokenHierarchy;
+import org.netbeans.lib.lexer.TokenId;
+import org.netbeans.lib.lexer.TokenSequence;
+import org.netbeans.util.OffsetRange;
+
 import javax.swing.text.Document;
-import org.netbeans.api.lexer.Token;
-import org.netbeans.api.lexer.TokenHierarchy;
-import org.netbeans.api.lexer.TokenId;
-import org.netbeans.api.lexer.TokenSequence;
-import org.netbeans.modules.csl.api.OffsetRange;
+import java.util.List;
 
 /**
  * Based on documentation on netbeans.org:

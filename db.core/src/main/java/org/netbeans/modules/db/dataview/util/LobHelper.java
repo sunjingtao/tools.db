@@ -47,7 +47,6 @@ import java.sql.SQLException;
 import java.util.Comparator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.jdesktop.swingx.renderer.StringValue;
 
 public class LobHelper {
 
@@ -91,37 +90,27 @@ public class LobHelper {
                 }
             };
 
-    private static final StringValue blobConverter
-            = new StringValue() {
+    public static String convertBlobToString(Object o) {
+            if (o == null) {
+                return "";
+            } else if (o instanceof Blob) {
+                return blobToString((Blob) o);
+            } else {
+                return "<Illegal value>";
+            }
 
-                @Override
-                public String getString(Object o) {
-                    if (o == null) {
-                        return "";
-                    } else if (o instanceof Blob) {
-                        return blobToString((Blob) o);
-                    } else {
-                        return "<Illegal value>";
-                    }
-                }
+    };
 
-            };
+    public static String convertClobToString(Object o) {
+            if (o == null) {
+                return "";
+            } else if (o instanceof Clob) {
+                return clobToString((Clob) o);
+            } else {
+                return "<Illegal value>";
+            }
 
-    private static final StringValue clobConverter
-            = new StringValue() {
-
-                @Override
-                public String getString(Object o) {
-                    if (o == null) {
-                        return "";
-                    } else if (o instanceof Clob) {
-                        return clobToString((Clob) o);
-                    } else {
-                        return "<Illegal value>";
-                    }
-                }
-
-            };
+    };
 
     public static Comparator<Blob> getBlobComparator() {
         return blobComparator;
@@ -129,14 +118,6 @@ public class LobHelper {
 
     public static Comparator<Clob> getClobComparator() {
         return clobComparator;
-    }
-
-    public static StringValue getBlobConverter() {
-        return blobConverter;
-    }
-
-    public static StringValue getClobConverter() {
-        return clobConverter;
     }
 
     public static String blobToString(Blob blob) {

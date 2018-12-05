@@ -63,6 +63,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import com.sun.org.apache.xerces.internal.util.MessageFormat;
 import org.netbeans.api.db.explorer.DatabaseException;
 import org.netbeans.api.db.explorer.JDBCDriver;
 import org.netbeans.api.db.explorer.JDBCDriverManager;
@@ -72,25 +74,7 @@ import org.netbeans.lib.ddl.DBConnection;
 import org.netbeans.lib.ddl.DDLException;
 import org.netbeans.lib.ddl.impl.Specification;
 import org.netbeans.modules.db.ExceptionListener;
-import org.netbeans.modules.db.explorer.action.ConnectAction;
-import org.netbeans.modules.db.explorer.node.ConnectionNode;
-import org.netbeans.modules.db.explorer.node.DDLHelper;
-import org.netbeans.modules.db.explorer.node.RootNode;
-import org.netbeans.modules.db.metadata.model.api.Action;
-import org.netbeans.modules.db.metadata.model.api.Metadata;
 import org.netbeans.modules.db.metadata.model.api.MetadataModel;
-import org.netbeans.modules.db.metadata.model.api.MetadataModelException;
-import org.netbeans.modules.db.runtime.DatabaseRuntimeManager;
-import org.netbeans.spi.db.explorer.DatabaseRuntime;
-import org.openide.DialogDisplayer;
-import org.openide.NotifyDescriptor;
-import org.openide.explorer.ExplorerManager;
-import org.openide.nodes.Node;
-import org.openide.util.*;
-import org.openide.util.RequestProcessor.Task;
-import org.openide.windows.TopComponent;
-
-
 
 /**
  * Connection information
@@ -153,7 +137,7 @@ public final class DatabaseConnection implements DBConnection {
 
     /** The user-specified name that is to be displayed for this connection. */
     private String displayName;
-    
+
     /** Error code */
     private int errorCode = -1;
 
@@ -174,7 +158,7 @@ public final class DatabaseConnection implements DBConnection {
     private Boolean useScrollableCursors = null; // null = driver default
 
     private State state;
-    
+
     /**
      * The API DatabaseConnection (delegates to this instance)
      */
@@ -199,22 +183,7 @@ public final class DatabaseConnection implements DBConnection {
     private volatile JDBCDriver jdbcdrv = null;
     private JDBCDriver[] drivers = null;
 
-    static private final Lookup.Result<OpenConnectionInterface> openConnectionLookupResult;
     static private Collection<? extends OpenConnectionInterface> openConnectionServices = null;
-    static {
-        openConnectionLookupResult = Lookup.getDefault().lookup(new Lookup.Template<>(OpenConnectionInterface.class));
-        openConnectionLookupResult.addLookupListener(new LookupListener() {
-            @Override
-            public void resultChanged(LookupEvent ev) {
-                synchronized (DatabaseConnection.class) {
-                    openConnectionServices = null;
-                }
-            }
-        });
-    }
-    
-    private static final RequestProcessor RP = new RequestProcessor(DatabaseConnection.class.getName(), 10);
-
     /** Default constructor */
     @SuppressWarnings("LeakingThisInConstructor")
     public DatabaseConnection() {
@@ -238,7 +207,7 @@ public final class DatabaseConnection implements DBConnection {
         this(driver, driverName, database, theschema, user, password, null, null);
     }
 
-    public DatabaseConnection(String driver, String driverName, String database, 
+    public DatabaseConnection(String driver, String driverName, String database,
             String theschema, String user) {
         this(driver, driverName, database, theschema, user, null, null, null);
     }
@@ -275,7 +244,7 @@ public final class DatabaseConnection implements DBConnection {
      * makes a best effort search, if at least a driver with a matching classname
      * is present this function will succeed. If a driver with a matching name is
      * present this will be returned.
-     * 
+     *
      * @return matching JDBC driver for connection or NULL if no match is found
      */
     public JDBCDriver findJDBCDriver() {
@@ -295,7 +264,7 @@ public final class DatabaseConnection implements DBConnection {
                 }
             }
             }
-            
+
             jdbcdrv = useDriver;
         }
         return jdbcdrv;
@@ -344,7 +313,7 @@ public final class DatabaseConnection implements DBConnection {
             return false;
         }
     }
-    
+
     /**
      * Check whether a connection is closed, using a reasonable timeout. See bug
      * #221602.
@@ -357,7 +326,7 @@ public final class DatabaseConnection implements DBConnection {
                     SQLWarning warnings = connection.getWarnings();
                     if (LOGGER.isLoggable(Level.FINE) && warnings != null) {
                         LOGGER.log(
-                                Level.FINE, 
+                                Level.FINE,
                                 "Warnings while trying vitality of connection: {0}",
                                 warnings);
                     }
@@ -385,16 +354,16 @@ public final class DatabaseConnection implements DBConnection {
             if (! this.isVitalConnection()) {
                 return false;
             }
-            
+
             // Send a command to the server, if it fails we know the connection is invalid.
             try {
                 return getJDBCConnection().isValid(10 * 1000);
             } catch (Throwable err) {
-                // In case JDBC driver does not implement method 
+                // In case JDBC driver does not implement method
                 getJDBCConnection().getMetaData().getTables(null, null, " ", new String[] { "TABLE" }).close();
             }
         } catch (SQLException | NullPointerException e) {
-            if("net.sourceforge.jtds.jdbc.Driver".equals(getDriver()) 
+            if("net.sourceforge.jtds.jdbc.Driver".equals(getDriver())
                     && e instanceof SQLException
                     && "07009".equals(((SQLException) e).getSQLState())) {
                 // This state is reached when "set showplan_* ON" is run
@@ -559,10 +528,10 @@ public final class DatabaseConnection implements DBConnection {
     public String getName() {
         if(name == null) {
             if((getSchema()==null)||(getSchema().length()==0)) {
-                name = NbBundle.getMessage (DatabaseConnection.class, "ConnectionNodeUniqueName", getDatabase(), getUser(),
-                        NbBundle.getMessage (DatabaseConnection.class, "SchemaIsNotSet")); //NOI18N
+                name = MessageFormat.format(DatabaseConnection.class, "ConnectionNodeUniqueName", getDatabase(), getUser(),
+                        MessageFormat.format(DatabaseConnection.class, "SchemaIsNotSet")); //NOI18N
             } else {
-                name = NbBundle.getMessage (DatabaseConnection.class, "ConnectionNodeUniqueName", getDatabase(), getUser(), getSchema()); //NOI18N
+                name = MessageFormat.format(DatabaseConnection.class, "ConnectionNodeUniqueName", getDatabase(), getUser(), getSchema()); //NOI18N
             }
         }
         return name;
@@ -680,7 +649,7 @@ public final class DatabaseConnection implements DBConnection {
 
         String oldDefaultSchema = defaultSchema;
         defaultSchema = newDefaultSchema;
-        
+
         name = getName();
 
         if (propertySupport != null) {
@@ -696,56 +665,6 @@ public final class DatabaseConnection implements DBConnection {
 
     public void setConnectionFileName(String connectionFileName) {
         this.connectionFileName = connectionFileName;
-    }
-    
-    private void restorePassword() {
-        if (this.connectionFileName == null) {
-            LOGGER.log(Level.FINE, "No connectionFileName for {0}", this);
-            pwd = "";
-            rpwd = false;
-            return ;
-        }
-        final String key = this.connectionFileName;
-        // If the password was saved, then it means the user checked
-        // the box to say the password should be remembered.
-        char[] chars = Keyring.read(key);
-        if (chars != null) {
-            LOGGER.log(Level.FINE, "A password read for {0}", key);
-            pwd = String.valueOf(chars);
-            rpwd = true;
-        } else {
-            LOGGER.log(Level.FINE, "No password read for {0}", key);
-            pwd = "";
-            rpwd = false;
-        }
-    }
-
-    public static void storePassword(final String key, final char[] pwd) {
-        Parameters.notNull("key", key);
-        Parameters.notNull("pwd", pwd);
-
-        LOGGER.log(Level.FINE, "Storing password for {0}", key);
-        Keyring.save(key,
-                pwd,
-                NbBundle.getMessage(DatabaseConnectionConvertor.class,
-                    "DatabaseConnectionConvertor.password_description", key)); //NOI18N
-    }
-    
-    public static void deletePassword(final String key) {
-        Parameters.notNull("key", key);
-
-        LOGGER.log(Level.FINE, "Deleting password for {0}", key);
-        Keyring.delete(key);
-    }
-    
-    /** Returns if password should be remembered */
-    @Override
-    public boolean rememberPassword() {
-        if (rpwd == null) {
-            restorePassword();
-        }
-        assert rpwd != null : "rpwd must be set to true or false";
-        return rpwd == null ? false : rpwd;
     }
 
     /** Sets password should be remembered
@@ -768,7 +687,7 @@ public final class DatabaseConnection implements DBConnection {
         }
         return pwd;
     }
-    
+
     /** Sets password
      * Fires propertychange event.
      * @param password New password
@@ -788,7 +707,7 @@ public final class DatabaseConnection implements DBConnection {
             propertySupport.firePropertyChange(PROP_PASSWORD, oldpwd, pwd);
         }
     }
-    
+
     /** Creates JDBC connection
      * Uses DriverManager to create connection to specified database. Throws
      * DDLException if none of driver/database/user/password is set or if
@@ -843,7 +762,7 @@ public final class DatabaseConnection implements DBConnection {
 
             return connection;
         } catch (SQLException e) {
-            String message = NbBundle.getMessage (DatabaseConnection.class, "EXC_CannotEstablishConnection", db, drv, e.getMessage()); // NOI18N
+            String message = MessageFormat.format("Cannot establish a connection to {0} using {1} ({2})", db, drv, e.getMessage()); // NOI18N
 
             setState(State.failed);
 
@@ -853,7 +772,7 @@ public final class DatabaseConnection implements DBConnection {
             initSQLException(e);
             throw new DDLException(message, e);
         } catch (ClassNotFoundException | RuntimeException exc) {
-            String message = NbBundle.getMessage (DatabaseConnection.class, "EXC_CannotEstablishConnection", db, drv, exc.getMessage()); // NOI18N
+            String message = MessageFormat.format("Cannot establish a connection to {0} using {1} ({2})", db, drv, exc.getMessage()); // NOI18N
 
             setState(State.failed);
 
@@ -911,9 +830,6 @@ public final class DatabaseConnection implements DBConnection {
 
             startRuntimes();
 
-            // hack for Derby
-            DerbyConectionEventListener.getDefault().beforeConnect(DatabaseConnection.this);
-
             JDBCDriver useDriver = findJDBCDriver();
             if (useDriver == null) {
                 // will be loaded through DriverManager, make sure it is loaded
@@ -926,9 +842,9 @@ public final class DatabaseConnection implements DBConnection {
             DatabaseUILogger.logConnection(drv);
 
             connector.finishConnect(null);
-            
+
             setState(State.connected);
-            
+
             if (getConnector().getDatabaseSpecification() != null && getConnector().supportsCommand(Specification.DEFAULT_SCHEMA)) {
                 try {
                     setDefaultSchema(getSchema());
@@ -937,14 +853,14 @@ public final class DatabaseConnection implements DBConnection {
                 }
             }
         } catch (Exception e) {
-            String message = NbBundle.getMessage (DatabaseConnection.class, "EXC_CannotEstablishConnection", // NOI18N
+            String message = MessageFormat.format("Cannot establish a connection to {0} using {1} ({2})", // NOI18N
                         db, drv, e.getMessage());
             // Issue 69265
             if (drv.equals(DRIVER_CLASS_NET)) {
                 if (e instanceof SQLException) {
                     errorCode = ((SQLException) e).getErrorCode();
                     if (errorCode == DERBY_UNICODE_ERROR_CODE) {
-                        message = MessageFormat.format(NbBundle.getMessage(DatabaseConnection.class, "EXC_DerbyCreateDatabaseUnicode"),message, db); // NOI18N
+                        message = "Unable to create the database because the Derby network driver does not support multibyte characters.";
                     }
                 }
             }
@@ -969,32 +885,12 @@ public final class DatabaseConnection implements DBConnection {
 
             throw ddle;
         } catch (Throwable t) {
-            String message = NbBundle.getMessage (DatabaseConnection.class, "EXC_CannotEstablishConnection", // NOI18N
+            String message = MessageFormat.format("Cannot establish a connection to {0} using {1} ({2})", // NOI18N
                         db, drv, t.getMessage());
-            DialogDisplayer.getDefault ().notifyLater (new NotifyDescriptor.Exception (t, message));
             setState(State.failed);
         } finally {
             getOpenConnection().disable();
         }
-    }
-
-    public Task connectAsync() {
-        LOGGER.log(Level.FINE, "connect()");
-
-        Runnable runnable = new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    doConnect();
-                } catch (Exception e) {
-                    sendException(e);
-
-                }
-            }
-        };
-
-        Task task = RP.post(runnable, 0);
-        return task;
     }
 
     public boolean isConnected() {
@@ -1016,20 +912,6 @@ public final class DatabaseConnection implements DBConnection {
             }
             current = next;
             next = current.getNextException();
-        }
-    }
-
-    private void startRuntimes() {
-        DatabaseRuntime[] runtimes = DatabaseRuntimeManager.getDefault().getRuntimes(drv);
-
-        for (int i = 0; i < runtimes.length; i++) {
-            DatabaseRuntime runtime = runtimes[i];
-            if (runtime.isRunning()) {
-                continue;
-            }
-            if (runtime.canStart() && runtime.acceptsDatabaseURL(db)) {
-                runtime.start();
-            }
         }
     }
 
@@ -1158,107 +1040,8 @@ public final class DatabaseConnection implements DBConnection {
     /**
      * Gets the API DatabaseConnection which corresponds to this connection.
      */
-    public org.netbeans.api.db.explorer.DatabaseConnection getDatabaseConnection() {
+    public DatabaseConnection getDatabaseConnection() {
         return dbconn;
-    }
-
-    public void selectInExplorer() {
-        selectInExplorer(true);
-    }
-
-    public void selectInExplorer(final boolean activateTopComponent) {
-        TopComponent servicesTab = null;
-        ExplorerManager explorer = null;
-        for (TopComponent component : TopComponent.getRegistry().getOpened()) {
-            if (component.getClass().getName().equals("org.netbeans.core.ide.ServicesTab")) {  //NOI18N
-                servicesTab = component;
-                assert servicesTab instanceof ExplorerManager.Provider;
-                explorer = ((ExplorerManager.Provider) servicesTab).getExplorerManager();
-                break;
-            }
-        }
-        if (explorer == null) {
-            // Services tab not open
-            return;
-        }
-        // find connection node in explorer
-        Node root = explorer.getRootContext();
-        Node databasesNode = null;
-        Node connectionNode = null;
-        Node[] children = root.getChildren().getNodes();
-        for (Node node : children) {
-            if (node.getName().equals("Databases")) {  //NOI18N
-                databasesNode = node;
-                break;
-            }
-        }
-        if (databasesNode == null) {
-            return ;
-        }
-        children = databasesNode.getChildren().getNodes();
-        for (Node node : children) {
-            if (node.getDisplayName().equals(getDisplayName())) {
-                connectionNode = node;
-                break;
-            }
-        }
-        // select node
-        try {
-            if (connectionNode != null) {
-                explorer.setSelectedNodes(new Node[] { connectionNode });
-                if (activateTopComponent && servicesTab != null) {
-                    servicesTab.requestActive();
-                }
-            }
-        } catch (PropertyVetoException e) {
-            Exceptions.printStackTrace(e);
-        }
-    }
-    
-    public void refreshInExplorer() throws DatabaseException {
-        final ConnectionNode connectionNode = findConnectionNode(getDisplayName());
-        if (connectionNode != null) {
-            RP.post(
-                new Runnable() {
-                    @Override
-                    public void run() {
-                        MetadataModel model = getMetadataModel();
-                        if (model != null) {
-                            try {
-                                model.runReadAction(
-                                    new Action<Metadata>() {
-                                        @Override
-                                        public void run(Metadata metaData) {
-                                            metaData.refresh();
-                                        }
-                                    }
-                                );
-                            } catch (MetadataModelException e) {
-                                Exceptions.printStackTrace(e);
-                            }
-                        }
-                        connectionNode.refresh();
-                    }
-                }
-            );
-        }
-    }
-
-    public void showConnectionDialog() {
-        try {
-            final ConnectionNode cni = findConnectionNode(getDisplayName());
-            assert cni != null : "DatabaseConnection node not found for " + this;
-            if (cni != null && (! isConnected())) {
-                Mutex.EVENT.readAccess(new Runnable() {
-                    @Override
-                    public void run() {
-                        new ConnectAction.ConnectionDialogDisplayer().showDialog(DatabaseConnection.this, false);
-                    }
-                });
-            }
-        } catch (DatabaseException e) {
-            Exceptions.printStackTrace(e);
-        }
     }
 
     public DatabaseConnector getConnector() {
@@ -1276,43 +1059,10 @@ public final class DatabaseConnection implements DBConnection {
             } catch (Exception ex) {
     }
 
-            DerbyConectionEventListener.getDefault().afterDisconnect(this, jdbcConnection);
             connector.performDisconnect();
             jdbcConnection = null;
             setState(State.disconnected);
         }
-    }
-
-    /**
-     * Find a connection node using the supplied name.
-     *
-     * <p>
-     * Assumption: the name of the connection node is the display name of the
-     * connection</p>
-     *
-     * <p>
-     * Needed by unit tests as well as internally</p>
-     *
-     * @param connection display name of the connection for which the connection
-     * node should be found
-     * @return
-     * @throws DatabaseException
-     */
-    public static ConnectionNode findConnectionNode(String connection) throws DatabaseException {
-        assert connection != null;
-
-        RootNode root = RootNode.instance();
-        Collection<? extends Node> children = root.getChildNodes();
-        for (Node node : children) {
-            if (node instanceof ConnectionNode) {
-                ConnectionNode cnode = (ConnectionNode)node;
-                if (cnode.getName().equals(connection)) {
-                    return cnode;
-                }
-            }
-        }
-
-        return null;
     }
 
     private Object readResolve() throws ObjectStreamException {

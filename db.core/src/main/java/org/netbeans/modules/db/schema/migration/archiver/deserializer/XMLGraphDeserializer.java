@@ -1237,7 +1237,7 @@ public  class XMLGraphDeserializer extends BaseSpecificXMLDeserializer implement
 
         /**
          * Constructor.
-         * @param wrapperClasses the Class instance of the wrapper class.
+         * @param wrapperClass the Class instance of the wrapper class.
          * @param id the key in the the ObjectHash map.
          */
         public WrapperClassHelper(Class wrapperClass, String id)
@@ -1270,7 +1270,7 @@ public  class XMLGraphDeserializer extends BaseSpecificXMLDeserializer implement
         /** 
          * Determines if the specified argument represents a Java wrapper
          * class.  
-         * @param class the Class to be tested
+         * @param clazz the Class to be tested
          * @return true if the specified argument represents a Java wrapper 
          * class.
          */

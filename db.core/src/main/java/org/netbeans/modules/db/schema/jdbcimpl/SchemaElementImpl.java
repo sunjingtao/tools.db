@@ -52,7 +52,7 @@ import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.netbeans.modules.db.schema.*;
-import org.netbeans.modules.dbschema.util.*;
+import org.netbeans.modules.db.schema.util.*;
 
 public class SchemaElementImpl extends DBElementImpl implements SchemaElement.Impl {
     
@@ -147,8 +147,7 @@ public class SchemaElementImpl extends DBElementImpl implements SchemaElement.Im
 
     /** Get the parsing status of the element.
     * This is a non-blocking operation.
-    * @return one of {@link #STATUS_NOT}, {@link #STATUS_ERROR},
-    * {@link #STATUS_PARTIAL}, or {@link #STATUS_OK}
+    * @return
     */
     public int getStatus() {
 //NOT IMPLEMENTED YET !!!
@@ -156,7 +155,7 @@ public class SchemaElementImpl extends DBElementImpl implements SchemaElement.Im
     }
   
     /** Set the schema name of this schema snapshot.
-    * @param id the schema name, or <code>null</code>
+    * @param schema the schema name, or <code>null</code>
     * @exception DBException if the operation cannot proceed
     */
     public void setSchema(DBIdentifier schema) throws DBException {
@@ -172,7 +171,7 @@ public class SchemaElementImpl extends DBElementImpl implements SchemaElement.Im
     }
   
     /** Set the catalog name of this schema snapshot.
-    * @param id the catalog name, or <code>null</code>
+    * @param catalog the catalog name, or <code>null</code>
     * @exception DBException if the operation cannot proceed
     */
     public void setCatalog(DBIdentifier catalog) throws DBException {

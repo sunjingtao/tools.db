@@ -44,9 +44,9 @@
 
 package org.netbeans.modules.db.explorer;
 
-import java.awt.datatransfer.DataFlavor;
-import org.netbeans.api.db.explorer.DatabaseConnection;
 import org.netbeans.api.db.explorer.JDBCDriver;
+
+import java.awt.datatransfer.DataFlavor;
 
 /**
  * This interface is a means to communicate with the db/dbapi module, which

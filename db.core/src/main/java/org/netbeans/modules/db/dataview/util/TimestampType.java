@@ -53,11 +53,9 @@ import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.netbeans.modules.db.dataview.meta.DBException;
-import org.openide.util.NbBundle;
 
 /**
- * A {@link DataType}representing a timestamp value.
- * 
+ *
  * @author Ahimanikya Satapathy
  */
 public class TimestampType {
@@ -95,11 +93,11 @@ public class TimestampType {
         } else if (value instanceof String) {
             Date dVal = doParse ((String) value);
             if (dVal == null) {
-                throw new DBException(NbBundle.getMessage(TimestampType.class, "LBL_invalid_timestamp"));
+                throw new DBException("Invalid TimeStamp");
             }
             return new Timestamp(dVal.getTime());
         } else {
-            throw new DBException(NbBundle.getMessage(TimestampType.class, "LBL_invalid_timestamp"));
+            throw new DBException("Invalid TimeStamp");
         }
     }
 

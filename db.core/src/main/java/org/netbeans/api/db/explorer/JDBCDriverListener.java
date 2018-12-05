@@ -47,7 +47,6 @@ package org.netbeans.api.db.explorer;
 /**
  * Listener for changes to the list of drivers maintained by JDBCDriverManager.
  *
- * @see JDBCDriverManager
  *
  * @author Andrei Badea
  */

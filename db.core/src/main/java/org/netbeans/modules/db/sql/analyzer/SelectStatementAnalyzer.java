@@ -42,13 +42,14 @@
 
 package org.netbeans.modules.db.sql.analyzer;
 
+import org.netbeans.lib.lexer.TokenSequence;
+import org.netbeans.modules.db.core.SQLIdentifiers;
+import org.netbeans.modules.db.sql.analyzer.SQLStatement.Context;
+import org.netbeans.modules.db.sql.lexer.SQLTokenId;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import org.netbeans.api.db.sql.support.SQLIdentifiers.Quoter;
-import org.netbeans.api.lexer.TokenSequence;
-import org.netbeans.modules.db.sql.analyzer.SQLStatement.Context;
-import org.netbeans.modules.db.sql.lexer.SQLTokenId;
 
 /**
  *
@@ -59,7 +60,7 @@ class SelectStatementAnalyzer extends SQLStatementAnalyzer {
     private final List<List<String>> selectValues = new ArrayList<List<String>>();
     private final List<TableIdent> fromTables = new ArrayList<TableIdent>();
 
-    public static SelectStatement analyze(TokenSequence<SQLTokenId> seq, Quoter quoter) {
+    public static SelectStatement analyze(TokenSequence<SQLTokenId> seq, SQLIdentifiers.Quoter quoter) {
         seq.moveStart();
         if (!seq.moveNext()) {
             return null;
@@ -71,7 +72,7 @@ class SelectStatementAnalyzer extends SQLStatementAnalyzer {
         return new SelectStatement(sa.startOffset, seq.offset() + seq.token().length(), Collections.unmodifiableList(sa.selectValues), fromClause, Collections.unmodifiableList(sa.subqueries), sa.offset2Context);
     }
 
-    private SelectStatementAnalyzer(TokenSequence<SQLTokenId> seq, Quoter quoter) {
+    private SelectStatementAnalyzer(TokenSequence<SQLTokenId> seq, SQLIdentifiers.Quoter quoter) {
         super(seq, quoter);
     }
 

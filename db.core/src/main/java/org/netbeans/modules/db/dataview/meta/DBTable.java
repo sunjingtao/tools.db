@@ -43,17 +43,9 @@
  */
 package org.netbeans.modules.db.dataview.meta;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.LinkedHashMap;
-import org.netbeans.api.db.sql.support.SQLIdentifiers.Quoter;
-import org.netbeans.modules.db.dataview.util.DataViewUtils;
+import org.netbeans.modules.db.core.SQLIdentifiers;
+
+import java.util.*;
 
 /**
  * Represent Database Table
@@ -69,7 +61,7 @@ public final class DBTable extends DBObject<DBModel> {
     private String name;
     private DBPrimaryKey primaryKey;
     private String schema;
-    private Quoter quoter;
+    private SQLIdentifiers.Quoter quoter;
 
     public DBTable(String aName, String aSchema, String aCatalog) {
         columns = new LinkedHashMap<>();
@@ -157,11 +149,11 @@ public final class DBTable extends DBObject<DBModel> {
         return catalog;
     }
 
-    public Quoter getQuoter() {
+    public SQLIdentifiers.Quoter getQuoter() {
         return quoter;
     }
 
-    void setQuoter(Quoter quoter) {
+    void setQuoter(SQLIdentifiers.Quoter quoter) {
         this.quoter = quoter;
     }
 
@@ -198,12 +190,12 @@ public final class DBTable extends DBObject<DBModel> {
     public String getFullyQualifiedName(boolean quoteAlways) {
         StringBuilder buf = new StringBuilder(50);
 
-        if (!DataViewUtils.isNullString(catalog)) {
+        if (catalog != null) {
             buf.append(quoteAlways ? quoter.quoteAlways(catalog.trim()) : quoter.quoteIfNeeded(catalog.trim()));
             buf.append(FQ_TBL_NAME_SEPARATOR);
         }
 
-        if (!DataViewUtils.isNullString(schema)) {
+        if (schema != null) {
             buf.append(quoteAlways ? quoter.quoteAlways(schema.trim()) : quoter.quoteIfNeeded(schema.trim()));
             buf.append(FQ_TBL_NAME_SEPARATOR);
         }

@@ -73,7 +73,7 @@ abstract class DBElementImpl implements DBElement.Impl, DBElementProperties {
     * Allows implementors of this interface to store a reference to the
     * holder class, useful for implementing the property change listeners.
     *
-    * @param element the element to attach to
+    * @param el the element to attach to
     */
     public void attachToElement(DBElement el) {
         element = el;

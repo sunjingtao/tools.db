@@ -42,7 +42,7 @@
  * made subject to such option by the copyright holder.
  */
 
-package org.netbeans.modules.dbschema;
+package org.netbeans.modules.db.schema;
 
 import java.util.ArrayList;
 import java.util.ResourceBundle;
@@ -735,7 +735,7 @@ public final class TableElement extends DBElement implements ColumnElementHolder
 		/** Changes set of columns.
 		 * @param elems elements to change
          * @param action the action to do
-		 * @exception SourceException if the action cannot be handled
+		 * @exception DBException if the action cannot be handled
 		 */
 		public synchronized void changeColumns(ColumnElement[] elems, int action) throws DBException {
 			initColumns();
@@ -769,7 +769,7 @@ public final class TableElement extends DBElement implements ColumnElementHolder
 		/** Changes set of indexes.
 		 * @param elems elements to change
          * @param action the action to do
-		 * @exception SourceException if the action cannot be handled
+		 * @exception DBException if the action cannot be handled
 		 */
 		public synchronized void changeIndexes(IndexElement[] elems, int action) throws DBException  {
 			initIndexes();
@@ -803,7 +803,7 @@ public final class TableElement extends DBElement implements ColumnElementHolder
 		/** Changes set of keys.
 		 * @param elems elements to change
          * @param action the action to do
-		 * @exception SourceException if the action cannot be handled
+		 * @exception DBException if the action cannot be handled
 		 */
 		public synchronized void changeKeys(KeyElement[] elems, int action) throws DBException {
 			initKeys();
@@ -861,7 +861,7 @@ public final class TableElement extends DBElement implements ColumnElementHolder
 		/** Changes set of column pairs.
 		 * @param pairs elements to change
          * @param action the action to do
-		 * @exception SourceException if the action cannot be handled
+		 * @exception DBException if the action cannot be handled
 		 */
         public synchronized void changeColumnPairs(ColumnPairElement[] pairs, int action) throws DBException {
 			initColumnPairs();

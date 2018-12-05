@@ -50,7 +50,7 @@ import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.netbeans.modules.db.schema.*;
-import org.netbeans.modules.dbschema.util.*;
+import org.netbeans.modules.db.schema.util.IDEUtil;
 
 public class TableElementImpl extends DBElementImpl implements TableElement.Impl {
     private static final Logger LOGGER = Logger.getLogger(TableElementImpl.class.getName());
@@ -126,7 +126,7 @@ public class TableElementImpl extends DBElementImpl implements TableElement.Impl
     }
     
     /** Set whether this is really a table, or a view.
-     * @param isTable one of {@link #TABLE} or {@link #VIEW}
+     * @param isTable
      * @throws DBException if impossible
      */
     @Override
@@ -135,7 +135,7 @@ public class TableElementImpl extends DBElementImpl implements TableElement.Impl
     }
   
     /** Test whether this is really a class, or an interface.
-     * @return one of {@link #TABLE} or {@link #VIEW}
+     * @return
      */
     @Override
     public boolean isTableOrView() {

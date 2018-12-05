@@ -42,7 +42,7 @@
  * made subject to such option by the copyright holder.
  */
 
-package org.netbeans.modules.dbschema;
+package org.netbeans.modules.db.schema;
 
 /** Describes a unique key in a table.
  */
@@ -83,7 +83,7 @@ public final class UniqueKeyElement extends KeyElement {
     }
 
 	/** Sets the associated index of the unique key.
-	 * @param the associated index for this unique key
+	 * @param index associated index for this unique key
 	 * @throws DBException if impossible
 	 */
 	public void setAssociatedIndex(IndexElement index) throws DBException {
@@ -132,7 +132,7 @@ public final class UniqueKeyElement extends KeyElement {
 		}
 
 		/** Copy constructor.
-		* @param column the object from which to read values
+		* @param key the object from which to read values
 		*/
 		Memory (UniqueKeyElement key) {
 			super(key);

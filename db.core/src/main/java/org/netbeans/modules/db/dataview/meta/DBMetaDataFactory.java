@@ -43,25 +43,12 @@
  */
 package org.netbeans.modules.db.dataview.meta;
 
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.StringTokenizer;
+import org.netbeans.modules.db.core.SQLIdentifiers;
+
+import java.sql.*;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.netbeans.api.db.sql.support.SQLIdentifiers;
-import org.netbeans.api.db.sql.support.SQLIdentifiers.Quoter;
-import org.netbeans.modules.db.dataview.util.DataViewUtils;
 
 /**
  * Extracts database metadata information (table names and constraints, their
@@ -83,7 +70,7 @@ public final class DBMetaDataFactory {
     public static final int POINTBASE = 9;
     private final int dbType;
     private final DatabaseMetaData dbmeta;
-    private final Quoter sqlquoter;
+    private final SQLIdentifiers.Quoter sqlquoter;
     private final String identifierQuoteString;
 
     public DBMetaDataFactory(Connection dbconn) throws SQLException {
@@ -161,7 +148,7 @@ public final class DBMetaDataFactory {
             // set showplan_* on is issued
             return null;
         } finally {
-            DataViewUtils.closeResources(rs);
+            closeResources(rs);
         }
     }
 
@@ -176,9 +163,17 @@ public final class DBMetaDataFactory {
             // set showplan_* on is issued
             return null;
         } finally {
-            DataViewUtils.closeResources(rs);
+            closeResources(rs);
         }
         return fkList;
+    }
+
+    private void closeResources(ResultSet rs){
+        try{
+            rs.close();
+        }catch (Exception ex){
+            ex.printStackTrace();
+        }
     }
 
     public synchronized Collection<DBTable> generateDBTables(ResultSet rs, String sql, boolean isSelect) throws SQLException {
@@ -313,7 +308,7 @@ public final class DBMetaDataFactory {
         DBModel dbModel = new DBModel();
         dbModel.setDBType(dbType);
         for (DBTable tbl : tables) {
-            if (DataViewUtils.isNullString(tbl.getName())) {
+            if (tbl.getName() == null) {
                 continue;
             }
             checkPrimaryKeys(tbl);
@@ -339,7 +334,7 @@ public final class DBMetaDataFactory {
             // NullPointerException is thrown by Microsoft SQL Server when
             // set showplan_* on is issued
         } finally {
-            DataViewUtils.closeResources(rs);
+            closeResources(rs);
         }
     }
 

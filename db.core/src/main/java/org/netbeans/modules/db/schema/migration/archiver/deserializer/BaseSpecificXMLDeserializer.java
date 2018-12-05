@@ -196,7 +196,7 @@ public  class BaseSpecificXMLDeserializer extends BaseXMLDeserializer
 //        lReturnClass = Class.forName (name);
         
         
-        name=  org.netbeans.modules.dbschema.migration.archiver.MapClassName.getRealClassName(name);
+        name=  org.netbeans.modules.db.schema.migration.archiver.MapClassName.getRealClassName(name);
         lReturnClass = java.lang.Class.forName(name, true /*initialize the class*/, this.classLoader);
 
         return lReturnClass;

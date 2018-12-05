@@ -44,24 +44,17 @@
 
 package org.netbeans.lib.ddl.impl;
 
+import org.netbeans.lib.ddl.*;
+
+import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
-import java.io.InputStream;
 import java.text.MessageFormat;
-import java.util.Iterator;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Set;
 import java.util.Vector;
-
-import org.openide.util.NbBundle;
-
-import org.netbeans.lib.ddl.DatabaseProductNotFoundException;
-import org.netbeans.lib.ddl.DatabaseSpecification;
-import org.netbeans.lib.ddl.DatabaseSpecificationFactory;
-import org.netbeans.lib.ddl.DBConnection;
-import org.netbeans.lib.ddl.DDLException;
-import org.netbeans.lib.ddl.DriverSpecificationFactory;
 
 /**
 * The factory used for creating instances of Specification class. 
@@ -115,7 +108,7 @@ public class SpecificationFactory implements DatabaseSpecificationFactory, Drive
                 ClassLoader cl = getClass().getClassLoader();
                 InputStream stream = cl.getResourceAsStream(dbFile);
                 if (stream == null) {
-                    String message = MessageFormat.format(NbBundle.getBundle("org.netbeans.lib.ddl.resources.Bundle").getString("EXC_UnableToOpenStream"), new String[] {dbFile}); // NOI18N
+                    String message = MessageFormat.format("unable to open stream : {0}", new String[] {dbFile}); // NOI18N
                     throw new Exception(message);
                 }
                 parser = new SpecificationParser(stream);
@@ -137,7 +130,7 @@ public class SpecificationFactory implements DatabaseSpecificationFactory, Drive
                 ClassLoader cl = getClass().getClassLoader();
                 InputStream stream = cl.getResourceAsStream(drvFile);
                 if (stream == null) {
-                    String message = MessageFormat.format(NbBundle.getBundle("org.netbeans.lib.ddl.resources.Bundle").getString("EXC_UnableToOpenStream"), new String[] {drvFile}); // NOI18N
+                    String message = MessageFormat.format("unable to open stream : {0}", new String[] {drvFile}); // NOI18N
                     throw new Exception(message);
                 }
                 parser = new SpecificationParser(stream);

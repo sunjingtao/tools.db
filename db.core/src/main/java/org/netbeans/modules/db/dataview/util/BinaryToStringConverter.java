@@ -44,7 +44,8 @@
 package org.netbeans.modules.db.dataview.util;
 
 import org.netbeans.modules.db.dataview.meta.DBException;
-import org.openide.util.NbBundle;
+
+import java.text.MessageFormat;
 
 public class BinaryToStringConverter {
 
@@ -163,7 +164,7 @@ public class BinaryToStringConverter {
                 int b = 1 << (7 - bit);
                 buf[index] |= b;
             } else if ('0' != s.charAt(i)) { // NOI18N
-                throw new DBException(NbBundle.getMessage(BinaryToStringConverter.class, "BinaryToStringConverter_InvalidBitFormat", s.charAt(i), i)); // NOI18N
+                throw new DBException(MessageFormat.format("{0} found at character {1}; 0 or 1 expected.", s.charAt(i), i)); // NOI18N
             }
             bit++;
             if (bit > 7) {

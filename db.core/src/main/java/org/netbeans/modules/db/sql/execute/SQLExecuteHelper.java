@@ -44,17 +44,11 @@
 
 package org.netbeans.modules.db.sql.execute;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import org.netbeans.modules.db.explorer.DatabaseConnection;
+
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.netbeans.api.db.explorer.DatabaseConnection;
-import org.netbeans.modules.db.dataview.api.DataView;
-import org.netbeans.modules.db.dataview.api.DataViewPageContext;
 
 /**
  * Support class for executing SQL statements.
@@ -73,8 +67,8 @@ public final class SQLExecuteHelper {
      * they have to be delimited by '\n' characters.
      */
     public static SQLExecutionResults execute(String sqlScript, int startOffset, int endOffset,
-            DatabaseConnection conn, SQLExecutionLogger executionLogger) {
-        return execute(sqlScript, startOffset, endOffset, conn, executionLogger, DataViewPageContext.DEFAULT_PAGE_SIZE);
+                                              DatabaseConnection conn, SQLExecutionLogger executionLogger) {
+        return execute(sqlScript, startOffset, endOffset, conn, executionLogger,10);
     }
 
     /**
@@ -84,17 +78,17 @@ public final class SQLExecuteHelper {
      * @param sqlScript the SQL script to execute. If it contains multiple lines
      * they have to be delimited by '\n' characters.
      */
-    public static SQLExecutionResults execute(String sqlScript, int startOffset, int endOffset, 
+    public static SQLExecutionResults execute(String sqlScript, int startOffset, int endOffset,
             DatabaseConnection conn, SQLExecutionLogger executionLogger, int pageSize) {
-        
+
         boolean cancelled = false;
-        
+
         List<StatementInfo> statements = getStatements(sqlScript, startOffset, endOffset,
                                                        getCompatibility(conn));
-        
-        List<SQLExecutionResult> results = new ArrayList<>();
+
+//        List<SQLExecutionResult> results = new ArrayList<>();
         long start = System.currentTimeMillis();
-        String url = conn.getDatabaseURL();
+//        String url = conn
 
         for (StatementInfo info : statements) {
 
@@ -102,52 +96,53 @@ public final class SQLExecuteHelper {
             if (cancelled) {
                 break;
             }
-            
+
             String sql = info.getSQL();
 
             LOGGER.log(Level.FINE, "Executing: {0}", sql);
-                
-            DataView view = DataView.create(conn, sql, pageSize);
 
-            SQLExecutionResult result = new SQLExecutionResult(info, view);
+//            DataView view = DataView.create(conn, sql, pageSize);
 
-            boolean isIllegal = false;
-            for (Throwable th : view.getExceptions()) {
-                if (th instanceof IllegalStateException) {
-                    LOGGER.log(Level.INFO, th.getLocalizedMessage(), th);
-                    isIllegal = true;
-                    break;
-                }
-            }
-            if (isIllegal) {
-                // don't continue any more
-                break;
-            }
-
-            executionLogger.log(result);
-
-            results.add(result);
+//            SQLExecutionResult result = new SQLExecutionResult(info, view);
+//
+//            boolean isIllegal = false;
+//            for (Throwable th : view.getExceptions()) {
+//                if (th instanceof IllegalStateException) {
+//                    LOGGER.log(Level.INFO, th.getLocalizedMessage(), th);
+//                    isIllegal = true;
+//                    break;
+//                }
+//            }
+//            if (isIllegal) {
+//                // don't continue any more
+//                break;
+//            }
+//
+//            executionLogger.log(result);
+//
+//            results.add(result);
         }
 
         long end = System.currentTimeMillis();
-        
+
         if (!cancelled) {
             executionLogger.finish(end - start);
         } else {
             LOGGER.log(Level.FINE, "Execution cancelled"); // NOI18N
             executionLogger.cancel();
         }
-                
-        if (!cancelled) {
-            return new SQLExecutionResults(results);
-        } else {
-            return null;
-        }
+
+//        if (!cancelled) {
+//            return new SQLExecutionResults(results);
+//        } else {
+//            return null;
+//        }
+        return null;
     }
-    
+
     static Compatibility getCompatibility(DatabaseConnection conn) {
-        String driverClass = conn.getDriverClass();
-        
+//        String driverClass = conn.getDriverClass();
+        String driverClass = null;
         if (driverClass.contains("mysql")) { //NOI18N
             return Compatibility.COMPAT_MYSQL;
         }
@@ -155,10 +150,10 @@ public final class SQLExecuteHelper {
         if (driverClass.contains("postgresql")) { //NOI18N
             return Compatibility.COMPAT_POSTGERSQL;
         }
-        
+
         return Compatibility.COMPAT_GENERIC;
     }
-    
+
     private static List<StatementInfo> getStatements(String script, int startOffset, int endOffset,
             Compatibility compat) {
         if ((startOffset == 0 && endOffset == script.length()) || (startOffset == endOffset)) {
@@ -203,11 +198,11 @@ public final class SQLExecuteHelper {
         }
         return prev;
     }
-        
+
     public static List<StatementInfo> split(String script) {
         return split(script, Compatibility.COMPAT_MYSQL);
     }
-    
+
     static List<StatementInfo> split(String script, Compatibility compat) {
         return new SQLSplitter(script, compat).getStatements();
     }
@@ -216,13 +211,13 @@ public final class SQLExecuteHelper {
         private final String sql;
         private final List<Integer> newLineOffsets;
         private final Compatibility compat;
-        
+
         private final StringBuilder statement = new StringBuilder();
         private final List<StatementInfo> statements = new ArrayList<>();
         private final Map<Integer,Integer> positionMap = new HashMap<>();
-        
+
         private int pos = 0;
-        
+
         private int lastAddedEndPos = 0;
         private int rawStartOffset = 0;
         private int endOffset = 0;
@@ -230,7 +225,7 @@ public final class SQLExecuteHelper {
 
         private String delimiter = ";"; // NOI18N
         private static final String DELIMITER_TOKEN = "delimiter"; // NOI18N
-                
+
         /**
          * @param sql the SQL string to parse. If it contains multiple lines
          * they have to be delimited by '\n' characters.
@@ -243,7 +238,7 @@ public final class SQLExecuteHelper {
             this.compat = compat;
             parse();
         }
-        
+
         private void appendSQL(int startPos, int endPos) {
             if(statement.length() == 0) {
                 // Skip Whitespace on appending
@@ -283,7 +278,7 @@ public final class SQLExecuteHelper {
             }
             return newlines;
         }
-        
+
         private void parse() {
             if (sql.contains("\r")) {
                 // the string should not contain these
@@ -291,14 +286,14 @@ public final class SQLExecuteHelper {
             }
 
             rawStartOffset = 0;
-            
+
             while (pos < sql.length()) {
                 if(isDelimiter()) {
                     rawEndOffset = pos;
                     addStatement();
                     pos += delimiter.length();
                     rawStartOffset = pos;
-                } else if(! (consumeDelimiterStatement() 
+                } else if(! (consumeDelimiterStatement()
                         || consumeCommentString()
                         || consumeQuotedString())) {
                     appendSQL(pos, pos + 1);
@@ -312,24 +307,24 @@ public final class SQLExecuteHelper {
 
         /**
          * Consume comment and check for embedded delimiter statement
-         * 
+         *
          * <p>Contents is not added to final SQL</p>
          */
         private boolean consumeCommentString() {
             String first = null;
             String firstTwo = null;
-            
+
             if((pos + 1) <= sql.length()) {
                 first = sql.substring(pos, pos + 1);
             }
             if((pos + 2) <= sql.length()) {
                 firstTwo = sql.substring(pos, pos + 2);
             }
-            
+
             int startPos = pos;
             int startLength = 0;
             String endString = null;
-            
+
             if(firstTwo != null && "/*".equals(firstTwo)) {
                     startLength = 2;
                     endString = "*/";
@@ -342,36 +337,36 @@ public final class SQLExecuteHelper {
                         endString = "\n";
                     }
             }
-            
+
             if(endString == null) {
                 return false;
             }
-            
+
             int endCandidate = sql.indexOf(endString, pos + startLength);
             if (endCandidate == -1) {
                 pos = sql.length();
             } else {
                 pos = endCandidate + endString.length();
             }
-            
+
             checkForDelimiterStmt(startPos + startLength, pos - endString.length() - 1);
-            
+
             return true;
         }
-        
+
         /**
          * Consume quoted Strings.
-         * 
+         *
          * <p>Contents is added to extracted SQL</p>
          */
         private boolean consumeQuotedString() {
             String ch = sql.substring(pos, pos + 1);
-            
+
             int startPos = pos;
             String endString = null;
             int quoteLength = 0;
             boolean doubleEscapePossible = false;
-                    
+
             switch(ch) {
                 case SQL99_STRING_QUOTE:
                     quoteLength = SQL99_STRING_QUOTE.length();
@@ -409,7 +404,7 @@ public final class SQLExecuteHelper {
                     doubleEscapePossible = false;
                     break;
             }
-            
+
             if(endString == null) {
                 return false;
             }
@@ -422,82 +417,82 @@ public final class SQLExecuteHelper {
                 } else {
                     pos = endCandidate + endString.length();
                 }
-                // If the string following the quote is the endquote and 
+                // If the string following the quote is the endquote and
                 // doubling the endquote escaped it, continue scanning
             } while (doubleEscapePossible
                     && pos < sql.length()
                     && sql.startsWith(endString, pos));
 
             appendSQL(startPos, pos);
-            
+
             return true;
         }
-        
+
         private final static String SQL99_STRING_QUOTE = "'";
         private final static String SQL99_IDENTIFIER_QUOTE = "\"";
         private final static String MYSQL_QUOTE = "`";
         private final static String MSSQL_END_QUOTE = "]";
         private final static String MSSQL_BEGIN_QUOTE = "[";
-        
+
         /**
          * Consume a delimiter statement.
-         * 
+         *
          * <p>See if the user wants to use a different delimiter for splitting
          * up statements.  This is useful if, for example, their SQL contains
          * stored procedures or triggers or other blocks that contain multiple
          * statements but should be executed as a single unit. </p>
-         * 
-         * <p>If we see the delimiter token, we read in what the new delimiter 
+         *
+         * <p>If we see the delimiter token, we read in what the new delimiter
          * should be, and then return the new character position past the
-         * delimiter statement, as this shouldn't be passed on to the 
+         * delimiter statement, as this shouldn't be passed on to the
          * database.</p>
-         * 
+         *
          * <p>Contents won't be part of the extracted statement</p>
          */
-        private boolean consumeDelimiterStatement() {     
+        private boolean consumeDelimiterStatement() {
             if ( pos == sql.length()) {
                 return false;
             }
-            
+
             if ( ! isToken(DELIMITER_TOKEN)) {
                 return false;
             }
-            
+
             if ( statement.length() > 0 ) {
                 return false;
             }
-            
+
             int startPos = pos;
-            
+
             // Skip past the delimiter token
             int tokenLength = DELIMITER_TOKEN.length();
             pos += tokenLength;
-            
+
             // Skip over Whitespace
             while ( pos < sql.length() &&
                     Character.isWhitespace(sql.charAt(pos))) {
                 pos++;
             }
-            
-            // 
+
+            //
             int endPos = pos;
             while ( endPos < sql.length() &&
                     ! Character.isWhitespace(sql.charAt(endPos))) {
                 endPos++;
             }
-            
+
             if ( startPos == endPos ) {
                 return false;
             }
-            
+
             delimiter = sql.substring(pos, endPos);
 
             return true;
         }
-        
+
         /**
          * Check for Delimiter Statement in comment.
-         * 
+         *
          * <p>Simulates regular behaviour found in checkDelimiterStatement</p>
          */
         private void checkForDelimiterStmt(int initialOffset, int lastPosToScan) {
@@ -510,7 +505,7 @@ public final class SQLExecuteHelper {
             }
             boolean delimiterMatched = true;
             for(int i = 0; i < DELIMITER_TOKEN.length(); i++) {
-                if(Character.toUpperCase(sql.charAt(start)) != 
+                if(Character.toUpperCase(sql.charAt(start)) !=
                         Character.toUpperCase(DELIMITER_TOKEN.charAt(i))) {
                     delimiterMatched = false;
                     break;
@@ -535,38 +530,38 @@ public final class SQLExecuteHelper {
                 delimiter = sb.toString();
             }
         }
-        
+
         private boolean isDelimiter() {
             int length = delimiter.length();
-            
+
             if ( pos + length > sql.length()) {
                 return false;
             }
-            
+
             for ( int i = 0 ; i < length ; i++ ) {
                 if (delimiter.charAt(i) != sql.charAt(pos + i)) {
                     return false;
                 }
                 i++;
             }
-            
+
             return true;
         }
-        
-        /** 
-         * See if the SQL text starting at the given position is a given token 
-         * 
+
+        /**
+         * See if the SQL text starting at the given position is a given token
+         *
          * @param token - the token we are looking for
-         * 
+         *
          * @return true if the token is found at the current position
          */
         private boolean isToken(String token) {
             char ch = sql.charAt(pos);
-            
+
             // Simple check to see if there's potential.  In most cases this
             // will return false and we don't have to waste our time doing
             // any other processing.  Move along, move along...
-            if ( Character.toUpperCase(ch) != 
+            if ( Character.toUpperCase(ch) !=
                     Character.toUpperCase(token.charAt(0)) ) {
                 return false;
             }
@@ -575,12 +570,12 @@ public final class SQLExecuteHelper {
             if ( pos > 0 &&  !Character.isWhitespace(sql.charAt(pos - 1)) ) {
                 return false;
             }
-            
+
             if ( sql.length() > pos + token.length() &&
                     Character.isLetterOrDigit(sql.charAt(pos + token.length())) ) {
                 return false;
             }
-        
+
 
             // Create a substring that contains just the potential token
             // This way we don't have to uppercase the entire SQL string.
@@ -590,21 +585,21 @@ public final class SQLExecuteHelper {
             } catch ( IndexOutOfBoundsException e ) {
                 return false;
             }
-            
+
             if ( substr.toUpperCase().equals(token.toUpperCase())) { // NOI18N
                 return true;
             }
-            
-            return false;            
+
+            return false;
         }
-        
+
         private void addStatement() {
             String sqlTrimmed = statement.toString().trim();
             statement.setLength(0);
             if (sqlTrimmed.length() <= 0) {
                 return;
             }
-            
+
             int line = 0;
             int newLinePos = -1;
             for(Integer offset: newLineOffsets) {
@@ -615,18 +610,18 @@ public final class SQLExecuteHelper {
                     break;
                 }
             }
-            
+
             StatementInfo info = new StatementInfo(sqlTrimmed, rawStartOffset, positionMap.get(0), line, positionMap.get(0) - newLinePos - 1, endOffset + 1, rawEndOffset, positionMap, newLineOffsets);
             statements.add(info);
             positionMap.clear();
         }
-        
+
         public List<StatementInfo> getStatements() {
             return Collections.unmodifiableList(statements);
         }
-        
+
     }
-    
+
     /**
      * Hold information about compatiblity settings to apply when cutting
      * SQL string.
@@ -638,11 +633,11 @@ public final class SQLExecuteHelper {
         public final static Compatibility COMPAT_MYSQL = new Compatibility(true, false);
 
         public final static Compatibility COMPAT_POSTGERSQL = new Compatibility(false, true);
-        
+
         /**
          * Mysql supports "#" ('hash'-Char) as line comment in addition to
          * SQL-Standard "--"
-         * 
+         *
          * See:
          * http://dev.mysql.com/doc/refman/5.7/en/comments.html
          */
@@ -680,7 +675,7 @@ public final class SQLExecuteHelper {
         public boolean isUseDollarQuotes() {
             return useDollarQuotes;
         }
-        
+
         @Override
         public int hashCode() {
             int hash = 7;

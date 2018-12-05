@@ -49,7 +49,6 @@ import java.sql.*;
 
 import org.netbeans.lib.ddl.*;
 import org.netbeans.lib.ddl.impl.*;
-import org.openide.util.Exceptions;
 
 public class DDLBridge extends Object {
 
@@ -69,7 +68,7 @@ public class DDLBridge extends Object {
 
             drvSpec.setCatalog(con.getCatalog());
         } catch (Exception exc) {
-            Exceptions.printStackTrace(exc);
+            exc.printStackTrace();
         }
     }
 

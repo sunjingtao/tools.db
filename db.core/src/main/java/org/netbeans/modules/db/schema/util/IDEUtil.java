@@ -42,7 +42,7 @@
  * made subject to such option by the copyright holder.
  */
 
-package org.netbeans.modules.dbschema.util;
+package org.netbeans.modules.db.schema.util;
 
 public class IDEUtil {
 

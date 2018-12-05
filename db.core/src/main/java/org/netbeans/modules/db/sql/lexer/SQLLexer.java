@@ -41,13 +41,8 @@
  */
 package org.netbeans.modules.db.sql.lexer;
 
-import org.netbeans.api.lexer.PartType;
-import org.netbeans.api.lexer.Token;
-import org.netbeans.modules.db.api.sql.SQLKeywords;
-import org.netbeans.spi.lexer.Lexer;
-import org.netbeans.spi.lexer.LexerInput;
-import org.netbeans.spi.lexer.LexerRestartInfo;
-import org.netbeans.spi.lexer.TokenFactory;
+import org.netbeans.lib.lexer.*;
+import org.netbeans.modules.db.core.SQLKeywords;
 
 /**
  *

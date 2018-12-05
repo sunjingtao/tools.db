@@ -42,7 +42,7 @@
  * made subject to such option by the copyright holder.
  */
 
-package org.netbeans.modules.dbschema;
+package org.netbeans.modules.db.schema;
 
 /** Describes an object which holds a list of column pairs.
  */

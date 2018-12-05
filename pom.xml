@@ -11,6 +11,5 @@
 
     <modules>
         <module>db.core</module>
-        <module>db.mysql</module>
     </modules>
 </project>

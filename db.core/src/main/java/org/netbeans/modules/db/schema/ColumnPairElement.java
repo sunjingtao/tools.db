@@ -42,7 +42,7 @@
  * made subject to such option by the copyright holder.
  */
 
-package org.netbeans.modules.dbschema;
+package org.netbeans.modules.db.schema;
 
 /** Describes a directed column pair.  Because of its direction, it has
  * the notion of belonging to a table.

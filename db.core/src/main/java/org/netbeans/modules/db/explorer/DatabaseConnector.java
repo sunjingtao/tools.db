@@ -42,6 +42,14 @@
 
 package org.netbeans.modules.db.explorer;
 
+import org.netbeans.api.db.explorer.DatabaseConnection;
+import org.netbeans.api.db.explorer.DatabaseException;
+import org.netbeans.lib.ddl.DDLException;
+import org.netbeans.lib.ddl.DatabaseProductNotFoundException;
+import org.netbeans.lib.ddl.adaptors.DefaultAdaptor;
+import org.netbeans.lib.ddl.impl.*;
+import org.netbeans.modules.db.metadata.model.api.*;
+
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -50,23 +58,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.netbeans.api.db.explorer.DatabaseException;
-import org.netbeans.lib.ddl.DDLException;
-import org.netbeans.lib.ddl.DatabaseProductNotFoundException;
-import org.netbeans.lib.ddl.adaptors.DefaultAdaptor;
-import org.netbeans.lib.ddl.impl.CreateTable;
-import org.netbeans.lib.ddl.impl.DriverSpecification;
-import org.netbeans.lib.ddl.impl.Specification;
-import org.netbeans.lib.ddl.impl.SpecificationFactory;
-import org.netbeans.lib.ddl.impl.TableColumn;
-import org.netbeans.modules.db.explorer.node.RootNode;
-import org.netbeans.modules.db.metadata.model.api.Catalog;
-import org.netbeans.modules.db.metadata.model.api.Column;
-import org.netbeans.modules.db.metadata.model.api.Index;
-import org.netbeans.modules.db.metadata.model.api.IndexColumn;
-import org.netbeans.modules.db.metadata.model.api.MetadataElementHandle;
-import org.netbeans.modules.db.metadata.model.api.Schema;
-import org.netbeans.modules.db.metadata.model.api.Table;
 
 /**
  *
@@ -77,7 +68,7 @@ public class DatabaseConnector {
     private Specification spec;
 
     // we maintain a lazy cache of driver specs mapped to the catalog name
-    private ConcurrentHashMap<String, DriverSpecification> driverSpecCache 
+    private ConcurrentHashMap<String, DriverSpecification> driverSpecCache
             = new ConcurrentHashMap<>();
 
     public DatabaseConnector(DatabaseConnection conn) {
@@ -92,7 +83,7 @@ public class DatabaseConnector {
         DriverSpecification dspec = driverSpecCache.get(catName);
         if (dspec == null) {
             try {
-                SpecificationFactory factory = RootNode.instance().getSpecificationFactory();
+                SpecificationFactory factory = null;
                 dspec = factory.createDriverSpecification(spec.getMetaData().getDriverName().trim());
                 if (spec.getMetaData().getDriverName().trim().equals("jConnect (TM) for JDBC (TM)")) //NOI18N
                     //hack for Sybase ASE - I don't guess why spec.getMetaData doesn't work
@@ -111,18 +102,18 @@ public class DatabaseConnector {
 
         return dspec;
     }
-    
+
     void finishConnect(String dbsys) throws DatabaseException {
         try {
-            SpecificationFactory factory = RootNode.instance().getSpecificationFactory();
+            SpecificationFactory factory = null;
             int readOnlyFlag = 0;
-            if (dbsys != null) {
-                spec = (Specification) factory.createSpecification(databaseConnection, dbsys, databaseConnection.getJDBCConnection());
-
-                readOnlyFlag = 1;
-            } else {
-                spec = (Specification) factory.createSpecification(databaseConnection, databaseConnection.getJDBCConnection());
-            }
+//            if (dbsys != null) {
+//                spec = (Specification) factory.createSpecification(databaseConnection, dbsys, databaseConnection.getJDBCConnection());
+//
+//                readOnlyFlag = 1;
+//            } else {
+//                spec = (Specification) factory.createSpecification(databaseConnection, databaseConnection.getJDBCConnection());
+//            }
 
             DatabaseMetaData md = spec.getMetaData();
             ((DefaultAdaptor)md).setreadOnly(readOnlyFlag);
@@ -133,11 +124,9 @@ public class DatabaseConnector {
             }
 
             driverSpecCache.clear();
-        } catch (DatabaseProductNotFoundException e) {
+        } catch (Exception e) {
             Logger.getLogger(DatabaseConnector.class.getName()).log(Level.FINE, e.getLocalizedMessage(), e);
             finishConnect("GenericDatabaseSystem"); // NOI18N
-        } catch (DDLException | SQLException e) {
-            throw new DatabaseException(e.getMessage());
         }
     }
 

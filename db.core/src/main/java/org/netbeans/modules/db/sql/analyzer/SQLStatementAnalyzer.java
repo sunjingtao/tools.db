@@ -41,22 +41,13 @@
  */
 package org.netbeans.modules.db.sql.analyzer;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.SortedMap;
-import java.util.TreeMap;
-import java.util.TreeSet;
-import org.netbeans.api.db.sql.support.SQLIdentifiers.Quoter;
-import org.netbeans.api.lexer.TokenSequence;
+import org.netbeans.lib.lexer.TokenSequence;
+import org.netbeans.modules.db.core.SQLIdentifiers;
 import org.netbeans.modules.db.sql.analyzer.SQLStatement.Context;
-import org.netbeans.modules.db.sql.editor.StringUtils;
 import org.netbeans.modules.db.sql.lexer.SQLTokenId;
+import org.netbeans.util.StringUtils;
+
+import java.util.*;
 
 /**
  *
@@ -65,18 +56,18 @@ import org.netbeans.modules.db.sql.lexer.SQLTokenId;
 public class SQLStatementAnalyzer {
 
     protected TokenSequence<SQLTokenId> seq;
-    protected Quoter quoter;
+    protected SQLIdentifiers.Quoter quoter;
     protected int startOffset;
     protected Context context = Context.START;
     protected final SortedMap<Integer, Context> offset2Context = new TreeMap<Integer, Context>();
     protected final List<SelectStatement> subqueries = new ArrayList<SelectStatement>();
 
-    protected SQLStatementAnalyzer(TokenSequence<SQLTokenId> seq, Quoter quoter) {
+    protected SQLStatementAnalyzer(TokenSequence<SQLTokenId> seq, SQLIdentifiers.Quoter quoter) {
         this.seq = seq;
         this.quoter = quoter;
     }
 
-    public static SQLStatement analyze(TokenSequence<SQLTokenId> seq, Quoter quoter) {
+    public static SQLStatement analyze(TokenSequence<SQLTokenId> seq, SQLIdentifiers.Quoter quoter) {
         SQLStatementKind kind = SQLStatementAnalyzer.analyzeKind(seq);
         if (kind == null) {
             return null;

@@ -58,7 +58,6 @@ import java.io.Writer;
 import java.nio.CharBuffer;
 import java.sql.Clob;
 import java.sql.SQLException;
-import org.openide.util.Exceptions;
 
 /**
  * A storage implementing a _subset_ of the Blob Interface backed by a file
@@ -107,14 +106,14 @@ public class FileBackedClob implements Clob {
                     w.close();
                 }
             } catch (IOException ex) {
-                Exceptions.printStackTrace(ex);
+                ex.printStackTrace();
             }
             try {
                 if (r != null) {
                     r.close();
                 }
             } catch (IOException ex) {
-                Exceptions.printStackTrace(ex);
+                ex.printStackTrace();
             }
         }
     }
@@ -138,7 +137,7 @@ public class FileBackedClob implements Clob {
             try {
                 raf.close();
             } catch (IOException ex) {
-                Exceptions.printStackTrace(ex);
+                ex.printStackTrace();
             }
         }
     }
@@ -188,7 +187,7 @@ public class FileBackedClob implements Clob {
             try {
                 r.close();
             } catch (IOException ex) {
-                Exceptions.printStackTrace(ex);
+                ex.printStackTrace();
             }
         }
 
@@ -243,7 +242,7 @@ public class FileBackedClob implements Clob {
             try {
                 w.close();
             } catch (IOException ex) {
-                Exceptions.printStackTrace(ex);
+                ex.printStackTrace();
             }
         }
     }
