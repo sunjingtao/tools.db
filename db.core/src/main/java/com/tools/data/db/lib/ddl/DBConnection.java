@@ -52,7 +52,7 @@ import java.util.Properties;
 * This interface defines information needed for connection to database
 * (database and driver url, login name, password and schema name). It can create JDBC
 * connection and feels to be a bean (has propertychange support and customizer).
-* Instances of this class uses explorer option to store information about
+* Instances of this class uses api option to store information about
 * open connection.
 *
 * @author Slavek Psenicka, Radko Najman

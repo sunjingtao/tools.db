@@ -52,12 +52,11 @@ import java.util.Calendar;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.tools.data.db.modules.db.dataview.meta.DBColumn;
-import com.tools.data.db.modules.db.dataview.meta.DBException;
-import com.tools.data.db.modules.db.dataview.meta.DBForeignKey;
-import com.tools.data.db.modules.db.dataview.meta.DBTable;
-import com.tools.data.db.modules.db.dataview.util.TimestampType;
-import com.tools.data.db.modules.db.sql.SQLConstant;
+import com.tools.data.db.meta.DBColumn;
+import com.tools.data.db.meta.DBException;
+import com.tools.data.db.meta.DBForeignKey;
+import com.tools.data.db.meta.DBTable;
+import com.tools.data.db.sql.SQLConstant;
 
 /**
  * Implements a date type which can generate instances of java.sql.Date and other JDBC
