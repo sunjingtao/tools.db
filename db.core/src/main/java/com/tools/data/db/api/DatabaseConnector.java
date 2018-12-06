@@ -45,7 +45,7 @@ package com.tools.data.db.api;
 import com.tools.data.db.exception.DatabaseException;
 import com.tools.data.db.lib.ddl.adaptors.DefaultAdaptor;
 import com.tools.data.db.lib.ddl.impl.*;
-import com.tools.data.db.metadata.api.*;
+import com.tools.data.db.metadata.*;
 
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
@@ -144,10 +144,8 @@ public class DatabaseConnector {
         // this code is currently working around a metadata api bug.  the Column instances
         // should be the same, but they aren't always.  so for now we create handles
         // and determine equivalence from there
-        MetadataElementHandle<Column> columnHandle = MetadataElementHandle.create(column);
         for (Column col : columnList) {
-            MetadataElementHandle<Column> colHandle = MetadataElementHandle.create(col);
-            if (columnHandle.equals(colHandle)) {
+            if (col.equals(column)) {
                 result = true;
                 break;
             }
@@ -162,12 +160,10 @@ public class DatabaseConnector {
         // this code is currently working around a metadata api bug.  the Column instances
         // should be the same, but they aren't always.  so for now we create handles
         // and determine equivalence from there
-        MetadataElementHandle<Column> columnHandle = MetadataElementHandle.create(column);
         for (Index idx : columnList) {
             Collection<IndexColumn> cols = idx.getColumns();
             for (IndexColumn col : cols) {
-                MetadataElementHandle<IndexColumn> colHandle = MetadataElementHandle.create(col);
-                if (columnHandle.equals(colHandle)) {
+                if (col.equals(column)) {
                     result = true;
                     break;
                 }
@@ -195,7 +191,7 @@ public class DatabaseConnector {
             }
 
             Schema schema = table.getParent();
-            Catalog catalog = schema.getParent();
+            Catalog catalog = schema.getParent().to(Catalog.class);
             String catName = catalog.getName();
             if (catName == null) {
                 catName = schema.getName();

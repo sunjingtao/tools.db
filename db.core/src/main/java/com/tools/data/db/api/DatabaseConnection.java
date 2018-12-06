@@ -50,7 +50,6 @@ import com.tools.data.db.lib.ddl.CommandNotSupportedException;
 import com.tools.data.db.lib.ddl.DBConnection;
 import com.tools.data.db.lib.ddl.DDLException;
 import com.tools.data.db.lib.ddl.impl.Specification;
-import com.tools.data.db.metadata.api.MetadataModel;
 
 import java.io.ObjectStreamException;
 import java.sql.Connection;
@@ -127,7 +126,7 @@ public final class DatabaseConnection implements DBConnection {
     /** the DatabaseConnection is essentially used as a container for a metadata model
      * created elsewhere.
      */
-    private MetadataModel metadataModel = null;
+//    private MetadataModel metadataModel = null;
 
     /** Properties for connection
      */
@@ -245,14 +244,6 @@ public final class DatabaseConnection implements DBConnection {
             jdbcdrv = useDriver;
         }
         return jdbcdrv;
-    }
-
-    public void setMetadataModel(MetadataModel model) {
-        metadataModel = model;
-    }
-
-    public MetadataModel getMetadataModel() {
-        return metadataModel;
     }
 
     /** Returns driver class */

@@ -190,7 +190,7 @@ public class MetadataUtilities {
     }
 
     /**
-     * Call {@link DatabaseMetaData#geFunctions(String, String, String)},
+     * Call { DatabaseMetaData#geFunctions(String, String, String)},
      * wrapping any internal runtime exception into an {@link SQLException}.
      */
     public static ResultSet getFunctions(DatabaseMetaData dmd,
