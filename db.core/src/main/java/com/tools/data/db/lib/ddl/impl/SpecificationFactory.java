@@ -173,7 +173,7 @@ public class SpecificationFactory implements DatabaseSpecificationFactory, Drive
         String pn = null;
         try {
             boolean close = (jdbccon != null ? false : true);
-            Connection con = (jdbccon != null ? jdbccon : dbcon.createJDBCConnection());
+            Connection con = (jdbccon != null ? jdbccon : dbcon.openConnection());
             DatabaseMetaData dmd = con.getMetaData();
             pn = dmd.getDatabaseProductName().trim();
 

@@ -42,10 +42,17 @@
 
 package com.tools.data.db.modules.db.api.sql.execute;
 
-import com.tools.data.db.exception.DatabaseException;
+import com.tools.data.db.api.DatabaseConnection;
+import com.tools.data.db.lib.ddl.DDLException;
+import com.tools.data.db.metadata.*;
 import org.junit.Assert;
-import org.netbeans.api.db.explorer.ConnectionManager;
-import org.netbeans.api.db.explorer.DatabaseConnection;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+
+import java.sql.Connection;
+import java.util.Collection;
+import java.util.Properties;
 
 /**
  *
@@ -53,27 +60,48 @@ import org.netbeans.api.db.explorer.DatabaseConnection;
  */
 public class SQLExecutorTest {
     
-    private DatabaseConnection dbconn;
+    private static DatabaseConnection dbconn;
 
-    public void setUp() throws Exception {
-        dbconn = getDatabaseConnection(true);
-        if (isMySQL()) {
-            createRentalTable();
-        }
+    @BeforeClass
+    public static void before() throws Exception {
+        Properties properties = new Properties();
+        properties.setProperty("host","localhost");
+        properties.setProperty("port","3306");
+        properties.setProperty("db","test");
+        properties.setProperty("password","123456a");
+        properties.setProperty("user","root");
+        properties.setProperty("dbtype","MySQL");
+        properties.setProperty("version","");
+        properties.setProperty("additional","characterEncoding=utf8&useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC");
+        dbconn = new DatabaseConnection(properties);
     }
 
-    private boolean isMySQL() {
-        return true;
+    @Test
+    public void testOpenConnection() throws DDLException {
+        Connection conn = dbconn.openConnection();
+        Assert.assertNotNull(conn);
     }
 
-    private DatabaseConnection getDatabaseConnection(boolean b) {
-        return null;
+    @Test
+    public void testMetadata(){
+        dbconn.openConnection();
+        Metadata metadata = dbconn.getMetadata();
+        Assert.assertNotNull(metadata);
+        Catalog catalog = metadata.getDefaultCatalog();
+        Assert.assertNotNull(catalog);
+        Schema schema = catalog.getDefaultSchema();
+        Assert.assertNotNull(schema);
+        Collection<Table> tableList = schema.getTables();
+        Assert.assertNotNull(tableList);
+        Collection<Column> columnCollection = tableList.iterator().next().getColumns();
+        Assert.assertNotNull(columnCollection);
     }
 
-    private void createRentalTable() throws Exception {
-        Assert.assertTrue(isMySQL());
+    @Test
+    public void createRentalTable() throws Exception {
+        Assert.assertNotNull(dbconn);
 
-        String sql = "USE " + getSchema() + "; CREATE TABLE rental ( " +
+        String sql = "USE test; CREATE TABLE rental ( " +
           "rental_id INT NOT NULL AUTO_INCREMENT, " +
           "rental_date DATETIME NOT NULL, " +
           "inventory_id MEDIUMINT UNSIGNED NOT NULL, " +
@@ -87,84 +115,70 @@ public class SQLExecutorTest {
           "KEY idx_fk_customer_id (customer_id), " + 
           "KEY idx_fk_staff_id (staff_id)) ENGINE=InnoDB DEFAULT CHARSET=utf8;";
 
-        checkExecution(SQLExecutor.execute(dbconn, sql));
+//        checkExecution(SQLExecutorHe.execute(dbconn, sql));
 }
 
-    private String getSchema() {
-        return  null;
-    }
 
-    public void testExecuteOnClosedConnection() throws Exception {
-        DatabaseConnection broken = getDatabaseConnection(false);
+//    public void testExecuteOnClosedConnection() throws Exception {
+//        DatabaseConnection broken = getDatabaseConnection(false);
+//
+//        ConnectionManager.getDefault().disconnect(broken);
+//
+//        try {
+//            SQLExecutor.execute(broken, "SELECT ydayaday");
+//            Assert.fail("No exception when executing on a closed connection");
+//        } catch (DatabaseException dbe) {
+//            // expected
+//        }
+//    }
 
-        ConnectionManager.getDefault().disconnect(broken);
+//    public void testExecute() throws Exception {
+//        SQLExecutionInfo info = SQLExecutor.execute(dbconn, "SELECT * FROM " + getTestTableName() + ";");
+//        checkExecution(info);
+//        Assert.assertTrue(info.getStatementInfos().size() == 1);
+//
+//        info = SQLExecutor.execute(dbconn, "SELECT * FROM " + getTestTableName() + "; SELECT " + getTestTableIdName() + " FROM " + getTestTableName() + ";");
+//        checkExecution(info);
+//        Assert.assertTrue(info.getStatementInfos().size() == 2);
+//    }
 
-        try {
-            SQLExecutor.execute(broken, "SELECT ydayaday");
-            Assert.fail("No exception when executing on a closed connection");
-        } catch (DatabaseException dbe) {
-            // expected
-        }
-    }
-
-    public void testExecute() throws Exception {
-        SQLExecutionInfo info = SQLExecutor.execute(dbconn, "SELECT * FROM " + getTestTableName() + ";");
-        checkExecution(info);
-        Assert.assertTrue(info.getStatementInfos().size() == 1);
-
-        info = SQLExecutor.execute(dbconn, "SELECT * FROM " + getTestTableName() + "; SELECT " + getTestTableIdName() + " FROM " + getTestTableName() + ";");
-        checkExecution(info);
-        Assert.assertTrue(info.getStatementInfos().size() == 2);
-    }
-
-    private String getTestTableIdName() {
-        return null;
-    }
-
-    private String getTestTableName() {
-        return null;
-    }
-
-    public void testBadExecute() throws Exception {
-        SQLExecutionInfo info = SQLExecutor.execute(dbconn, "SELECT * FROM BADTABLE;");
-
-        Assert.assertTrue(info.hasExceptions());
-    }
-            
-    private void checkExecution(SQLExecutionInfo info) throws Exception {
-        Assert.assertNotNull(info);
-
-        Throwable throwable = null;
-        if (info.hasExceptions()) {
-            for (StatementExecutionInfo stmtinfo : info.getStatementInfos()) {
-                if (stmtinfo.hasExceptions()) {
-                    System.err.println("The following SQL had exceptions:");
-                } else {
-                    System.err.println("The following SQL executed cleanly:");
-                }
-                System.err.println(stmtinfo.getSQL());
-
-                for  (Throwable t : stmtinfo.getExceptions()) {
-                    t.printStackTrace();
-                    
-                    throwable = t;
-                }
-            }
-
-            Exception e = new Exception("Executing SQL generated exceptions - see output for details");
-            e.initCause(throwable);
-            throw e;
-        }        
-    }
+//    public void testBadExecute() throws Exception {
+//        SQLExecutionInfo info = SQLExecutor.execute(dbconn, "SELECT * FROM BADTABLE;");
+//
+//        Assert.assertTrue(info.hasExceptions());
+//    }
+//
+//    private void checkExecution(SQLExecutionInfo info) throws Exception {
+//        Assert.assertNotNull(info);
+//
+//        Throwable throwable = null;
+//        if (info.hasExceptions()) {
+//            for (StatementExecutionInfo stmtinfo : info.getStatementInfos()) {
+//                if (stmtinfo.hasExceptions()) {
+//                    System.err.println("The following SQL had exceptions:");
+//                } else {
+//                    System.err.println("The following SQL executed cleanly:");
+//                }
+//                System.err.println(stmtinfo.getSQL());
+//
+//                for  (Throwable t : stmtinfo.getExceptions()) {
+//                    t.printStackTrace();
+//
+//                    throwable = t;
+//                }
+//            }
+//
+//            Exception e = new Exception("Executing SQL generated exceptions - see output for details");
+//            e.initCause(throwable);
+//            throw e;
+//        }
+//    }
     
     public void testMySQLStoredFunction() throws Exception {
-        if (! isMySQL()) {
-            return;
-        }
 
-       SQLExecutor.execute(dbconn, "DROP FUNCTION inventory_in_stock");
-       SQLExecutor.execute(dbconn, "DROP FUNCTION inventory_held_by_customer");
-        
+//       SQLExecutor.execute(dbconn, "DROP FUNCTION inventory_in_stock");
+//       SQLExecutor.execute(dbconn, "DROP FUNCTION inventory_held_by_customer");
+//
        String sql =
             "DELIMITER $$\n" +
             "CREATE FUNCTION inventory_held_by_customer(p_inventory_id INT) RETURNS INT " +
@@ -206,50 +220,8 @@ public class SQLExecutorTest {
             "    END IF; " +
             "END";
 
-        checkExecution(SQLExecutor.execute(dbconn, sql));
+//        checkExecution(SQLExecutor.execute(dbconn, sql));
     }
 
-    public void testExecuteLogger() throws Exception {
-        String tablename = getTestTableName();
-        String sql = "INSERT INTO " + tablename + " values(1); " +
-                "INSERT INTO " + tablename + " values(2); " +
-                "INSERT INTO FOO values('this should fail'); " +
-                "SELECT * FROM " + tablename + ";";
-
-        TestLogger logger = new TestLogger();
-
-        SQLExecutor.execute(dbconn, sql, logger);
-        Assert.assertEquals(4, logger.statementCount);
-        Assert.assertEquals(1, logger.errorCount);
-        Assert.assertEquals(3, logger.errorStatement);
-        Assert.assertTrue(logger.gotFinish);
-        Assert.assertFalse(logger.gotCancel);
-    }
-
-    private static class TestLogger implements SQLExecuteLogger {
-        public int statementCount = 0;
-        public int errorCount = 0;
-        public int errorStatement = 0;
-        public boolean gotFinish = false;
-        public boolean gotCancel = false;
-
-        public void log(StatementExecutionInfo info) {
-            statementCount++;
-            if (info.hasExceptions()) {
-                errorCount++;
-                errorStatement = statementCount;
-            }
-        }
-
-        public void finish(long executionTime) {
-            gotFinish = true;
-        }
-
-        // I'm not sure how to trigger a cancel...
-        public void cancel() {
-            gotCancel = true;
-        }
-    }
-    
 
 }

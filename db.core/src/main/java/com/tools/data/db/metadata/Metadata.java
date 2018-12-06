@@ -42,6 +42,11 @@
 package com.tools.data.db.metadata;
 
 import com.tools.data.db.exception.MetadataException;
+import com.tools.data.db.metadata.mssql.MSSQLMetadata;
+import com.tools.data.db.metadata.mysql.MySQLMetadata;
+import com.tools.data.db.metadata.oracle.OracleMetadata;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
@@ -51,8 +56,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -60,33 +63,21 @@ import java.util.logging.Logger;
  */
 public class Metadata {
 
-    private static final Logger LOGGER = Logger.getLogger(Metadata.class.getName());
-    private final Connection conn;
-    private final String defaultSchemaName;
-    private final DatabaseMetaData dmd;
+    private static final Logger logger = LoggerFactory.getLogger(Metadata.class);
+    private Connection conn;
+    private String defaultSchemaName;
+    private DatabaseMetaData dmd;
     protected Catalog defaultCatalog;
     protected Map<String, Catalog> catalogs;
 
     public Metadata(Connection conn, String defaultSchemaName) {
-        LOGGER.log(Level.FINE, "Creating metadata for default schema ''{0}''", defaultSchemaName);
+        logger.info("Creating metadata for default schema ''{0}''", defaultSchemaName);
         this.conn = conn;
         this.defaultSchemaName = defaultSchemaName;
         try {
             dmd = conn.getMetaData();
         } catch (SQLException e) {
             throw new MetadataException(e);
-        }
-        if (LOGGER.isLoggable(Level.FINE)) {
-            try {
-                LOGGER.log(Level.FINE, "Retrieved DMD for product ''{0}'' version ''{1}'', driver ''{2}'' version ''{3}''", new Object[]{
-                            dmd.getDatabaseProductName(),
-                            dmd.getDatabaseProductVersion(),
-                            dmd.getDriverName(),
-                            dmd.getDriverVersion()
-                        });
-            } catch (SQLException e) {
-                LOGGER.log(Level.FINE, "Exception while logging metadata information", e);
-            }
         }
     }
 
@@ -116,17 +107,6 @@ public class Metadata {
         return null;
     }
 
-    public final void refresh() {
-        LOGGER.fine("Refreshing metadata");
-        defaultCatalog = null;
-        catalogs = null;
-    }
-
-    @Override
-    public String toString() {
-        return "JDBCMetadata"; // NOI18N
-    }
-
     protected Catalog createJDBCCatalog(String name, boolean _default, String defaultSchemaName) {
         return new Catalog(this, name, _default, defaultSchemaName);
     }
@@ -140,15 +120,15 @@ public class Metadata {
                 try {
                     while (rs.next()) {
                         String catalogName = MetadataUtilities.trimmed(rs.getString("TABLE_CAT")); // NOI18N
-                        LOGGER.log(Level.FINE, "Read catalog ''{0}''", catalogName); //NOI18N
+                        logger.info("Read catalog ''{0}''", catalogName); //NOI18N
                         if (MetadataUtilities.equals(catalogName, defaultCatalogName)) {
                             defaultCatalog = createJDBCCatalog(catalogName, true, defaultSchemaName);
                             newCatalogs.put(defaultCatalog.getName(), defaultCatalog);
-                            LOGGER.log(Level.FINE, "Created default catalog {0}", defaultCatalog); //NOI18N
+                            logger.info("Created default catalog {0}", defaultCatalog); //NOI18N
                         } else {
                             Catalog catalog = createJDBCCatalog(catalogName, false, null);
                             newCatalogs.put(catalogName, catalog);
-                            LOGGER.log(Level.FINE, "Created catalog {0}", catalog); //NOI18N
+                            logger.info("Created catalog {0}", catalog); //NOI18N
                         }
                     }
                 } finally {
@@ -158,7 +138,7 @@ public class Metadata {
                 }
             }
         } catch (SQLException e) {
-            LOGGER.log(Level.INFO, "Could not load catalogs list from database (getCatalogs failed).");
+            logger.info("Could not load catalogs list from database (getCatalogs failed).");
         }
         if (defaultCatalog == null) {
             defaultCatalog = createJDBCCatalog(null, true, defaultSchemaName);
@@ -169,7 +149,7 @@ public class Metadata {
                 newCatalogs.put(null, defaultCatalog);
             }
 
-            LOGGER.log(Level.FINE, "Created fallback default catalog {0}", defaultCatalog);
+            logger.info("Created fallback default catalog {0}", defaultCatalog);
         }
         catalogs = Collections.unmodifiableMap(newCatalogs);
     }
@@ -178,7 +158,7 @@ public class Metadata {
         if (catalogs != null) {
             return catalogs;
         }
-        LOGGER.fine("Initializing catalogs");
+        logger.info("Initializing catalogs");
         createCatalogs();
         return catalogs;
     }
@@ -205,4 +185,5 @@ public class Metadata {
         return "PointBase JDBC Driver".equals(driverName) ||
                "IBM Data Server Driver for JDBC and SQLJ".equals(driverName);
     }
+
 }

@@ -84,12 +84,11 @@ public class DatabaseConnector {
                 dspec = factory.createDriverSpecification(spec.getMetaData().getDriverName().trim());
                 if (spec.getMetaData().getDriverName().trim().equals("jConnect (TM) for JDBC (TM)")) //NOI18N
                     //hack for Sybase ASE - I don't guess why spec.getMetaData doesn't work
-                    dspec.setMetaData(databaseConnection.getJDBCConnection().getMetaData());
+                    dspec.setMetaData(databaseConnection.openConnection().getMetaData());
                 else
                     dspec.setMetaData(spec.getMetaData());
 
                 dspec.setCatalog(catName);
-                dspec.setSchema(databaseConnection.getSchema());
                 driverSpecCache.put(catName, dspec);
             } catch (SQLException e) {
                 throw new DatabaseException(e.getMessage(), e);

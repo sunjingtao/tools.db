@@ -205,7 +205,7 @@ public class Specification implements DatabaseSpecification {
         DBConnection dbcon = getConnection();
         if (dbcon == null) throw new DDLException("no connection specified"); //NOI18N
         try {
-            jdbccon = dbcon.createJDBCConnection();
+            jdbccon = dbcon.openConnection();
         } catch (Exception e) {
             throw new DDLException("no connection specified");
         }
