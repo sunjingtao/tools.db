@@ -45,7 +45,7 @@ package com.tools.data.db.util;
 
 
 import com.tools.data.db.exception.DatabaseException;
-import com.tools.data.db.meta.DBColumn;
+import com.tools.data.db.data.DBColumn;
 
 import java.io.InputStream;
 import java.math.BigDecimal;

@@ -306,9 +306,4 @@ public class ConnectionUrlManager {
         }
     }
 
-    public static void main(String[] args){
-        ConnectionUrl connectionUrl = connectionUrlMap.get("MySQL").get("");
-        extractUrlComponents(connectionUrl.getUrlTemplate());
-        System.out.println("OK !");
-    }
 }

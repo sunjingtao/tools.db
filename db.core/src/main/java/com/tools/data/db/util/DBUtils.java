@@ -44,10 +44,10 @@
 package com.tools.data.db.util;
 
 import com.tools.data.db.exception.DatabaseException;
-import com.tools.data.db.meta.DBColumn;
-import com.tools.data.db.meta.DBForeignKey;
-import com.tools.data.db.meta.DBTable;
-import com.tools.data.db.sql.SQLConstant;
+import com.tools.data.db.data.DBColumn;
+import com.tools.data.db.data.DBForeignKey;
+import com.tools.data.db.data.DBTable;
+import com.tools.data.db.lexer.SQLConstant;
 
 import java.sql.*;
 import java.text.DateFormat;

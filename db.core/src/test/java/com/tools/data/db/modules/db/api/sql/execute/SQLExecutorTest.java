@@ -46,7 +46,6 @@ import com.tools.data.db.api.DatabaseConnection;
 import com.tools.data.db.lib.ddl.DDLException;
 import com.tools.data.db.metadata.*;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 

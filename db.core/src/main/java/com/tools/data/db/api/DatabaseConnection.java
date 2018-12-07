@@ -59,12 +59,12 @@ public final class DatabaseConnection implements DBConnection {
     @Override
     public Connection openConnection(){
         logger.info("begin to create jdbc connection ...");
+        if(connection != null) return connection;
         try {
             Class.forName(connectionUrl.getDriver());
             connection = DriverManager.getConnection(connectionUrlString,connectionProperties);
             return connection;
         } catch (Exception e) {
-            e.printStackTrace();
             logger.error(MessageFormat.format("Cannot establish a connection to {0} using {1} ({2})",
                     database, connectionUrl.getDriver(), e.getMessage()));
         }
