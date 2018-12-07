@@ -49,8 +49,7 @@ import java.util.*;
 
 /**
  * Represent Database Table
- * 
- * @author Ahimanikya Satapathy
+ *
  */
 public final class DBTable extends DBObject<DBModel> {
 

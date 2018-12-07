@@ -45,6 +45,8 @@ package com.tools.data.db.util;
 import com.tools.data.db.core.Nullable;
 import com.tools.data.db.core.Ordering;
 import com.tools.data.db.core.SQLType;
+import com.tools.data.db.data.DBColumn;
+import com.tools.data.db.core.SQLConstant;
 import com.tools.data.db.metadata.Index;
 import com.tools.data.db.metadata.Parameter;
 
@@ -210,6 +212,17 @@ public final class JDBCUtils {
                 LOGGER.log(Level.INFO, "Unexpected index type code from database metadata: " + sqlIndexType);
                 return Index.IndexType.OTHER;
         }
+    }
+
+    // NULL, DEFAULT, CURRENT_TIMESTAMP etc.
+    @Deprecated
+    public static boolean isSQLConstantString(Object value) {
+        return isSQLConstantString(value, null);
+    }
+
+    // NULL, DEFAULT, CURRENT_TIMESTAMP etc.
+    public static boolean isSQLConstantString(Object value, DBColumn col) {
+        return (value == null || value instanceof SQLConstant);
     }
 
 }

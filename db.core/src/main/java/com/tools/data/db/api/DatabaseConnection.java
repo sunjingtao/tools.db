@@ -2,7 +2,6 @@ package com.tools.data.db.api;
 
 import com.tools.data.db.core.ConnectionUrl;
 import com.tools.data.db.exception.DatabaseException;
-import com.tools.data.db.lib.ddl.DBConnection;
 import com.tools.data.db.metadata.Metadata;
 import com.tools.data.db.metadata.MetadataFactory;
 import org.slf4j.Logger;
@@ -14,13 +13,12 @@ import java.text.MessageFormat;
 import java.util.Properties;
 
 
-public final class DatabaseConnection implements DBConnection {
+public final class DatabaseConnection {
     private static final Logger logger = LoggerFactory.getLogger(DatabaseConnection.class);
 
     private String database;
     private String user;
     private String password = ""; //NOI18N
-    private final DatabaseConnector connector = new DatabaseConnector(this);
     private Properties connectionProperties = null;
     private ConnectionUrl connectionUrl = null;
     private String connectionUrlString = null;
@@ -36,27 +34,22 @@ public final class DatabaseConnection implements DBConnection {
         connectionUrlString = ConnectionUrlManager.getValidUrl(connectionUrl,properties);
     }
 
-    @Override
     public String getDatabase() {
         return database;
     }
 
-    @Override
     public String getUser() {
         return user;
     }
 
-    @Override
     public Properties getConnectionProperties() {
         return (Properties) connectionProperties.clone();
     }
 
-    @Override
     public String getPassword() {
         return password;
     }
 
-    @Override
     public Connection openConnection(){
         logger.info("begin to create jdbc connection ...");
         if(connection != null) return connection;

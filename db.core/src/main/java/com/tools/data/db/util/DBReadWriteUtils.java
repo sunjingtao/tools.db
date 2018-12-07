@@ -59,7 +59,7 @@ import java.util.logging.Logger;
  *
  * @author Ahimanikya Satapathy
  */
-public class DBReadWriteHelper {
+public class DBReadWriteUtils {
     public static final int SQL_TYPE_ORACLE_TIMESTAMP = -100; // Oracle Timestamp
     public static final int SQL_TYPE_ORACLE_TIMESTAMP_WITH_TZ = -101; // Oracle Timestamp with Timezone
     private static final BigInteger maxUnsignedLong = new BigInteger("18446744073709551615");
@@ -68,7 +68,7 @@ public class DBReadWriteHelper {
     private static final long maxUnsignedInt = 4294967295L;
     private static final int maxUnsignedShort = 65535;
     private static final short maxUnsignedByte = 255;
-    private static final Logger mLogger = Logger.getLogger(DBReadWriteHelper.class.getName());
+    private static final Logger mLogger = Logger.getLogger(DBReadWriteUtils.class.getName());
 
     @SuppressWarnings(value = "fallthrough") // NOI18N
     public static Object readResultSet(ResultSet rs, DBColumn col, int index) throws SQLException {

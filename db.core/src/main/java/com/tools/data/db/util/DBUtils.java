@@ -47,7 +47,6 @@ import com.tools.data.db.exception.DatabaseException;
 import com.tools.data.db.data.DBColumn;
 import com.tools.data.db.data.DBForeignKey;
 import com.tools.data.db.data.DBTable;
-import com.tools.data.db.lexer.SQLConstant;
 
 import java.sql.*;
 import java.text.DateFormat;
@@ -218,49 +217,10 @@ public class DBUtils {
         }
     }
 
-    // NULL, DEFAULT, CURRENT_TIMESTAMP etc.
-    @Deprecated
-    public static boolean isSQLConstantString(Object value) {
-        return isSQLConstantString(value, null);
-    }
 
-    // NULL, DEFAULT, CURRENT_TIMESTAMP etc.
-    public static boolean isSQLConstantString(Object value, DBColumn col) {
-        return (value == null || value instanceof SQLConstant);
-    }
 
     public static boolean isNullString(String str) {
         return (str == null || str.trim().length() == 0);
-    }
-
-    public static void closeResources(PreparedStatement pstmt) {
-        try {
-            if (pstmt != null) {
-                pstmt.close();
-            }
-        } catch (SQLException ex) {
-            //ignore
-        }
-    }
-
-    public static void closeResources(Statement stmt) {
-        if (stmt != null) {
-            try {
-                stmt.close();
-            } catch (SQLException sqex) {
-                // ignore
-            }
-        }
-    }
-
-    public static void closeResources(ResultSet rs) {
-        if (rs != null) {
-            try {
-                rs.close();
-            } catch (SQLException sqex) {
-                // ignore
-            }
-        }
     }
 
     public static String getForeignKeyString(DBColumn column) {
@@ -286,10 +246,6 @@ public class DBUtils {
     }
     public static final String[] HTML_ALLOWABLES = {"&amp;", "&quot;", "&lt;", "&gt;"}; // NOI18N
     public static final String[] HTML_ILLEGALS = {"&", "\"", "<", ">"}; // NOI18N
-
-    public static String escapeHTML(String string) {
-        return replaceInString(string, HTML_ILLEGALS, HTML_ALLOWABLES);
-    }
 
     public static String replaceInString(String originalString, String[] victims, String[] replacements) {
         StringBuilder resultBuffer = new StringBuilder();
