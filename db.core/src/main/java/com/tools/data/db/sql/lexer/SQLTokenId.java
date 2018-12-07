@@ -104,11 +104,6 @@ public enum SQLTokenId implements TokenId {
             return new SQLLexer(info);
         }
 
-        @Override
-        protected LanguageEmbedding<?> embedding(
-        Token<SQLTokenId> token, LanguagePath languagePath, InputAttributes inputAttributes) {
-            return null;
-        }
     }.language();
 
     public static Language<SQLTokenId> language() {

@@ -51,11 +51,11 @@ options {
 
 PARSER_BEGIN(SQLParser)
 
-package org.netbeans.modules.db.sql.visualeditor.parser;
+package org.netbeans.modules.db.sql.lexer;
 
 import java.util.ArrayList;
 
-import org.netbeans.modules.db.sql.visualeditor.querymodel.*;
+import com.tools.data.db.sql.querymodel.*;
 
 public class SQLParser {
 

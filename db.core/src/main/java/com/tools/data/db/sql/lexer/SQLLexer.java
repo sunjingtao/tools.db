@@ -43,6 +43,7 @@ package com.tools.data.db.sql.lexer;
 
 import com.tools.lib.lexer.*;
 import com.tools.data.db.core.SQLKeywords;
+import com.tools.lib.lexer.Token;
 
 /**
  *
@@ -62,380 +63,385 @@ public class SQLLexer implements Lexer<SQLTokenId> {
         this.factory = info.tokenFactory();
     }
 
+//    @Override
+//    public Token<SQLTokenId> nextToken() {
+//        for (;;) {
+//            int actChar = input.read();
+//            if (actChar == LexerInput.EOF) {
+//                break;
+//            }
+//            switch (state) {
+//                // The initial state (start of a new token).
+//                case INIT:
+//                    switch (actChar) {
+//                        case '\'': // NOI18N
+//                            state = State.ISI_STRING;
+//                            break;
+//                        case '/':
+//                            state = State.ISA_SLASH;
+//                            break;
+//                        case '#':
+//                            state = State.ISA_HASH;
+//                            break;
+//                        case '=':
+//                        case '>':
+//                        case '<':
+//                        case '+':
+//                        case ';':
+//                        case '*':
+//                        case '!':
+//                        case '%':
+//                        case '&':
+//                        case '~':
+//                        case '^':
+//                        case '|':
+//                        case ':':
+//                            state = State.INIT;
+//
+//                            int lookAhead = input.read();
+//                            if(lookAhead == '=') {
+//                                switch (actChar) {
+//                                    case '|':
+//                                    case '^':
+//                                    case '&':
+//                                    case '%':
+//                                    case '/':
+//                                    case '*':
+//                                    case '-':
+//                                    case '+':
+//                                    case ':':
+//                                    case '!':
+//                                    case '<':
+//                                    case '>':
+//                                        return factory.createToken(SQLTokenId.OPERATOR);
+//                                }
+//                            }
+//                            if(actChar == '|' && lookAhead == '|') {
+//                                return factory.createToken(SQLTokenId.OPERATOR);
+//                            }
+//                            if(actChar == '!' && (lookAhead == '=' || lookAhead == '>' || lookAhead == '<')) {
+//                                return factory.createToken(SQLTokenId.OPERATOR);
+//                            }
+//                            if(actChar == '<' && lookAhead == '>') {
+//                                return factory.createToken(SQLTokenId.OPERATOR);
+//                            }
+//                            input.backup(1);
+//                            if(actChar != ':') {
+//                                return factory.createToken(SQLTokenId.OPERATOR);
+//                            } else {
+//                                state = State.ISI_IDENTIFIER;
+//                            }
+//                            break;
+//                        case '(':
+//                            state = State.INIT;
+//                            return factory.createToken(SQLTokenId.LPAREN);
+//                        case ')':
+//                            state = State.INIT;
+//                            return factory.createToken(SQLTokenId.RPAREN);
+//                        case ',':
+//                            state = State.INIT;
+//                            return factory.createToken(SQLTokenId.COMMA);
+//                        case '-':
+//                            state = State.ISA_MINUS;
+//                            break;
+//                        case '0':
+//                            state = State.ISA_ZERO;
+//                            break;
+//                        case '.':
+//                            state = State.ISA_DOT;
+//                            break;
+//                        default:
+//                            // Check for whitespace.
+//                            if (Character.isWhitespace(actChar)) {
+//                                state = State.ISI_WHITESPACE;
+//                                break;
+//                            }
+//
+//                            // Check for digit.
+//                            if (Character.isDigit(actChar)) {
+//                                state = State.ISI_INT;
+//                                break;
+//                            }
+//
+//                            // Otherwise it's an identifier.
+//                            if (isStartIdentifierQuoteChar(actChar)) {
+//                                startQuoteChar = actChar;
+//                            }
+//                            state = State.ISI_IDENTIFIER;
+//                            break;
+//                    }
+//                    break;
+//
+//                // If we are currently in a whitespace token.
+//                case ISI_WHITESPACE:
+//                    if (!Character.isWhitespace(actChar)) {
+//                        state = State.INIT;
+//                        input.backup(1);
+//                        return factory.createToken(SQLTokenId.WHITESPACE);
+//                    }
+//                    break;
+//
+//                // If we are currently in a line comment.
+//                case ISI_LINE_COMMENT:
+//                    if (actChar == '\n') {
+//                        state = State.INIT;
+//                        return factory.createToken(SQLTokenId.LINE_COMMENT);
+//                    }
+//                    break;
+//
+//                // If we are currently in a block comment.
+//                case ISI_BLOCK_COMMENT:
+//                    if (actChar == '*') {
+//                        state = State.ISA_STAR_IN_BLOCK_COMMENT;
+//                    }
+//                    break;
+//
+//                // If we are currently in a string literal.
+//                case ISI_STRING:
+//                    switch (actChar) {
+//                        case '\'': // NOI18N
+//                            state = State.ISA_QUOTE_IN_STRING;
+//                            break;
+//                    }
+//                    break;
+//
+//               case ISA_QUOTE_IN_STRING:
+//                    switch (actChar) {
+//                        case '\'':
+//                            state = State.ISI_STRING;
+//                            break;
+//                        default:
+//                            state = State.INIT;
+//                            input.backup(1);
+//                            return factory.createToken(SQLTokenId.STRING);
+//                    }
+//                    break;
+//
+//                // If we are currently in an identifier (e.g. a variable name),
+//                // or a keyword.
+//                case ISI_IDENTIFIER:
+//                    if (startQuoteChar != -1) {
+//                        if (!isEndIdentifierQuoteChar(startQuoteChar, actChar)) {
+//                            break;
+//                        } else {
+//                                state = State.ISA_QUOTE_IN_IDENTIFIER;
+//                                break;
+//                        }
+//                    } else {
+//                        if (Character.isLetterOrDigit(actChar) || actChar == '_' || actChar == '#') {
+//                            break;
+//                        } else {
+//                            input.backup(1);
+//                        }
+//                    }
+//                    state = State.INIT;
+//                    startQuoteChar = -1;
+//                    return factory.createToken(testKeyword(input.readText()));
+//
+//                case ISA_QUOTE_IN_IDENTIFIER:
+//                    if (isEndIdentifierQuoteChar(startQuoteChar, actChar)) {
+//                        state = State.ISI_IDENTIFIER;
+//                    } else {
+//                            state = State.INIT;
+//                            startQuoteChar = -1;
+//                            input.backup(1);
+//                            return factory.createToken(testKeyword(input.readText()));
+//                    }
+//                    break;
+//
+//                // If we are after a slash (/).
+//                case ISA_SLASH:
+//                    switch (actChar) {
+//                        case '*':
+//                            state = State.ISI_BLOCK_COMMENT;
+//                            break;
+//                        case '=':
+//                            state = State.INIT;
+//                            return factory.createToken(SQLTokenId.OPERATOR);
+//                        default:
+//                            state = State.INIT;
+//                            input.backup(1);
+//                            return factory.createToken(SQLTokenId.OPERATOR);
+//                    }
+//                    break;
+//
+//                // If we are after a minus (-).
+//                case ISA_MINUS:
+//                    switch (actChar) {
+//                        case '-':
+//                            state = State.ISI_LINE_COMMENT;
+//                            break;
+//                        case '=':
+//                            state = State.INIT;
+//                            return factory.createToken(SQLTokenId.OPERATOR);
+//                        default:
+//                            state = State.INIT;
+//                            input.backup(1);
+//                            return factory.createToken(SQLTokenId.OPERATOR);
+//                    }
+//                    break;
+//
+//                // If we are after a hash (#).
+//                case ISA_HASH:
+//                    if (Character.isWhitespace(actChar)) {
+//                        // only in MySQL # starts line comment
+//                        state = State.ISI_LINE_COMMENT;
+//                    } else {
+//                        // otherwise in can be identifier (issue 172904)
+//                        state = State.ISI_IDENTIFIER;
+//                    }
+//                    break;
+//
+//                // If we are in the middle of a possible block comment end token.
+//                case ISA_STAR_IN_BLOCK_COMMENT:
+//                    switch (actChar) {
+//                        case '/':
+//                            state = State.INIT;
+//                            return factory.createToken(SQLTokenId.BLOCK_COMMENT);
+//                        case '*':
+//                            state = State.ISA_STAR_IN_BLOCK_COMMENT;
+//                            break;
+//                        default:
+//                            state = State.ISI_BLOCK_COMMENT;
+//                            break;
+//                    }
+//                    break;
+//
+//                // If we are after a 0.
+//                case ISA_ZERO:
+//                    switch (actChar) {
+//                        case '.':
+//                            state = State.ISI_DOUBLE;
+//                            break;
+//                        default:
+//                            if (Character.isDigit(actChar)) {
+//                                state = State.ISI_INT;
+//                                break;
+//                            } else {
+//                                state = State.INIT;
+//                                input.backup(1);
+//                                return factory.createToken(SQLTokenId.INT_LITERAL);
+//                            }
+//                    }
+//                    break;
+//
+//                // If we are after an integer.
+//                case ISI_INT:
+//                    switch (actChar) {
+//                        case '.':
+//                            state = State.ISI_DOUBLE;
+//                            break;
+//                        default:
+//                            if (Character.isDigit(actChar)) {
+//                                state = State.ISI_INT;
+//                                break;
+//                            } else {
+//                                state = State.INIT;
+//                                input.backup(1);
+//                                return factory.createToken(SQLTokenId.INT_LITERAL);
+//                            }
+//                    }
+//                    break;
+//
+//                // If we are in the middle of what we believe is a floating point /number.
+//                case ISI_DOUBLE:
+//                    if (actChar >= '0' && actChar <= '9') {
+//                        state = State.ISI_DOUBLE;
+//                        break;
+//                    } else {
+//                        state = State.INIT;
+//                        input.backup(1);
+//                        return factory.createToken(SQLTokenId.DOUBLE_LITERAL);
+//                    }
+//
+//                // If we are after a period.
+//                case ISA_DOT:
+//                    if (Character.isDigit(actChar)) {
+//                        state = State.ISI_DOUBLE;
+//                    } else { // only single dot
+//                        state = State.INIT;
+//                        input.backup(1);
+//                        return factory.createToken(SQLTokenId.DOT);
+//                    }
+//                    break;
+//
+//            }
+//        }
+//
+//        SQLTokenId id = null;
+//        PartType part = PartType.COMPLETE;
+//        switch (state) {
+//            case ISA_QUOTE_IN_STRING:
+//                id = SQLTokenId.STRING;
+//                break;
+//
+//            case ISA_QUOTE_IN_IDENTIFIER:
+//                id = SQLTokenId.IDENTIFIER;
+//                break;
+//
+//            case ISI_WHITESPACE:
+//                id = SQLTokenId.WHITESPACE;
+//                break;
+//
+//            case ISI_IDENTIFIER:
+//                if(startQuoteChar == -1) {
+//                    id = testKeyword(input.readText());
+//                } else {
+//                    id = SQLTokenId.INCOMPLETE_IDENTIFIER;
+//                }
+//                break;
+//
+//            case ISI_LINE_COMMENT:
+//                id = SQLTokenId.LINE_COMMENT;
+//                break;
+//
+//            case ISI_BLOCK_COMMENT:
+//            case ISA_STAR_IN_BLOCK_COMMENT:
+//                id = SQLTokenId.BLOCK_COMMENT;
+//                part = PartType.START;
+//                break;
+//
+//            case ISI_STRING:
+//                id = SQLTokenId.INCOMPLETE_STRING; // XXX or string?
+//                part = PartType.START;
+//                break;
+//
+//            case ISA_ZERO:
+//            case ISI_INT:
+//                id = SQLTokenId.INT_LITERAL;
+//                break;
+//
+//            case ISI_DOUBLE:
+//                id = SQLTokenId.DOUBLE_LITERAL;
+//                break;
+//
+//            case ISA_DOT:
+//                id = SQLTokenId.DOT;
+//                break;
+//
+//            case ISA_SLASH:
+//                id = SQLTokenId.OPERATOR;
+//                break;
+//
+//            case ISA_MINUS:
+//                id = SQLTokenId.OPERATOR;
+//                break;
+//        }
+//
+//        if (id != null) {
+//            state = State.INIT;
+//            return factory.createToken(id, input.readLength(), part);
+//        }
+//
+//        if (state != State.INIT) {
+//            throw new IllegalStateException("Unhandled state " + state + " at end of file");
+//        }
+//
+//        return null;
+//    }
+
     @Override
     public Token<SQLTokenId> nextToken() {
-        for (;;) {
-            int actChar = input.read();
-            if (actChar == LexerInput.EOF) {
-                break;
-            }
-            switch (state) {
-                // The initial state (start of a new token).
-                case INIT:
-                    switch (actChar) {
-                        case '\'': // NOI18N
-                            state = State.ISI_STRING;
-                            break;
-                        case '/':
-                            state = State.ISA_SLASH;
-                            break;
-                        case '#':
-                            state = State.ISA_HASH;
-                            break;
-                        case '=':
-                        case '>':
-                        case '<':
-                        case '+':
-                        case ';':
-                        case '*':
-                        case '!':
-                        case '%':
-                        case '&':
-                        case '~':
-                        case '^':
-                        case '|':
-                        case ':':
-                            state = State.INIT;
-                            
-                            int lookAhead = input.read();
-                            if(lookAhead == '=') {
-                                switch (actChar) {
-                                    case '|':
-                                    case '^':
-                                    case '&':
-                                    case '%':
-                                    case '/':
-                                    case '*':
-                                    case '-':
-                                    case '+':
-                                    case ':':
-                                    case '!':
-                                    case '<':
-                                    case '>':
-                                        return factory.createToken(SQLTokenId.OPERATOR);
-                                }
-                            }
-                            if(actChar == '|' && lookAhead == '|') {
-                                return factory.createToken(SQLTokenId.OPERATOR);
-                            }
-                            if(actChar == '!' && (lookAhead == '=' || lookAhead == '>' || lookAhead == '<')) {
-                                return factory.createToken(SQLTokenId.OPERATOR);
-                            }
-                            if(actChar == '<' && lookAhead == '>') {
-                                return factory.createToken(SQLTokenId.OPERATOR);
-                            }
-                            input.backup(1);
-                            if(actChar != ':') {
-                                return factory.createToken(SQLTokenId.OPERATOR);
-                            } else {
-                                state = State.ISI_IDENTIFIER;
-                            }
-                            break;
-                        case '(':
-                            state = State.INIT;
-                            return factory.createToken(SQLTokenId.LPAREN);
-                        case ')':
-                            state = State.INIT;
-                            return factory.createToken(SQLTokenId.RPAREN);
-                        case ',':
-                            state = State.INIT;
-                            return factory.createToken(SQLTokenId.COMMA);
-                        case '-':
-                            state = State.ISA_MINUS;
-                            break;
-                        case '0':
-                            state = State.ISA_ZERO;
-                            break;
-                        case '.':
-                            state = State.ISA_DOT;
-                            break;
-                        default:
-                            // Check for whitespace.
-                            if (Character.isWhitespace(actChar)) {
-                                state = State.ISI_WHITESPACE;
-                                break;
-                            }
-
-                            // Check for digit.
-                            if (Character.isDigit(actChar)) {
-                                state = State.ISI_INT;
-                                break;
-                            }
-
-                            // Otherwise it's an identifier.
-                            if (isStartIdentifierQuoteChar(actChar)) {
-                                startQuoteChar = actChar;
-                            }
-                            state = State.ISI_IDENTIFIER;
-                            break;
-                    }
-                    break;
-
-                // If we are currently in a whitespace token.
-                case ISI_WHITESPACE:
-                    if (!Character.isWhitespace(actChar)) {
-                        state = State.INIT;
-                        input.backup(1);
-                        return factory.createToken(SQLTokenId.WHITESPACE);
-                    }
-                    break;
-
-                // If we are currently in a line comment.
-                case ISI_LINE_COMMENT:
-                    if (actChar == '\n') {
-                        state = State.INIT;
-                        return factory.createToken(SQLTokenId.LINE_COMMENT);
-                    }
-                    break;
-
-                // If we are currently in a block comment.
-                case ISI_BLOCK_COMMENT:
-                    if (actChar == '*') {
-                        state = State.ISA_STAR_IN_BLOCK_COMMENT;
-                    }
-                    break;
-
-                // If we are currently in a string literal.
-                case ISI_STRING:
-                    switch (actChar) {
-                        case '\'': // NOI18N
-                            state = State.ISA_QUOTE_IN_STRING;
-                            break;
-                    }
-                    break;
-
-               case ISA_QUOTE_IN_STRING:
-                    switch (actChar) {
-                        case '\'':
-                            state = State.ISI_STRING;
-                            break;
-                        default:
-                            state = State.INIT;
-                            input.backup(1);
-                            return factory.createToken(SQLTokenId.STRING);
-                    }
-                    break;
-
-                // If we are currently in an identifier (e.g. a variable name),
-                // or a keyword.
-                case ISI_IDENTIFIER:
-                    if (startQuoteChar != -1) {
-                        if (!isEndIdentifierQuoteChar(startQuoteChar, actChar)) {
-                            break;
-                        } else {
-                                state = State.ISA_QUOTE_IN_IDENTIFIER;
-                                break;
-                        }
-                    } else {
-                        if (Character.isLetterOrDigit(actChar) || actChar == '_' || actChar == '#') {
-                            break;
-                        } else {
-                            input.backup(1);
-                        }
-                    }
-                    state = State.INIT;
-                    startQuoteChar = -1;
-                    return factory.createToken(testKeyword(input.readText()));
-
-                case ISA_QUOTE_IN_IDENTIFIER:
-                    if (isEndIdentifierQuoteChar(startQuoteChar, actChar)) {
-                        state = State.ISI_IDENTIFIER;
-                    } else {
-                            state = State.INIT;
-                            startQuoteChar = -1;
-                            input.backup(1);
-                            return factory.createToken(testKeyword(input.readText()));
-                    }
-                    break;
-
-                // If we are after a slash (/).
-                case ISA_SLASH:
-                    switch (actChar) {
-                        case '*':
-                            state = State.ISI_BLOCK_COMMENT;
-                            break;
-                        case '=':
-                            state = State.INIT;
-                            return factory.createToken(SQLTokenId.OPERATOR);
-                        default:
-                            state = State.INIT;
-                            input.backup(1);
-                            return factory.createToken(SQLTokenId.OPERATOR);
-                    }
-                    break;
-
-                // If we are after a minus (-).
-                case ISA_MINUS:
-                    switch (actChar) {
-                        case '-':
-                            state = State.ISI_LINE_COMMENT;
-                            break;
-                        case '=':
-                            state = State.INIT;
-                            return factory.createToken(SQLTokenId.OPERATOR);
-                        default:
-                            state = State.INIT;
-                            input.backup(1);
-                            return factory.createToken(SQLTokenId.OPERATOR);
-                    }
-                    break;
-
-                // If we are after a hash (#).
-                case ISA_HASH:
-                    if (Character.isWhitespace(actChar)) {
-                        // only in MySQL # starts line comment
-                        state = State.ISI_LINE_COMMENT;
-                    } else {
-                        // otherwise in can be identifier (issue 172904)
-                        state = State.ISI_IDENTIFIER;
-                    }
-                    break;
-
-                // If we are in the middle of a possible block comment end token.
-                case ISA_STAR_IN_BLOCK_COMMENT:
-                    switch (actChar) {
-                        case '/':
-                            state = State.INIT;
-                            return factory.createToken(SQLTokenId.BLOCK_COMMENT);
-                        case '*':
-                            state = State.ISA_STAR_IN_BLOCK_COMMENT;
-                            break;
-                        default:
-                            state = State.ISI_BLOCK_COMMENT;
-                            break;
-                    }
-                    break;
-
-                // If we are after a 0.
-                case ISA_ZERO:
-                    switch (actChar) {
-                        case '.':
-                            state = State.ISI_DOUBLE;
-                            break;
-                        default:
-                            if (Character.isDigit(actChar)) {
-                                state = State.ISI_INT;
-                                break;
-                            } else {
-                                state = State.INIT;
-                                input.backup(1);
-                                return factory.createToken(SQLTokenId.INT_LITERAL);
-                            }
-                    }
-                    break;
-
-                // If we are after an integer.
-                case ISI_INT:
-                    switch (actChar) {
-                        case '.':
-                            state = State.ISI_DOUBLE;
-                            break;
-                        default:
-                            if (Character.isDigit(actChar)) {
-                                state = State.ISI_INT;
-                                break;
-                            } else {
-                                state = State.INIT;
-                                input.backup(1);
-                                return factory.createToken(SQLTokenId.INT_LITERAL);
-                            }
-                    }
-                    break;
-
-                // If we are in the middle of what we believe is a floating point /number.
-                case ISI_DOUBLE:
-                    if (actChar >= '0' && actChar <= '9') {
-                        state = State.ISI_DOUBLE;
-                        break;
-                    } else {
-                        state = State.INIT;
-                        input.backup(1);
-                        return factory.createToken(SQLTokenId.DOUBLE_LITERAL);
-                    }
-
-                // If we are after a period.
-                case ISA_DOT:
-                    if (Character.isDigit(actChar)) {
-                        state = State.ISI_DOUBLE;
-                    } else { // only single dot
-                        state = State.INIT;
-                        input.backup(1);
-                        return factory.createToken(SQLTokenId.DOT);
-                    }
-                    break;
-
-            }
-        }
-
-        SQLTokenId id = null;
-        PartType part = PartType.COMPLETE;
-        switch (state) {
-            case ISA_QUOTE_IN_STRING:
-                id = SQLTokenId.STRING;
-                break;
-
-            case ISA_QUOTE_IN_IDENTIFIER:
-                id = SQLTokenId.IDENTIFIER;
-                break;
-
-            case ISI_WHITESPACE:
-                id = SQLTokenId.WHITESPACE;
-                break;
-
-            case ISI_IDENTIFIER:
-                if(startQuoteChar == -1) {
-                    id = testKeyword(input.readText());
-                } else {
-                    id = SQLTokenId.INCOMPLETE_IDENTIFIER;
-                }
-                break;
-
-            case ISI_LINE_COMMENT:
-                id = SQLTokenId.LINE_COMMENT;
-                break;
-
-            case ISI_BLOCK_COMMENT:
-            case ISA_STAR_IN_BLOCK_COMMENT:
-                id = SQLTokenId.BLOCK_COMMENT;
-                part = PartType.START;
-                break;
-
-            case ISI_STRING:
-                id = SQLTokenId.INCOMPLETE_STRING; // XXX or string?
-                part = PartType.START;
-                break;
-
-            case ISA_ZERO:
-            case ISI_INT:
-                id = SQLTokenId.INT_LITERAL;
-                break;
-
-            case ISI_DOUBLE:
-                id = SQLTokenId.DOUBLE_LITERAL;
-                break;
-
-            case ISA_DOT:
-                id = SQLTokenId.DOT;
-                break;
-
-            case ISA_SLASH:
-                id = SQLTokenId.OPERATOR;
-                break;
-
-            case ISA_MINUS:
-                id = SQLTokenId.OPERATOR;
-                break;
-        }
-
-        if (id != null) {
-            state = State.INIT;
-            return factory.createToken(id, input.readLength(), part);
-        }
-
-        if (state != State.INIT) {
-            throw new IllegalStateException("Unhandled state " + state + " at end of file");
-        }
-
         return null;
     }
 
