@@ -119,7 +119,7 @@
 //                try {
 //                    stmt.cancel();
 //                } catch (SQLException sqlEx) {
-//                    LOGGER.log(Level.FINE, null, sqlEx);
+//                    logger.info( null, sqlEx);
 //                    // Ok! The DBMS might not support Statement-Canceling
 //                }
 //            }
@@ -138,9 +138,9 @@
 //            try {
 //                supportesMultipleResultSets = conn.getMetaData().supportsMultipleResultSets();
 //            } catch (SQLException | RuntimeException e) {
-//                LOGGER.log(Level.INFO, "Database driver throws exception "  //NOI18N
+//                logger.info( "Database driver throws exception "  //NOI18N
 //                        + "when checking for multiple resultset support."); //NOI18N
-//                LOGGER.log(Level.FINE, null, e);
+//                logger.info( null, e);
 //            }
 //        }
 //    }
@@ -263,7 +263,7 @@
 //                    stmt = conn.prepareStatement(truncateSql);
 //                    executePreparedStatement(stmt);
 //                } catch (SQLException sqe) {
-//                    LOGGER.log(Level.FINE, "TRUNCATE Not supported...will try DELETE * \n"); // NOI18N
+//                    logger.info( "TRUNCATE Not supported...will try DELETE * \n"); // NOI18N
 //                    truncateSql = "DELETE FROM " + dbTable.getFullyQualifiedName(true); // NOI18N
 //                    stmt = conn.prepareStatement(truncateSql);
 //                    executePreparedStatement(stmt);
@@ -350,7 +350,7 @@
 //                        }
 //                    }
 //                } catch (SQLException | InterruptedException sqlEx) {
-//                    LOGGER.log(Level.INFO, "Failed to retrieve resultset", sqlEx);
+//                    logger.info( "Failed to retrieve resultset", sqlEx);
 //                }
 //            }
 //
@@ -401,7 +401,7 @@
 //                    curRowPos = rs.getRow();
 //                    needSlowSkip = false;
 //                } catch (SQLException ex) {
-//                    LOGGER.log(Level.FINE, "Absolute positioning failed", ex); // NOI18N
+//                    logger.info( "Absolute positioning failed", ex); // NOI18N
 //                }
 //            }
 //
@@ -436,7 +436,7 @@
 //                    hasNext = rs.next();
 //                    curRowPos++;
 //                } catch (SQLException x) {
-//                    LOGGER.log(Level.INFO, "Failed to forward to next record, cause: " + x.getLocalizedMessage(), x);
+//                    logger.info( "Failed to forward to next record, cause: " + x.getLocalizedMessage(), x);
 //                    hasNext = false;
 //                }
 //            }
@@ -445,7 +445,7 @@
 //
 //            dataView.addFetchTime(end - start);
 //        } catch (SQLException e) {
-//            LOGGER.log(Level.INFO, "Failed to set up table model.", e); // NOI18N
+//            logger.info( "Failed to set up table model.", e); // NOI18N
 //            throw e;
 //        } finally {
 //        }
@@ -518,7 +518,7 @@
 //            stmt.setFetchSize(fetchSize);
 //        } catch (SQLException e) {
 //            // ignore -  used only as a hint to the driver to optimize
-//            LOGGER.log(Level.INFO, "Unable to set Fetch size", e); // NOI18N
+//            logger.info( "Unable to set Fetch size", e); // NOI18N
 //            // But try to reset to default behaviour
 //            try {
 //                stmt.setFetchSize(0);

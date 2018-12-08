@@ -31,11 +31,12 @@
 
 package com.tools.data.db.core;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.lang.reflect.Method;
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * This class provides utility methods for working with SQL identifiers.
@@ -160,8 +161,7 @@ public final class SQLIdentifiers {
 
     private static class DatabaseMetaDataQuoter extends Quoter {
 
-        private static final Logger LOGGER =
-            Logger.getLogger(DatabaseMetaDataQuoter.class.getName());
+        private static final Logger logger = LoggerFactory.getLogger(DatabaseMetaDataQuoter.class);
 
         // Rules for what happens to the casing of a character in an identifier
         // when it is not quoted
@@ -264,7 +264,7 @@ public final class SQLIdentifiers {
                     return true;
                 }
             } catch (Exception ex) {
-                LOGGER.log(Level.INFO, "SQLKeywords class cannot be used.", ex);
+                logger.info( "SQLKeywords class cannot be used.", ex);
             }
 
             return false;
@@ -326,10 +326,7 @@ public final class SQLIdentifiers {
             try {
                 chars = dbmd.getExtraNameCharacters();
             } catch ( SQLException e ) {
-                LOGGER.log(Level.WARNING, "DatabaseMetaData.getExtraNameCharacters()"
-                        + " failed (" + e.getMessage() + "). " +
-                        "Using standard set of characters");
-                LOGGER.log(Level.FINE, null, e);
+                logger.info( "DatabaseMetaData.getExtraNameCharacters() failed (" + e.getMessage() + "). Using standard set of characters", e);
             }
 
             return chars;
@@ -345,10 +342,7 @@ public final class SQLIdentifiers {
                     quoteStr = "\""; // NOI18N
                 }
             } catch ( SQLException e ) {
-                LOGGER.log(Level.WARNING, "DatabaseMetaData.getIdentifierQuoteString()"
-                        + " failed (" + e.getMessage() + "). " +
-                        "Using '\"' for quoting SQL identifiers");
-                LOGGER.log(Level.FINE, null, e);
+                logger.info( "DatabaseMetaData.getIdentifierQuoteString() failed (" + e.getMessage() + "). Using '\"' for quoting SQL identifiers", e);
             }
 
             return quoteStr;
@@ -368,10 +362,7 @@ public final class SQLIdentifiers {
                     rule = UC_RULE;
                 }
             } catch ( SQLException sqle ) {
-                LOGGER.log(Level.WARNING, "Exception trying to find out how " +
-                        "the database stores unquoted identifiers, assuming " +
-                        "upper case: " + sqle.getMessage());
-                LOGGER.log(Level.FINE, null, sqle);
+                logger.info( "Exception trying to find out how the database stores unquoted identifiers, assuming upper case: " + sqle.getMessage(), sqle);
             }
 
             return rule;

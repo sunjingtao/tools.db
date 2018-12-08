@@ -43,7 +43,6 @@
 package com.tools.data.db.modules.db.api.sql.execute;
 
 import com.tools.data.db.api.DatabaseConnection;
-import com.tools.data.db.lib.ddl.DDLException;
 import com.tools.data.db.metadata.*;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -76,19 +75,18 @@ public class SQLExecutorTest {
     }
 
     @Test
-    public void testOpenConnection() throws DDLException {
+    public void testOpenConnection() {
         Connection conn = dbconn.openConnection();
         Assert.assertNotNull(conn);
     }
 
     @Test
     public void testMetadata(){
-        dbconn.openConnection();
-        Metadata metadata = dbconn.getMetadata();
+        Metadata metadata = new Metadata(dbconn.openConnection());
         Assert.assertNotNull(metadata);
         Catalog catalog = metadata.getDefaultCatalog();
         Assert.assertNotNull(catalog);
-        Schema schema = catalog.getDefaultSchema();
+        Schema schema = catalog.getSchema();
         Assert.assertNotNull(schema);
         Collection<Table> tableList = schema.getTables();
         Assert.assertNotNull(tableList);

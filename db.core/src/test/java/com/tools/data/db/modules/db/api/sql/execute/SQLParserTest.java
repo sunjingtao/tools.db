@@ -6,6 +6,6 @@ public class SQLParserTest {
 
     @Test
     public void testSQLParser(){
-        SQLP
+
     }
 }

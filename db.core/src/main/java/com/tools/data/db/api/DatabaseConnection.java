@@ -3,7 +3,6 @@ package com.tools.data.db.api;
 import com.tools.data.db.core.ConnectionUrl;
 import com.tools.data.db.exception.DatabaseException;
 import com.tools.data.db.metadata.Metadata;
-import com.tools.data.db.metadata.MetadataFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,10 +61,6 @@ public final class DatabaseConnection {
                     database, connectionUrl.getDriver(), e.getMessage()));
         }
         return connection;
-    }
-
-    public Metadata getMetadata(){
-        return MetadataFactory.createMetadata(connection,getDatabase());
     }
 
     public boolean isConnected() {

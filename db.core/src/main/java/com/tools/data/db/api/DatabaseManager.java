@@ -1,7 +1,6 @@
 package com.tools.data.db.api;
 
 import com.tools.data.db.metadata.Metadata;
-import com.tools.data.db.metadata.MetadataFactory;
 
 public class DatabaseManager {
 

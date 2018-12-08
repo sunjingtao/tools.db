@@ -44,24 +44,24 @@ package com.tools.data.db.util;
 
 import com.tools.data.db.core.Nullable;
 import com.tools.data.db.core.Ordering;
+import com.tools.data.db.core.SQLConstant;
 import com.tools.data.db.core.SQLType;
 import com.tools.data.db.data.DBColumn;
-import com.tools.data.db.core.SQLConstant;
 import com.tools.data.db.metadata.Index;
 import com.tools.data.db.metadata.Parameter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.DatabaseMetaData;
 import java.sql.Types;
 import java.util.EnumSet;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
  * @author David
  */
 public final class JDBCUtils {
-    private static final Logger LOGGER = Logger.getLogger(JDBCUtils.class.getName());
+    private static final Logger logger = LoggerFactory.getLogger(JDBCUtils.class);
 
     private static EnumSet<SQLType> charTypes = EnumSet.of(SQLType.CHAR, SQLType.VARCHAR, SQLType.LONGVARCHAR);
     private static EnumSet<SQLType> dateTypes = EnumSet.of(SQLType.DATE, SQLType.TIME, SQLType.TIMESTAMP);
@@ -114,7 +114,7 @@ public final class JDBCUtils {
             case Types.SQLXML: return SQLType.SQLXML;
             case Types.ROWID: return SQLType.ROWID;
             default:
-                Logger.getLogger(JDBCUtils.class.getName()).log(Level.WARNING, "Unknown JDBC column type: " + type + ". Returns null.");
+                logger.info("Unknown JDBC column type: " + type + ". Returns null.");
                 return null;
         }
     }
@@ -164,7 +164,7 @@ public final class JDBCUtils {
             case DatabaseMetaData.procedureColumnIn:
                 return Parameter.Direction.IN;
             default:
-                LOGGER.log(Level.INFO, "Unknown direction value from DatabaseMetadata.getProcedureColumns(): " + sqlDirection);
+                logger.info( "Unknown direction value from DatabaseMetadata.getProcedureColumns(): " + sqlDirection);
                 return Parameter.Direction.IN;
         }
     }
@@ -178,7 +178,7 @@ public final class JDBCUtils {
             case DatabaseMetaData.functionColumnIn:
                 return Parameter.Direction.IN;
             default:
-                LOGGER.log(Level.INFO, "Unknown direction value from DatabaseMetadata.getFunctionColumns(): " + sqlDirection);
+                logger.info( "Unknown direction value from DatabaseMetadata.getFunctionColumns(): " + sqlDirection);
                 return Parameter.Direction.IN;
         }
     }
@@ -191,7 +191,7 @@ public final class JDBCUtils {
         } else if (ascOrDesc.equals("D")) {
             return Ordering.DESCENDING;
         } else {
-            LOGGER.log(Level.INFO, "Unexpected ordering code from database: " + ascOrDesc);
+            logger.info( "Unexpected ordering code from database: " + ascOrDesc);
             return Ordering.NOT_SUPPORTED;
         }
 
@@ -206,10 +206,10 @@ public final class JDBCUtils {
             case DatabaseMetaData.tableIndexOther:
                 return Index.IndexType.OTHER;
             case DatabaseMetaData.tableIndexStatistic:
-                LOGGER.log(Level.INFO, "Got unexpected index type of tableIndexStatistic, marking as 'other'");
+                logger.info( "Got unexpected index type of tableIndexStatistic, marking as 'other'");
                 return Index.IndexType.OTHER;
             default:
-                LOGGER.log(Level.INFO, "Unexpected index type code from database metadata: " + sqlIndexType);
+                logger.info( "Unexpected index type code from database metadata: " + sqlIndexType);
                 return Index.IndexType.OTHER;
         }
     }
