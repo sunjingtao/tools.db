@@ -1,65 +1,19 @@
-/*
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
- *
- * Copyright 1997-2012 Oracle and/or its affiliates. All rights reserved.
- *
- * Oracle and Java are registered trademarks of Oracle and/or its affiliates.
- * Other names may be trademarks of their respective owners.
- *
- * The contents of this file are subject to the terms of either the GNU
- * General Public License Version 2 only ("GPL") or the Common
- * Development and Distribution License("CDDL") (collectively, the
- * "License"). You may not use this file except in compliance with the
- * License. You can obtain a copy of the License at
- * http://www.netbeans.org/cddl-gplv2.html
- * or nbbuild/licenses/CDDL-GPL-2-CP. See the License for the
- * specific language governing permissions and limitations under the
- * License.  When distributing the software, include this License Header
- * Notice in each file and include the License file at
- * nbbuild/licenses/CDDL-GPL-2-CP.  Oracle designates this
- * particular file as subject to the "Classpath" exception as provided
- * by Oracle in the GPL Version 2 section of the License file that
- * accompanied this code. If applicable, add the following below the
- * License Header, with the fields enclosed by brackets [] replaced by
- * your own identifying information:
- * "Portions Copyrighted [year] [name of copyright owner]"
- *
- * Contributor(s):
- *
- * The Original Software is NetBeans. The Initial Developer of the Original
- * Software is Sun Microsystems, Inc. Portions Copyright 1997-2009 Sun
- * Microsystems, Inc. All Rights Reserved.
- *
- * If you wish your version of this file to be governed by only the CDDL
- * or only the GPL Version 2, indicate your decision by adding
- * "[Contributor] elects to include this software in this distribution
- * under the [CDDL or GPL Version 2] license." If you do not indicate a
- * single choice of license, a recipient has the option to distribute
- * your version of this file under either the CDDL, the GPL Version 2 or
- * to extend the choice of license to its licensees as provided above.
- * However, if you add GPL Version 2 code and therefore, elected the GPL
- * Version 2 license, then the option applies only if the new code is
- * made subject to such option by the copyright holder.
- */
 package com.tools.data.db.util;
 
-
-import com.tools.data.db.data.DBColumn;
 import com.tools.data.db.exception.DatabaseException;
+import com.tools.data.db.metadata.Column;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.sql.*;
 import java.text.MessageFormat;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
-/**
- *
- * @author Ahimanikya Satapathy
- */
 public class DBReadWriteUtils {
+    private static final Logger logger = LoggerFactory.getLogger(DBReadWriteUtils.class);
+
     public static final int SQL_TYPE_ORACLE_TIMESTAMP = -100; // Oracle Timestamp
     public static final int SQL_TYPE_ORACLE_TIMESTAMP_WITH_TZ = -101; // Oracle Timestamp with Timezone
     private static final BigInteger maxUnsignedLong = new BigInteger("18446744073709551615");
@@ -68,11 +22,9 @@ public class DBReadWriteUtils {
     private static final long maxUnsignedInt = 4294967295L;
     private static final int maxUnsignedShort = 65535;
     private static final short maxUnsignedByte = 255;
-    private static final Logger mLogger = Logger.getLogger(DBReadWriteUtils.class.getName());
 
-    @SuppressWarnings(value = "fallthrough") // NOI18N
-    public static Object readResultSet(ResultSet rs, DBColumn col, int index) throws SQLException {
-        int colType = col.getJdbcType();
+    public static Object readResultSet(ResultSet rs, Column col, int index) throws SQLException {
+        int colType = col.getType().ordinal();
 
         if (colType == Types.BIT && col.getPrecision() <= 1) {
             colType = Types.BOOLEAN;
@@ -410,13 +362,13 @@ public class DBReadWriteUtils {
                     ps.setObject(index, valueObj, jdbcType);
             }
         } catch (RuntimeException | SQLException | DatabaseException e) {
-            mLogger.log(Level.SEVERE, "Invalid Data for" + jdbcType + "type -- ", e); // NOI18N
+            logger.error("Invalid Data for" + jdbcType + "type -- ", e); // NOI18N
             throw new DatabaseException(MessageFormat.format("Invalid data for {0} type. \n Cause: {1}", jdbcType, e)); // NOI18N
         }
     }
 
-    public static Object validate(Object valueObj, DBColumn col) throws DatabaseException {
-        int colType = col.getJdbcType();
+    public static Object validate(Object valueObj, Column col) throws DatabaseException {
+        int colType = col.getType().ordinal();
         if (valueObj == null) {
             return null;
         }
@@ -517,18 +469,18 @@ public class DBReadWriteUtils {
                 case Types.ROWID:  //ROWID
                 case Types.NCHAR: //NCHAR
                     if (col.getPrecision() > 0 && valueObj.toString().length() > col.getPrecision()) {
-                        String colName = col.getQualifiedName(false);
+                        String colName = col.getName();
                         throw new DatabaseException(MessageFormat.format("Too large data ''{0}'' for column {1}", valueObj, colName)); // NOI18N
                     }
                     return valueObj;
 
                 case Types.BIT:
                     if (valueObj.toString().length() > col.getPrecision()) {
-                        String colName = col.getQualifiedName(false);
+                        String colName = col.getName();
                         throw new DatabaseException(MessageFormat.format("Too large data ''{0}'' for column {1}", valueObj, colName)); // NOI18N
                     }
                     if (valueObj.toString().trim().length() == 0) {
-                        String colName = col.getQualifiedName(false);
+                        String colName = col.getName();
                         throw new DatabaseException(MessageFormat.format("Invalid data for column {0}", valueObj, colName)); // NOI18N
                     }
                     BinaryToStringConverter.convertBitStringToBytes(valueObj.toString());
@@ -547,7 +499,7 @@ public class DBReadWriteUtils {
             }
         } catch (RuntimeException | DatabaseException e) {
             String type = col.getTypeName();
-            String colName = col.getQualifiedName(false);
+            String colName = col.getName();
             int precision = col.getPrecision();
             throw new DatabaseException(MessageFormat.format("Please enter valid data for {0} of datatype {1}({2}) \n Cause: {3}", new Object[] {colName, type, precision, e.getLocalizedMessage()}));
         }

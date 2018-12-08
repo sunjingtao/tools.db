@@ -44,11 +44,7 @@ package com.tools.data.db.util;
 
 import com.tools.data.db.core.Nullable;
 import com.tools.data.db.core.Ordering;
-import com.tools.data.db.core.SQLConstant;
 import com.tools.data.db.core.SQLType;
-import com.tools.data.db.data.DBColumn;
-import com.tools.data.db.data.DBForeignKey;
-import com.tools.data.db.data.DBTable;
 import com.tools.data.db.exception.DatabaseException;
 import com.tools.data.db.metadata.Index;
 import com.tools.data.db.metadata.Parameter;
@@ -64,7 +60,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.EnumSet;
-import java.util.logging.Level;
 
 public final class JDBCUtils {
     private static final Logger logger = LoggerFactory.getLogger(JDBCUtils.class);
@@ -229,28 +224,6 @@ public final class JDBCUtils {
 
     public static boolean isNullString(String str) {
         return (str == null || str.trim().length() == 0);
-    }
-
-    public static String getForeignKeyString(DBColumn column) {
-        String refString = column.getName() + " --> "; // NOI18N
-        StringBuilder str = new StringBuilder(refString);
-        DBTable table = column.getParentObject();
-        boolean firstReferencedColumn = false;
-
-        for(DBForeignKey fk: table.getForeignKeys()) {
-            if (fk.contains(column)) {
-                for(String pkColName: fk.getPKColumnNames()) {
-                    str.append(pkColName);
-                    if (firstReferencedColumn) {
-                        firstReferencedColumn = false;
-                    } else {
-                        str.append(", "); // NOI18N
-                    }
-                }
-            }
-        }
-
-        return str.toString();
     }
 
     public static String replaceInString(String originalString, String[] victims, String[] replacements) {
@@ -419,14 +392,4 @@ public final class JDBCUtils {
         }
     }
 
-    // NULL, DEFAULT, CURRENT_TIMESTAMP etc.
-    @Deprecated
-    public static boolean isSQLConstantString(Object value) {
-        return isSQLConstantString(value, null);
-    }
-
-    // NULL, DEFAULT, CURRENT_TIMESTAMP etc.
-    public static boolean isSQLConstantString(Object value, DBColumn col) {
-        return (value == null || value instanceof SQLConstant);
-    }
 }

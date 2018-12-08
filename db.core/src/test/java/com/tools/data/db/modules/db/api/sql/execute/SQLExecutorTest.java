@@ -53,6 +53,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Properties;
 
 /**
@@ -119,9 +120,12 @@ public class SQLExecutorTest {
     @Test
     public void testQueryData(){
         SQLStatementExecutor executor = new SQLStatementExecutor(dbconn.openConnection());
-        String sql = "SELECT name,age,grade,source_info,type,description FROM qazwsx";
+        String sql = "SELECT name,age,grade,source_info,type,description FROM qazwsx where name ='sun'";
         HashMap map = executor.selectOne(HashMap.class,sql);
         Assert.assertNotNull(map);
+        sql = "SELECT name,age,grade,source_info,type,description FROM qazwsx";
+        List<HashMap> resultList = executor.select(HashMap.class,sql);
+        Assert.assertNotNull(resultList);
     }
 
 
