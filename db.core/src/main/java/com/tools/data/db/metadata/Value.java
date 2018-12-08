@@ -3,13 +3,14 @@ package com.tools.data.db.metadata;
 import com.tools.data.db.core.Nullable;
 import com.tools.data.db.core.SQLType;
 import com.tools.data.db.util.JDBCUtils;
+import com.tools.data.db.util.MetadataUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class Value extends Element{
+public class Value implements Element{
 
     private static final Logger logger = LoggerFactory.getLogger(Catalog.class);
 
@@ -31,7 +32,7 @@ public class Value extends Element{
      * @throws java.sql.SQLException
      */
     public static Value createProcedureValue(ResultSet rs, Element parent) throws SQLException {
-        String name = MetadataUtilities.trimmed(rs.getString("COLUMN_NAME"));
+        String name = MetadataUtils.trimmed(rs.getString("COLUMN_NAME"));
         SQLType type = JDBCUtils.getSQLType(rs.getInt("DATA_TYPE"));
         String typeName = rs.getString("TYPE_NAME");
         int length = rs.getInt("LENGTH");
@@ -64,7 +65,7 @@ public class Value extends Element{
      * @throws java.sql.SQLException
      */
     public static Value createTableColumnValue(ResultSet rs, Element parent) throws SQLException {
-        String name = MetadataUtilities.trimmed(rs.getString("COLUMN_NAME"));
+        String name = MetadataUtils.trimmed(rs.getString("COLUMN_NAME"));
         SQLType type = JDBCUtils.getSQLType(rs.getInt("DATA_TYPE"));
         String typeName = rs.getString("TYPE_NAME");
 
@@ -94,7 +95,7 @@ public class Value extends Element{
      * @throws java.sql.SQLException
      */
     public static Value createTableColumnValueODBC(ResultSet rs, Element parent) throws SQLException {
-        String name = MetadataUtilities.trimmed(rs.getString("COLUMN_NAME"));
+        String name = MetadataUtils.trimmed(rs.getString("COLUMN_NAME"));
         SQLType type = JDBCUtils.getSQLType(rs.getInt("DATA_TYPE"));
         String typeName = rs.getString("TYPE_NAME");
         int length = 0;

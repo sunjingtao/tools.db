@@ -44,8 +44,8 @@
 package com.tools.data.db.util;
 
 
-import com.tools.data.db.exception.DatabaseException;
 import com.tools.data.db.data.DBColumn;
+import com.tools.data.db.exception.DatabaseException;
 
 import java.io.InputStream;
 import java.math.BigDecimal;
@@ -304,7 +304,7 @@ public class DBReadWriteUtils {
                     break;
                     
                 case Types.DATE:
-                    ps.setDate(index, DBUtils.convert(valueObj));
+                    ps.setDate(index, JDBCUtils.convert(valueObj));
                     break;
                     
                 case Types.TIMESTAMP:
@@ -447,7 +447,7 @@ public class DBReadWriteUtils {
                     return TimeType.convert(valueObj);
                 
                 case Types.DATE:
-                    return DBUtils.convert(valueObj);
+                    return JDBCUtils.convert(valueObj);
 
                 case Types.TIMESTAMP:
                 case SQL_TYPE_ORACLE_TIMESTAMP:

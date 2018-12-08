@@ -2,6 +2,7 @@ package com.tools.data.db.metadata;
 
 import com.tools.data.db.exception.MetadataException;
 import com.tools.data.db.util.JDBCUtils;
+import com.tools.data.db.util.MetadataUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,9 +13,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.logging.Level;
 
-public class Procedure extends Element{
+public class Procedure implements Element{
 
     private static final Logger logger = LoggerFactory.getLogger(Catalog.class);
 
@@ -43,7 +43,7 @@ public class Procedure extends Element{
     }
 
     public final Column getColumn(String name) {
-        return MetadataUtilities.find(name, initColumns());
+        return MetadataUtils.find(name, initColumns());
     }
 
     public Collection<Parameter> getParameters() {
@@ -84,7 +84,7 @@ public class Procedure extends Element{
         int resultCount = 0;
         int paramCount = 0;
         
-        DatabaseMetaData dmd = jdbcSchema.getCatalog().getMetadata().getDmd();
+        DatabaseMetaData dmd = jdbcSchema.getCatalog().getMetadata();
         String catalogName = jdbcSchema.getCatalog().getName();
         String schemaName = jdbcSchema.getName();
         

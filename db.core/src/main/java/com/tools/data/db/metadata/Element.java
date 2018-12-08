@@ -1,6 +1,6 @@
 package com.tools.data.db.metadata;
 
-public abstract class Element {
+public interface Element {
 
     /**
      * Returns the metadata element which is the parent of this metadata
@@ -8,7 +8,7 @@ public abstract class Element {
      *
      * @return the parent.
      */
-    public abstract Element getParent();
+    public Element getParent();
 
     /**
      * Returns the name of this metadata element or {@code null} if
@@ -16,10 +16,6 @@ public abstract class Element {
      *
      * @return the name.
      */
-    public abstract String getName();
-
-    public <T> T to(Class<? extends T> clazz){
-        return (T)this;
-    }
+    public String getName();
 
 }

@@ -29,10 +29,10 @@ public class MySQLSchema extends Schema {
         Map<String, Procedure> newProcedures = new LinkedHashMap<String, Procedure>();
         // routines
         try {
-            DatabaseMetaData dmd = catalog.getMetadata().getDmd();
+            DatabaseMetaData dmd = getCatalog().getMetadata();
             Statement stmt = dmd.getConnection().createStatement();
             ResultSet rs = stmt.executeQuery("SELECT NAME, TYPE" // NOI18N
-                                            + " FROM mysql.proc WHERE DB='" + catalog.getName() + "'" // NOI18N
+                                            + " FROM mysql.proc WHERE DB='" + getCatalog().getName() + "'" // NOI18N
                                             + " AND ( TYPE = 'PROCEDURE' OR TYPE = 'FUNCTION' )"); // NOI18N
             try {
                 while (rs.next()) {
@@ -52,10 +52,10 @@ public class MySQLSchema extends Schema {
         }
         // information_schema.triggers
         try {
-            DatabaseMetaData dmd = catalog.getMetadata().getDmd();
+            DatabaseMetaData dmd = getCatalog().getMetadata();
             Statement stmt = dmd.getConnection().createStatement();
             ResultSet rs = stmt.executeQuery("SELECT TRIGGER_NAME" // NOI18N
-                                            + " FROM information_schema.triggers WHERE TRIGGER_SCHEMA='" + catalog.getName() + "'"); // NOI18N
+                                            + " FROM information_schema.triggers WHERE TRIGGER_SCHEMA='" + getCatalog().getName() + "'"); // NOI18N
             try {
                 while (rs.next()) {
                     String procedureName = rs.getString("TRIGGER_NAME"); // NOI18N
@@ -82,7 +82,7 @@ public class MySQLSchema extends Schema {
 
     @Override
     public String toString() {
-        return "MySQLSchema[jdbcCatalog=" + catalog.getName() + ", name=" + getName() + "]";
+        return "MySQLSchema[jdbcCatalog=" + getCatalog().getName() + ", name=" + getName() + "]";
     }
 
 }

@@ -1,6 +1,7 @@
 package com.tools.data.db.metadata;
 
 import com.tools.data.db.exception.MetadataException;
+import com.tools.data.db.util.MetadataUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -11,12 +12,12 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class Schema extends Element{
+public class Schema implements Element{
 
     private static final Logger logger = LoggerFactory.getLogger(Schema.class);
 
-    protected final Catalog catalog;
-    protected final String name;
+    private final Catalog catalog;
+    private final String name;
     protected Map<String, Table> tables;
     protected Map<String, View> views;
     protected Map<String, Procedure> procedures;
@@ -40,11 +41,11 @@ public class Schema extends Element{
     }
 
     public final Table getTable(String name) {
-        return MetadataUtilities.find(name, initTables());
+        return MetadataUtils.find(name, initTables());
     }
 
     public View getView(String name) {
-        return MetadataUtilities.find(name, initViews());
+        return MetadataUtils.find(name, initViews());
     }
 
     public Collection<View> getViews() {
@@ -87,13 +88,13 @@ public class Schema extends Element{
         logger.info( "Initializing tables in {0}", this);
         Map<String, Table> newTables = new LinkedHashMap<String, Table>();
         try {
-            ResultSet rs = MetadataUtilities.getTables(catalog.getMetadata().getDmd(),
+            ResultSet rs = MetadataUtils.getTables(catalog.getMetadata(),
                     catalog.getName(), name, "%", new String[]{"TABLE", "SYSTEM TABLE"}); // NOI18N
             if (rs != null) {
                 try {
                     while (rs.next()) {
-                        String type = MetadataUtilities.trimmed(rs.getString("TABLE_TYPE")); //NOI18N
-                        String tableName = MetadataUtilities.trimmed(rs.getString("TABLE_NAME")); // NOI18N
+                        String type = MetadataUtils.trimmed(rs.getString("TABLE_TYPE")); //NOI18N
+                        String tableName = MetadataUtils.trimmed(rs.getString("TABLE_NAME")); // NOI18N
                         Table table = createJDBCTable(tableName, type.contains("SYSTEM")); //NOI18N
                         newTables.put(tableName, table);
                         logger.info( "Created table {0}", table); //NOI18N
@@ -112,12 +113,12 @@ public class Schema extends Element{
         logger.info( "Initializing views in {0}", this);
         Map<String, View> newViews = new LinkedHashMap<String, View>();
         try {
-            ResultSet rs = MetadataUtilities.getTables(catalog.getMetadata().getDmd(),
+            ResultSet rs = MetadataUtils.getTables(catalog.getMetadata(),
                     catalog.getName(), name, "%", new String[]{"VIEW"}); // NOI18N
             if (rs != null) {
                 try {
                     while (rs.next()) {
-                        String viewName = MetadataUtilities.trimmed(rs.getString("TABLE_NAME")); // NOI18N
+                        String viewName = MetadataUtils.trimmed(rs.getString("TABLE_NAME")); // NOI18N
                         View view = createJDBCView(viewName);
                         newViews.put(viewName, view);
                         logger.info( "Created view {0}", view); // NOI18N
@@ -136,12 +137,12 @@ public class Schema extends Element{
         logger.info( "Initializing procedures in {0}", this);
         Map<String, Procedure> newProcedures = new LinkedHashMap<String, Procedure>();
         try {
-            ResultSet rs = MetadataUtilities.getProcedures(catalog.getMetadata().getDmd(),
+            ResultSet rs = MetadataUtils.getProcedures(catalog.getMetadata(),
                     catalog.getName(), name, "%"); // NOI18N
             if (rs != null) {
                 try {
                     while (rs.next()) {
-                        String procedureName = MetadataUtilities.trimmed(rs.getString("PROCEDURE_NAME")); // NOI18N
+                        String procedureName = MetadataUtils.trimmed(rs.getString("PROCEDURE_NAME")); // NOI18N
                         Procedure procedure = createJDBCProcedure(procedureName);
                         newProcedures.put(procedureName, procedure);
                         logger.info( "Created procedure {0}", procedure); //NOI18N
@@ -160,12 +161,12 @@ public class Schema extends Element{
         logger.info( "Initializing functions in {0}", this); //NOI18N
         Map<String, Function> newProcedures = new LinkedHashMap<String, Function>();
         try {
-            ResultSet rs = MetadataUtilities.getFunctions(catalog.getMetadata().getDmd(),
+            ResultSet rs = MetadataUtils.getFunctions(catalog.getMetadata(),
                     catalog.getName(), name, "%"); // NOI18N
             if (rs != null) {
                 try {
                     while (rs.next()) {
-                        String functionName = MetadataUtilities.trimmed(rs.getString("FUNCTION_NAME")); // NOI18N
+                        String functionName = MetadataUtils.trimmed(rs.getString("FUNCTION_NAME")); // NOI18N
                         Function function = createJDBCFunction(functionName);
                         newProcedures.put(functionName, function);
                         logger.info( "Created function {0}", function); //NOI18N

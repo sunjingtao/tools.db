@@ -1,8 +1,9 @@
 package com.tools.data.db.metadata;
 
-import com.tools.data.db.exception.MetadataException;
 import com.tools.data.db.core.Ordering;
+import com.tools.data.db.exception.MetadataException;
 import com.tools.data.db.util.JDBCUtils;
+import com.tools.data.db.util.MetadataUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,7 +13,7 @@ import java.sql.SQLException;
 import java.text.MessageFormat;
 import java.util.*;
 
-public class Table extends Element{
+public class Table implements Element{
 
     private static final Logger logger = LoggerFactory.getLogger(Catalog.class);
 
@@ -49,7 +50,7 @@ public class Table extends Element{
     }
 
     public final Column getColumn(String name) {
-        return MetadataUtilities.find(name, initColumns());
+        return MetadataUtils.find(name, initColumns());
     }
 
     public PrimaryKey getPrimaryKey() {
@@ -57,7 +58,7 @@ public class Table extends Element{
     }
 
     public Index getIndex(String indexName) {
-        return MetadataUtilities.find(indexName, initIndexes());
+        return MetadataUtils.find(indexName, initIndexes());
     }
 
     public Collection<Index> getIndexes() {
@@ -69,7 +70,7 @@ public class Table extends Element{
     }
 
     public ForeignKey getForeignKeyByInternalName(String name) {
-         return MetadataUtilities.find(name, initForeignKeys());
+         return MetadataUtils.find(name, initForeignKeys());
     }
 
     public boolean isSystem() {
@@ -96,7 +97,7 @@ public class Table extends Element{
     /** Returns true if this table is under ODBC connection. In such a case
      * some meta data like ORDINAL_POSITION or ASC_OR_DESC are not supported. */
     private boolean isOdbc(ResultSet rs) throws SQLException {
-        boolean odbc = jdbcSchema.getCatalog().getMetadata().getDmd().getURL().startsWith("jdbc:odbc");  //NOI18N
+        boolean odbc = jdbcSchema.getCatalog().getMetadata().getURL().startsWith("jdbc:odbc");  //NOI18N
         if (odbc) {
             try {
                 rs.getInt("PRECISION");
@@ -115,8 +116,8 @@ public class Table extends Element{
     protected void createColumns() {
         Map<String, Column> newColumns = new LinkedHashMap<String, Column>();
         try {
-            ResultSet rs = MetadataUtilities.getColumns(
-                    jdbcSchema.getCatalog().getMetadata().getDmd(),
+            ResultSet rs = MetadataUtils.getColumns(
+                    jdbcSchema.getCatalog().getMetadata(),
                     jdbcSchema.getCatalog().getName(), jdbcSchema.getName(),
                     name, "%"); // NOI18N
             if (rs != null) {
@@ -139,8 +140,8 @@ public class Table extends Element{
     protected void createIndexes() {
         Map<String, Index> newIndexes = new LinkedHashMap<String, Index>();
         try {
-            ResultSet rs = MetadataUtilities.getIndexInfo(
-                    jdbcSchema.getCatalog().getMetadata().getDmd(),
+            ResultSet rs = MetadataUtils.getIndexInfo(
+                    jdbcSchema.getCatalog().getMetadata(),
                     jdbcSchema.getCatalog().getName(), jdbcSchema.getName(),
                     name, false, true);
             if (rs != null) {
@@ -158,7 +159,7 @@ public class Table extends Element{
                             continue;
                         }
 
-                        String indexName = MetadataUtilities.trimmed(rs.getString("INDEX_NAME")); //NOI18N
+                        String indexName = MetadataUtils.trimmed(rs.getString("INDEX_NAME")); //NOI18N
                         if (index == null || !(currentIndexName.equals(indexName))) {
                             index = createJDBCIndex(indexName, rs);
                             logger.info( "Created index {0}", index); //NOI18N
@@ -209,7 +210,7 @@ public class Table extends Element{
             column = getColumn(rs.getString("COLUMN_NAME"));
             if (!isOdbc(rs)) {
                 position = rs.getInt("ORDINAL_POSITION");
-                ordering = JDBCUtils.getOrdering(MetadataUtilities.trimmed(rs.getString("ASC_OR_DESC")));
+                ordering = JDBCUtils.getOrdering(MetadataUtils.trimmed(rs.getString("ASC_OR_DESC")));
             }
         } catch (SQLException e) {
             filterSQLException(e);
@@ -225,8 +226,8 @@ public class Table extends Element{
         protected void createForeignKeys() {
         Map<String,ForeignKey> newKeys = new LinkedHashMap<String,ForeignKey>();
         try {
-            ResultSet rs = MetadataUtilities.getImportedKeys(
-                    jdbcSchema.getCatalog().getMetadata().getDmd(),
+            ResultSet rs = MetadataUtils.getImportedKeys(
+                    jdbcSchema.getCatalog().getMetadata(),
                     jdbcSchema.getCatalog().getName(), jdbcSchema.getName(),
                     name);
             if (rs != null) {
@@ -234,7 +235,7 @@ public class Table extends Element{
                     ForeignKey fkey = null;
                     String currentKeyName = null;
                     while (rs.next()) {
-                        String keyName = MetadataUtilities.trimmed(rs.getString("FK_NAME"));
+                        String keyName = MetadataUtils.trimmed(rs.getString("FK_NAME"));
                         // We have to assume that if the foreign key name is null, then this is a *new*
                         // foreign key, even if the last foreign key name was also null.
                     if (fkey == null || keyName == null || !(currentKeyName.equals(keyName))) {
@@ -274,13 +275,13 @@ public class Table extends Element{
 
         try {
             table = findReferredTable(rs);
-            colname = MetadataUtilities.trimmed(rs.getString("PKCOLUMN_NAME")); // NOI18N
+            colname = MetadataUtils.trimmed(rs.getString("PKCOLUMN_NAME")); // NOI18N
             referredColumn = table.getColumn(colname);
             if (referredColumn == null) {
                 throwColumnNotFoundException(table, colname);
             }
 
-            colname = MetadataUtilities.trimmed(rs.getString("FKCOLUMN_NAME"));
+            colname = MetadataUtils.trimmed(rs.getString("FKCOLUMN_NAME"));
             referringColumn = getColumn(colname);
 
             if (referringColumn == null) {
@@ -304,22 +305,19 @@ public class Table extends Element{
     }
 
     private Table findReferredTable(ResultSet rs) {
-        Metadata metadata = jdbcSchema.getCatalog().getMetadata();
-        Catalog catalog;
-        Schema schema;
         Table table = null;
 
         try {
-            String catalogName = MetadataUtilities.trimmed(rs.getString("PKTABLE_CAT")); // NOI18N
+            String catalogName = MetadataUtils.trimmed(rs.getString("PKTABLE_CAT")); // NOI18N
             if (catalogName != null || catalogName.length() != 0) {
                 logger.error(MessageFormat.format("The catalog {0} can not be found", catalogName));
             }
-            String schemaName = MetadataUtilities.trimmed(rs.getString("PKTABLE_SCHEM")); // NOI18N
+            String schemaName = MetadataUtils.trimmed(rs.getString("PKTABLE_SCHEM")); // NOI18N
             if (schemaName != null || schemaName.length() != 0) {
                 logger.error("The schema named {0} can not be found in the catalog {1}", schemaName, catalogName);
             }
 
-            String tableName = MetadataUtilities.trimmed(rs.getString("PKTABLE_NAME"));
+            String tableName = MetadataUtils.trimmed(rs.getString("PKTABLE_NAME"));
             table = getParent().getTable(tableName);
 
             if (table == null) {
@@ -337,17 +335,17 @@ public class Table extends Element{
         String pkname = null;
         Collection<Column> pkcols = new ArrayList<Column>();
         try {
-            ResultSet rs = MetadataUtilities.getPrimaryKeys(
-                    jdbcSchema.getCatalog().getMetadata().getDmd(),
+            ResultSet rs = MetadataUtils.getPrimaryKeys(
+                    jdbcSchema.getCatalog().getMetadata(),
                     jdbcSchema.getCatalog().getName(), jdbcSchema.getName(),
                     name);
             if (rs != null) {
                 try {
                     while (rs.next()) {
                         if (pkname == null) {
-                            pkname = MetadataUtilities.trimmed(rs.getString("PK_NAME"));
+                            pkname = MetadataUtils.trimmed(rs.getString("PK_NAME"));
                         }
-                        String colName = MetadataUtilities.trimmed(rs.getString("COLUMN_NAME"));
+                        String colName = MetadataUtils.trimmed(rs.getString("COLUMN_NAME"));
                         pkcols.add(getColumn(colName));
                     }
                 } finally {

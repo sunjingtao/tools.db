@@ -1,41 +1,42 @@
 package com.tools.data.db.data;
 
 import com.tools.data.db.exception.DatabaseException;
-import com.tools.data.db.metadata.Metadata;
+import com.tools.data.db.metadata.Catalog;
 import com.tools.data.db.util.DBReadWriteUtils;
 import com.tools.data.db.util.JDBCUtils;
+import com.tools.data.db.util.SQLParserUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import sun.plugin.com.TypeConverter;
 
 import java.sql.*;
-import java.text.MessageFormat;
 import java.util.List;
 
-public abstract class SQLStatementExecutor{
+public class SQLStatementExecutor{
     protected Logger logger = LoggerFactory.getLogger(SQLStatementExecutor.class);
 
     protected boolean lastCommitState;
     private boolean runInTransaction = false;
     private Connection connection;
-    private Metadata metadata;
     private String sql;
 
-    public SQLStatementExecutor(Connection connection, Metadata metadata) {
-        if (connection == null || metadata == null) {
-            throw new IllegalArgumentException("parameter connection or metadata in SQLStatementExecutor cann't be null !");
+    public SQLStatementExecutor(Connection connection) {
+        if (connection == null) {
+            throw new IllegalArgumentException("parameter connection in SQLStatementExecutor cann't be null !");
         }
         this.connection = connection;
-        this.metadata = metadata;
     }
 
-    public <T> T selectOne(String sql){
+    public <T> T selectOne(Class clazz, String sql){
         try{
             Statement stmt = connection.createStatement();
             stmt.execute(sql);
             ResultSet rs = stmt.getResultSet();
             if(rs != null && rs.getFetchSize() > 1)
                 throw new DatabaseException("respect to find one row ,but result count is larger than one !");
-//            Table table = metadata.
+            //select sql may be select info from multi tables ,so must parse sql and get columns
+            Record record = new Record(rs, SQLParserUtils.getColumnSet(sql));
+            return (T) TypeConverter.convertObject(clazz,record);
         }catch (Exception ex){
             logger.error(ex.getMessage());
         }
@@ -224,7 +225,6 @@ public abstract class SQLStatementExecutor{
         }
         return newState;
     }
-    protected abstract void execute() throws SQLException;
 
     private boolean commit() {
         if(! runInTransaction) {

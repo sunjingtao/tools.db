@@ -2,6 +2,7 @@ package com.tools.data.db.metadata;
 
 import com.tools.data.db.exception.MetadataException;
 import com.tools.data.db.util.JDBCUtils;
+import com.tools.data.db.util.MetadataUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,7 +14,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class Function extends Element{
+public class Function implements Element{
 
     private static final Logger logger = LoggerFactory.getLogger(Catalog.class);
     private final Schema jdbcSchema;
@@ -40,7 +41,7 @@ public class Function extends Element{
     }
 
     public final Column getColumn(String name) {
-        return MetadataUtilities.find(name, initColumns());
+        return MetadataUtils.find(name, initColumns());
     }
 
     public Collection<Parameter> getParameters() {
@@ -81,7 +82,7 @@ public class Function extends Element{
         int paramCount = 0;
 
         try {
-            ResultSet rs = jdbcSchema.getCatalog().getMetadata().getDmd().getFunctionColumns(jdbcSchema.getCatalog().getName(), jdbcSchema.getName(), name, "%"); // NOI18N
+            ResultSet rs = jdbcSchema.getCatalog().getMetadata().getFunctionColumns(jdbcSchema.getCatalog().getName(), jdbcSchema.getName(), name, "%"); // NOI18N
             try {
                 while (rs.next()) {
                     short columnType = rs.getShort("COLUMN_TYPE");

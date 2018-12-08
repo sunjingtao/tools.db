@@ -1,14 +1,18 @@
-package com.tools.data.db.metadata;
+package com.tools.data.db.util;
+
+import com.tools.data.db.metadata.Column;
+import com.tools.data.db.metadata.Table;
 
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
-public class MetadataUtilities {
-
-    private MetadataUtilities() {}
+public class MetadataUtils {
 
     public static <V> V find(String key, Map<String, ? extends V> map) {
         V value = map.get(key);
@@ -158,5 +162,14 @@ public class MetadataUtilities {
         } catch (Throwable t) {
             throw new SQLException(t);
         }
+    }
+
+    public static Set<String> getColumnNameSet(Table table, boolean camelCase){
+        Set<String> columnSet = new HashSet<>();
+        Collection<Column> columns = table.getColumns();
+        for(Column column : columns){
+            columnSet.add(camelCase ? StringUtils.toCamelCase(column.getName()) : column.getName());
+        }
+        return  columnSet;
     }
 }

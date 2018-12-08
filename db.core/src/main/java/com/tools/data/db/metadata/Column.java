@@ -3,7 +3,7 @@ package com.tools.data.db.metadata;
 import com.tools.data.db.core.Nullable;
 import com.tools.data.db.core.SQLType;
 
-public class Column extends Element{
+public class Column implements Element{
 
     private final Element parent;
     private final Value value;

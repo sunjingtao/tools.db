@@ -2,7 +2,6 @@ package com.tools.data.db.api;
 
 import com.tools.data.db.core.ConnectionUrl;
 import com.tools.data.db.exception.DatabaseException;
-import com.tools.data.db.metadata.Metadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,7 +21,6 @@ public final class DatabaseConnection {
     private ConnectionUrl connectionUrl = null;
     private String connectionUrlString = null;
     private Connection connection = null;
-    private Metadata metadata;
 
     public DatabaseConnection(Properties properties) {
         this.database = properties.getProperty("database");
@@ -65,10 +63,6 @@ public final class DatabaseConnection {
 
     public boolean isConnected() {
         return connection != null;
-    }
-
-    public Connection getConnection() {
-        return connection;
     }
 
     public void closeConnection() throws DatabaseException {

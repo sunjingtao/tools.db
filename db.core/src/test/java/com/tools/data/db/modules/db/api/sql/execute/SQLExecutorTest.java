@@ -43,13 +43,16 @@
 package com.tools.data.db.modules.db.api.sql.execute;
 
 import com.tools.data.db.api.DatabaseConnection;
+import com.tools.data.db.data.SQLStatementExecutor;
 import com.tools.data.db.metadata.*;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Properties;
 
 /**
@@ -82,9 +85,7 @@ public class SQLExecutorTest {
 
     @Test
     public void testMetadata(){
-        Metadata metadata = new Metadata(dbconn.openConnection());
-        Assert.assertNotNull(metadata);
-        Catalog catalog = metadata.getDefaultCatalog();
+        Catalog catalog = new Catalog(dbconn.openConnection());
         Assert.assertNotNull(catalog);
         Schema schema = catalog.getSchema();
         Assert.assertNotNull(schema);
@@ -113,21 +114,16 @@ public class SQLExecutorTest {
           "KEY idx_fk_staff_id (staff_id)) ENGINE=InnoDB DEFAULT CHARSET=utf8;";
 
 //        checkExecution(SQLExecutorHe.execute(dbconn, sql));
-}
+    }
 
+    @Test
+    public void testQueryData(){
+        SQLStatementExecutor executor = new SQLStatementExecutor(dbconn.openConnection());
+        String sql = "SELECT name,age,grade,source_info,type,description FROM qazwsx";
+        HashMap map = executor.selectOne(HashMap.class,sql);
+        Assert.assertNotNull(map);
+    }
 
-//    public void testExecuteOnClosedConnection() throws Exception {
-//        DatabaseConnection broken = getDatabaseConnection(false);
-//
-//        ConnectionManager.getDefault().disconnect(broken);
-//
-//        try {
-//            SQLExecutor.execute(broken, "SELECT ydayaday");
-//            Assert.fail("No exception when executing on a closed connection");
-//        } catch (DatabaseException dbe) {
-//            // expected
-//        }
-//    }
 
 //    public void testExecute() throws Exception {
 //        SQLExecutionInfo info = SQLExecutor.execute(dbconn, "SELECT * FROM " + getTestTableName() + ";");

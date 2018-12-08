@@ -47,28 +47,233 @@ import com.tools.data.db.core.Ordering;
 import com.tools.data.db.core.SQLConstant;
 import com.tools.data.db.core.SQLType;
 import com.tools.data.db.data.DBColumn;
+import com.tools.data.db.data.DBForeignKey;
+import com.tools.data.db.data.DBTable;
+import com.tools.data.db.exception.DatabaseException;
 import com.tools.data.db.metadata.Index;
 import com.tools.data.db.metadata.Parameter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.DatabaseMetaData;
+import java.sql.Timestamp;
 import java.sql.Types;
+import java.text.DateFormat;
+import java.text.MessageFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.EnumSet;
+import java.util.logging.Level;
 
-/**
- *
- * @author David
- */
 public final class JDBCUtils {
     private static final Logger logger = LoggerFactory.getLogger(JDBCUtils.class);
+
+    public static final String DEFAULT_FOMAT_PATTERN = "yyyy-MM-dd";
 
     private static EnumSet<SQLType> charTypes = EnumSet.of(SQLType.CHAR, SQLType.VARCHAR, SQLType.LONGVARCHAR);
     private static EnumSet<SQLType> dateTypes = EnumSet.of(SQLType.DATE, SQLType.TIME, SQLType.TIMESTAMP);
     private static EnumSet<SQLType> numericTypes = EnumSet.of(SQLType.TINYINT, SQLType.INTEGER, SQLType.BIGINT, SQLType.SMALLINT,
             SQLType.FLOAT, SQLType.DOUBLE, SQLType.REAL, SQLType.NUMERIC, SQLType.DECIMAL);
 
+    private static final DateFormat[] DATE_PARSING_FORMATS = new DateFormat[]{
+            new SimpleDateFormat(DEFAULT_FOMAT_PATTERN),
+            DateFormat.getDateInstance(),
+            DateFormat.getTimeInstance(DateFormat.SHORT),
+            DateFormat.getTimeInstance(DateFormat.SHORT, TimestampType.LOCALE),
+            new SimpleDateFormat("yyyy-MM-dd"), // NOI18N
+            new SimpleDateFormat("MM-dd-yyyy"), // NOI18N
+    };
 
+    {
+        for (int i = 0; i < DATE_PARSING_FORMATS.length; i++) {
+            DATE_PARSING_FORMATS[i].setLenient(false);
+        }
+    }
+
+
+    public static java.sql.Date convert(Object value) throws DatabaseException {
+        Calendar cal = Calendar.getInstance();
+
+        if (null == value) {
+            return null;
+        } else if (value instanceof Timestamp) {
+            cal.setTimeInMillis(((Timestamp) value).getTime());
+        } else if (value instanceof java.util.Date) {
+            cal.setTimeInMillis(((java.util.Date) value).getTime());
+        }else if (value instanceof String) {
+            java.util.Date dVal = doParse ((String) value);
+            if (dVal == null) {
+                throw new DatabaseException(MessageFormat.format("Can't convert {0} {1} due {2}.", value.getClass().getName(), value.toString())); // NOI18N
+            }
+            cal.setTimeInMillis(dVal.getTime());
+        } else {
+            throw new DatabaseException(MessageFormat.format("Can't convert {0} {1} due {2}.", value.getClass().getName(), value.toString())); // NOI18N
+        }
+
+        // Normalize to 0 hour in default time zone.
+        cal.set(Calendar.HOUR_OF_DAY, 0);
+        cal.set(Calendar.MINUTE, 0);
+        cal.set(Calendar.SECOND, 0);
+        cal.set(Calendar.MILLISECOND, 0);
+
+        return new java.sql.Date(cal.getTimeInMillis());
+    }
+
+    private static java.util.Date doParse (String sVal) {
+        java.util.Date dVal = null;
+        for (DateFormat format : DATE_PARSING_FORMATS) {
+            try {
+                dVal = format.parse (sVal);
+                break;
+            } catch (ParseException ex) {
+                logger.info(ex.getLocalizedMessage() , ex);
+            }
+        }
+        return dVal;
+    }
+
+
+    public static boolean isNumeric(int jdbcType) {
+        switch (jdbcType) {
+            case Types.BIT:
+            case Types.BIGINT:
+            case Types.BOOLEAN:
+            case Types.INTEGER:
+            case Types.SMALLINT:
+            case Types.TINYINT:
+            case Types.FLOAT:
+            case Types.REAL:
+            case Types.DOUBLE:
+            case Types.DECIMAL:
+            case Types.NUMERIC:
+                return true;
+
+            default:
+                return false;
+        }
+    }
+
+    public static boolean isPrecisionRequired(int jdbcType, boolean isdb2) {
+        if (isdb2 && jdbcType == Types.BLOB || jdbcType == Types.CLOB) {
+            return true;
+        } else {
+            return isPrecisionRequired(jdbcType);
+        }
+    }
+
+    public static boolean isPrecisionRequired(int jdbcType) {
+        switch (jdbcType) {
+            case Types.BIGINT:
+            case Types.BOOLEAN:
+            case Types.INTEGER:
+            case Types.SMALLINT:
+            case Types.TINYINT:
+            case Types.FLOAT:
+            case Types.REAL:
+            case Types.DOUBLE:
+            case Types.DATE:
+            case Types.TIMESTAMP:
+            case Types.JAVA_OBJECT:
+            case Types.LONGVARCHAR:
+            case Types.LONGVARBINARY:
+            case Types.BLOB:
+            case Types.CLOB:
+            case Types.ARRAY:
+            case Types.STRUCT:
+            case Types.DISTINCT:
+            case Types.REF:
+            case Types.DATALINK:
+                return false;
+
+            default:
+                return true;
+        }
+    }
+
+    public static boolean isScaleRequired(int type) {
+        switch (type) {
+            case java.sql.Types.DECIMAL:
+            case java.sql.Types.NUMERIC:
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    public static boolean isBinary(int jdbcType) {
+        switch (jdbcType) {
+            case Types.BINARY:
+            case Types.VARBINARY:
+            case Types.LONGVARBINARY:
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    public static boolean isString(int jdbcType) {
+        switch (jdbcType) {
+            case Types.CHAR:
+            case Types.VARCHAR:
+            case Types.LONGVARCHAR:
+            case -9:  //NVARCHAR
+            case -8:  //ROWID
+            case -15: //NCHAR
+            case -16: //NLONGVARCHAR
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    public static boolean isNullString(String str) {
+        return (str == null || str.trim().length() == 0);
+    }
+
+    public static String getForeignKeyString(DBColumn column) {
+        String refString = column.getName() + " --> "; // NOI18N
+        StringBuilder str = new StringBuilder(refString);
+        DBTable table = column.getParentObject();
+        boolean firstReferencedColumn = false;
+
+        for(DBForeignKey fk: table.getForeignKeys()) {
+            if (fk.contains(column)) {
+                for(String pkColName: fk.getPKColumnNames()) {
+                    str.append(pkColName);
+                    if (firstReferencedColumn) {
+                        firstReferencedColumn = false;
+                    } else {
+                        str.append(", "); // NOI18N
+                    }
+                }
+            }
+        }
+
+        return str.toString();
+    }
+
+    public static String replaceInString(String originalString, String[] victims, String[] replacements) {
+        StringBuilder resultBuffer = new StringBuilder();
+        boolean bReplaced = false;
+
+        for (int charPosition = 0; charPosition < originalString.length(); charPosition++) {
+            for (int nSelected = 0; !bReplaced && (nSelected < victims.length); nSelected++) {
+                if (originalString.startsWith(victims[nSelected], charPosition)) {
+                    resultBuffer.append(replacements[nSelected]);
+                    bReplaced = true;
+                    charPosition += victims[nSelected].length() - 1;
+                }
+            }
+
+            if (!bReplaced) {
+                resultBuffer.append(originalString.charAt(charPosition));
+            } else {
+                bReplaced = false;
+            }
+        }
+        return resultBuffer.toString();
+    }
     /**
      * Get the SQLType for the given java.sql.Type type.
      *
@@ -224,5 +429,4 @@ public final class JDBCUtils {
     public static boolean isSQLConstantString(Object value, DBColumn col) {
         return (value == null || value instanceof SQLConstant);
     }
-
 }

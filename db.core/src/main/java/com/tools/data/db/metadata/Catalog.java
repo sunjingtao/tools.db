@@ -5,21 +5,24 @@ import com.tools.data.db.metadata.oracle.OracleSchema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 
-public class Catalog extends Element{
-
+public class Catalog implements Element{
     private static final Logger logger = LoggerFactory.getLogger(Catalog.class);
 
-    protected final Metadata jdbcMetadata;
-    protected final String name;
-    protected Schema schema;
+    private String name;
+    private Schema schema;
+    private DatabaseMetaData dmd;
 
-    public Catalog(Metadata jdbcMetadata, String name) {
-        this.jdbcMetadata = jdbcMetadata;
-        this.name = name;
-        logger.info("Create JDBCCatalog(jdbcMetadata={0}, name={1}",jdbcMetadata, name);
+    public Catalog(Connection connection) {
+        try {
+            name = connection.getCatalog();
+            dmd = connection.getMetaData();
+        } catch (SQLException e) {
+            logger.info("Could not load catalog from database (getCatalogs failed).");
+        }
     }
 
     @Override
@@ -31,32 +34,27 @@ public class Catalog extends Element{
         return name;
     }
 
+    public DatabaseMetaData getMetadata(){
+        return dmd;
+    }
+
     public final Schema getSchema() {
-        if(schema == null){
-            schema = new Schema(this, name);
+        if(schema == null) {
+            try {
+                if ("Oracle".equals(dmd.getDatabaseProductName())) { // NOI18N
+                    schema = new OracleSchema(this, getName());
+                }
+
+                if ("mysql".equalsIgnoreCase(dmd.getDatabaseProductName())) { // NOI18N
+                    schema = new MySQLSchema(this, getName());
+                }
+
+                schema = new Schema(this, getName());
+            } catch (SQLException e) {
+                logger.info(e.getMessage());
+            }
         }
         return schema;
     }
 
-    protected Schema createJDBCSchema(String name, boolean _default, boolean synthetic) {
-        try {
-            DatabaseMetaData dmd = getMetadata().getDmd();
-            if ("Oracle".equals(dmd.getDatabaseProductName())) { // NOI18N
-                return new OracleSchema(this, getName());
-            }
-
-            if ("mysql".equalsIgnoreCase(dmd.getDatabaseProductName())) { // NOI18N
-                return new MySQLSchema(this, getName());
-            }
-
-            return new Schema(this, getName());
-        } catch (SQLException e) {
-            logger.info(e.getMessage());
-        }
-        return null;
-    }
-
-    public final Metadata getMetadata() {
-        return jdbcMetadata;
-    }
 }

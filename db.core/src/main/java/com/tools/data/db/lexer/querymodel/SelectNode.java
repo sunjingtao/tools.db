@@ -45,6 +45,7 @@ package com.tools.data.db.lexer.querymodel;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import com.tools.data.db.core.SQLIdentifiers;
 
@@ -56,8 +57,8 @@ public class SelectNode implements Select {
     // This will eventually include functions, but for now is simple columns
 
     // ToDo: consider replacing this with a HashMap
-    private ArrayList _selectItemList;
-    private String _quantifier;
+    private ArrayList selectItemList;
+    private String quantifier;
 
 
     // Constructor
@@ -66,8 +67,8 @@ public class SelectNode implements Select {
     }
 
     public SelectNode(ArrayList columnList, String quantifier) {
-        _selectItemList = columnList;
-        _quantifier = quantifier;
+        selectItemList = columnList;
+        this.quantifier = quantifier;
     }
 
     public SelectNode(ArrayList columnList) {
@@ -81,13 +82,13 @@ public class SelectNode implements Select {
         String res = "";  // NOI18N
         String res_select_quantifier = "";  // NOI18N
 
-        if (_selectItemList.size() > 0) {
-            res_select_quantifier = (_quantifier.length() == 0) ? "SELECT " : "SELECT " + _quantifier + " " ; // NOI18N
+        if (selectItemList.size() > 0) {
+            res_select_quantifier = (quantifier.length() == 0) ? "SELECT " : "SELECT " + quantifier + " " ; // NOI18N
             res = res_select_quantifier
-		+ ((ColumnItem)_selectItemList.get(0)).genText(quoter, true);  // NOI18N
+		+ ((ColumnItem) selectItemList.get(0)).genText(quoter, true);  // NOI18N
 
-            for (int i=1; i<_selectItemList.size(); i++) {
-                ColumnItem col = (ColumnItem)_selectItemList.get(i);
+            for (int i = 1; i< selectItemList.size(); i++) {
+                ColumnItem col = (ColumnItem) selectItemList.get(i);
                 if (col != null)
                 {
                     res += ", "  + col.genText(quoter, true);  // NOI18N
@@ -101,35 +102,35 @@ public class SelectNode implements Select {
     // Accessors/Mutators
 
     public void setColumnList(ArrayList columnList) {
-        _selectItemList = columnList;
+        selectItemList = columnList;
     }
 
     public void getReferencedColumns(Collection columns) {
-        for (int i = 0; i < _selectItemList.size(); i++)
-            columns.add(((ColumnItem)_selectItemList.get(i)).getReferencedColumn());
+        for (int i = 0; i < selectItemList.size(); i++)
+            columns.add(((ColumnItem) selectItemList.get(i)).getReferencedColumn());
     }
 
     public int getSize() {
-        return _selectItemList.size();
+        return selectItemList.size();
     }
     
     public void addColumn(Column col) {
-        _selectItemList.add(col);
+        selectItemList.add(col);
     }
 
     public void addColumn(String tableSpec, String columnName) {
-        _selectItemList.add(new ColumnNode(tableSpec, columnName));
+        selectItemList.add(new ColumnNode(tableSpec, columnName));
     }
 
     // Remove the specified column from the SELECT list
     // Iterate back-to-front for stability under deletion
     public void removeColumn(String tableSpec, String columnName) {
-        for (int i=_selectItemList.size()-1; i>=0; i--) {
-            ColumnItem item = (ColumnItem) _selectItemList.get(i);
+        for (int i = selectItemList.size()-1; i>=0; i--) {
+            ColumnItem item = (ColumnItem) selectItemList.get(i);
             ColumnNode c = (ColumnNode) item.getReferencedColumn();
             if ((c != null) && (c.getTableSpec().equals(tableSpec)) && (c.getColumnName().equals(columnName)))
             {
-                _selectItemList.remove(i);
+                selectItemList.remove(i);
             }
         }
     }
@@ -138,8 +139,8 @@ public class SelectNode implements Select {
      * set column name
      */
     public void setColumnName (String oldColumnName, String newColumnName) {
-        for (int i=0; i<_selectItemList.size(); i++)  {
-            ColumnNode c = (ColumnNode) _selectItemList.get(i);
+        for (int i = 0; i< selectItemList.size(); i++)  {
+            ColumnNode c = (ColumnNode) selectItemList.get(i);
             if ( c != null) {
                 c.setColumnName(oldColumnName, newColumnName);
             }
@@ -147,8 +148,8 @@ public class SelectNode implements Select {
     }
 
     public boolean hasAsteriskQualifier() {
-        for (int i=0; i<_selectItemList.size(); i++)  {
-            ColumnItem item = (ColumnItem) _selectItemList.get(i);
+        for (int i = 0; i< selectItemList.size(); i++)  {
+            ColumnItem item = (ColumnItem) selectItemList.get(i);
             if (item instanceof ColumnNode) {
                 ColumnNode c = (ColumnNode) item;
                 if (c.getColumnName().equals("*")) {
@@ -159,17 +160,21 @@ public class SelectNode implements Select {
         return false;
     }
 
+    public List<Column> getSelectItemList(){
+        return selectItemList;
+    }
+
     /**
      * Remove any SELECT targets that reference this table
      */
     void removeTable (String tableSpec) {
-        for (int i=_selectItemList.size()-1; i>=0; i--) {
-            ColumnItem item = (ColumnItem) _selectItemList.get(i);
+        for (int i = selectItemList.size()-1; i>=0; i--) {
+            ColumnItem item = (ColumnItem) selectItemList.get(i);
             ColumnNode c = (ColumnNode) item.getReferencedColumn();
             if (c != null) {
                 String tabSpec = c.getTableSpec();
                 if (tabSpec != null && tabSpec.equals(tableSpec))
-                    _selectItemList.remove(i);
+                    selectItemList.remove(i);
             }
         }
     }
@@ -178,8 +183,8 @@ public class SelectNode implements Select {
      * Rename a table
      */
     void renameTableSpec (String oldTableSpec, String corrName) {
-        for (int i=0; i<_selectItemList.size(); i++)  {
-            ColumnItem item = (ColumnItem) _selectItemList.get(i);
+        for (int i = 0; i< selectItemList.size(); i++)  {
+            ColumnItem item = (ColumnItem) selectItemList.get(i);
             ColumnNode c = (ColumnNode) item.getReferencedColumn();
             if ( c != null)
             {

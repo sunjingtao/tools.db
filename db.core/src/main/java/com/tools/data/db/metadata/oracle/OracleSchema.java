@@ -2,6 +2,7 @@ package com.tools.data.db.metadata.oracle;
 
 import com.tools.data.db.exception.MetadataException;
 import com.tools.data.db.metadata.*;
+import com.tools.data.db.util.MetadataUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,13 +26,13 @@ public class OracleSchema extends Schema {
         logger.info( "Initializing tables in {0}", this);
         Map<String, Table> newTables = new LinkedHashMap<String, Table>();
         try {
-            DatabaseMetaData dmd = catalog.getMetadata().getDmd();
+            DatabaseMetaData dmd = getCatalog().getMetadata();
             Set<String> recycleBinTables = getRecycleBinObjects(dmd, "TABLE"); // NOI18N
-            ResultSet rs = dmd.getTables(catalog.getName(), name, "%", new String[]{"TABLE"}); // NOI18N
+            ResultSet rs = dmd.getTables(getCatalog().getName(), getName(), "%", new String[]{"TABLE"}); // NOI18N
             if (rs != null) {
                 try {
                     while (rs.next()) {
-                        String type = MetadataUtilities.trimmed(rs.getString("TABLE_TYPE")); //NOI18N
+                        String type = MetadataUtils.trimmed(rs.getString("TABLE_TYPE")); //NOI18N
                         String tableName = rs.getString("TABLE_NAME"); // NOI18N
                         if (!recycleBinTables.contains(tableName)) {
                             Table table = createJDBCTable(tableName, type.contains("SYSTEM")); //NOI18N
@@ -102,10 +103,10 @@ public class OracleSchema extends Schema {
         logger.info( "Initializing Oracle procedures in {0}", this);
         Map<String, Procedure> newProcedures = new LinkedHashMap<String, Procedure>();
         try {
-            DatabaseMetaData dmd = catalog.getMetadata().getDmd();
+            DatabaseMetaData dmd = getCatalog().getMetadata();
             Statement stmt = dmd.getConnection().createStatement();
             Set<String> recycleBinObjects = getRecycleBinObjects(dmd, "TRIGGER", "FUNCTION", "PROCEDURE"); // NOI18N
-            ResultSet rs = stmt.executeQuery("SELECT OBJECT_NAME, OBJECT_TYPE, STATUS FROM SYS.ALL_OBJECTS WHERE OWNER='" + name + "'" // NOI18N
+            ResultSet rs = stmt.executeQuery("SELECT OBJECT_NAME, OBJECT_TYPE, STATUS FROM SYS.ALL_OBJECTS WHERE OWNER='" + getName() + "'" // NOI18N
                     + " AND ( OBJECT_TYPE = 'PROCEDURE' OR OBJECT_TYPE = 'TRIGGER' OR OBJECT_TYPE = 'FUNCTION' )"); // NOI18N
             try {
                 while (rs.next()) {

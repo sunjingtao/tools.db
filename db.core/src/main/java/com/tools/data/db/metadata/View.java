@@ -1,6 +1,7 @@
 package com.tools.data.db.metadata;
 
 import com.tools.data.db.exception.MetadataException;
+import com.tools.data.db.util.MetadataUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -11,7 +12,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class View extends Element{
+public class View implements Element{
     private static final Logger logger = LoggerFactory.getLogger(Catalog.class);
 
     private final Schema jdbcSchema;
@@ -41,7 +42,7 @@ public class View extends Element{
     }
 
     public final Column getColumn(String name) {
-        return MetadataUtilities.find(name, initColumns());
+        return MetadataUtils.find(name, initColumns());
     }
 
     protected Column createJDBCColumn(ResultSet rs) throws SQLException {
@@ -52,7 +53,7 @@ public class View extends Element{
     protected void createColumns() {
         Map<String, Column> newColumns = new LinkedHashMap<String, Column>();
         try {
-            ResultSet rs = jdbcSchema.getCatalog().getMetadata().getDmd().getColumns(jdbcSchema.getCatalog().getName(), jdbcSchema.getName(), name, "%"); // NOI18N
+            ResultSet rs = jdbcSchema.getCatalog().getMetadata().getColumns(jdbcSchema.getCatalog().getName(), jdbcSchema.getName(), name, "%"); // NOI18N
             if (rs != null) {
                 try {
                     while (rs.next()) {
