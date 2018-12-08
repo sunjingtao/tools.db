@@ -1,48 +1,8 @@
-/*
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
- *
- * Copyright 2010-2012 Oracle and/or its affiliates. All rights reserved.
- *
- * Oracle and Java are registered trademarks of Oracle and/or its affiliates.
- * Other names may be trademarks of their respective owners.
- *
- * The contents of this file are subject to the terms of either the GNU
- * General Public License Version 2 only ("GPL") or the Common
- * Development and Distribution License("CDDL") (collectively, the
- * "License"). You may not use this file except in compliance with the
- * License. You can obtain a copy of the License at
- * http://www.netbeans.org/cddl-gplv2.html
- * or nbbuild/licenses/CDDL-GPL-2-CP. See the License for the
- * specific language governing permissions and limitations under the
- * License.  When distributing the software, include this License Header
- * Notice in each file and include the License file at
- * nbbuild/licenses/CDDL-GPL-2-CP.  Oracle designates this
- * particular file as subject to the "Classpath" exception as provided
- * by Oracle in the GPL Version 2 section of the License file that
- * accompanied this code. If applicable, add the following below the
- * License Header, with the fields enclosed by brackets [] replaced by
- * your own identifying information:
- * "Portions Copyrighted [year] [name of copyright owner]"
- *
- * If you wish your version of this file to be governed by only the CDDL
- * or only the GPL Version 2, indicate your decision by adding
- * "[Contributor] elects to include this software in this distribution
- * under the [CDDL or GPL Version 2] license." If you do not indicate a
- * single choice of license, a recipient has the option to distribute
- * your version of this file under either the CDDL, the GPL Version 2 or
- * to extend the choice of license to its licensees as provided above.
- * However, if you add GPL Version 2 code and therefore, elected the GPL
- * Version 2 license, then the option applies only if the new code is
- * made subject to such option by the copyright holder.
- *
- * Contributor(s):
- *
- * Portions Copyrighted 2010 Sun Microsystems, Inc.
- */
-
 package com.tools.data.db.metadata;
 
 import com.tools.data.db.exception.MetadataException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -50,48 +10,29 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
-/**
- *
- * @author Andrei Badea
- */
 public class Schema extends Element{
 
-    private static final Logger LOGGER = Logger.getLogger(Schema.class.getName());
+    private static final Logger logger = LoggerFactory.getLogger(Schema.class);
 
-    protected final Catalog jdbcCatalog;
+    protected final Catalog catalog;
     protected final String name;
-    protected final boolean _default;
-    protected final boolean synthetic;
-
     protected Map<String, Table> tables;
     protected Map<String, View> views;
     protected Map<String, Procedure> procedures;
     protected Map<String, Function> functions;
 
-    public Schema(Catalog jdbcCatalog, String name, boolean _default, boolean synthetic) {
-        this.jdbcCatalog = jdbcCatalog;
+    public Schema(Catalog catalog, String name) {
+        this.catalog = catalog;
         this.name = name;
-        this._default = _default;
-        this.synthetic = synthetic;
     }
 
     public final Element getParent() {
-        return jdbcCatalog;
+        return catalog;
     }
 
     public final String getName() {
         return name;
-    }
-
-    public final boolean isDefault() {
-        return _default;
-    }
-
-    public final boolean isSynthetic() {
-        return synthetic;
     }
 
     public final Collection<Table> getTables() {
@@ -126,17 +67,6 @@ public class Schema extends Element{
         return initFunctions().values();
     }
 
-    public void refresh() {
-        tables = null;
-        views = null;
-        procedures = null;
-    }
-
-    @Override
-    public String toString() {
-        return "JDBCSchema[name='" + name + "',default=" + _default + ",synthetic=" + synthetic + "]"; // NOI18N
-    }
-
     protected Table createJDBCTable(String name, boolean system) {
         return new Table(this, name, system);
     }
@@ -154,11 +84,11 @@ public class Schema extends Element{
     }
 
     protected void createTables() {
-        LOGGER.log(Level.FINE, "Initializing tables in {0}", this);
+        logger.info( "Initializing tables in {0}", this);
         Map<String, Table> newTables = new LinkedHashMap<String, Table>();
         try {
-            ResultSet rs = MetadataUtilities.getTables(jdbcCatalog.getJDBCMetadata().getDmd(),
-                    jdbcCatalog.getName(), name, "%", new String[]{"TABLE", "SYSTEM TABLE"}); // NOI18N
+            ResultSet rs = MetadataUtilities.getTables(catalog.getMetadata().getDmd(),
+                    catalog.getName(), name, "%", new String[]{"TABLE", "SYSTEM TABLE"}); // NOI18N
             if (rs != null) {
                 try {
                     while (rs.next()) {
@@ -166,7 +96,7 @@ public class Schema extends Element{
                         String tableName = MetadataUtilities.trimmed(rs.getString("TABLE_NAME")); // NOI18N
                         Table table = createJDBCTable(tableName, type.contains("SYSTEM")); //NOI18N
                         newTables.put(tableName, table);
-                        LOGGER.log(Level.FINE, "Created table {0}", table); //NOI18N
+                        logger.info( "Created table {0}", table); //NOI18N
                     }
                 } finally {
                     rs.close();
@@ -179,18 +109,18 @@ public class Schema extends Element{
     }
 
     protected void createViews() {
-        LOGGER.log(Level.FINE, "Initializing views in {0}", this);
+        logger.info( "Initializing views in {0}", this);
         Map<String, View> newViews = new LinkedHashMap<String, View>();
         try {
-            ResultSet rs = MetadataUtilities.getTables(jdbcCatalog.getJDBCMetadata().getDmd(),
-                    jdbcCatalog.getName(), name, "%", new String[]{"VIEW"}); // NOI18N
+            ResultSet rs = MetadataUtilities.getTables(catalog.getMetadata().getDmd(),
+                    catalog.getName(), name, "%", new String[]{"VIEW"}); // NOI18N
             if (rs != null) {
                 try {
                     while (rs.next()) {
                         String viewName = MetadataUtilities.trimmed(rs.getString("TABLE_NAME")); // NOI18N
                         View view = createJDBCView(viewName);
                         newViews.put(viewName, view);
-                        LOGGER.log(Level.FINE, "Created view {0}", view); // NOI18N
+                        logger.info( "Created view {0}", view); // NOI18N
                     }
                 } finally {
                     rs.close();
@@ -203,18 +133,18 @@ public class Schema extends Element{
     }
 
     protected void createProcedures() {
-        LOGGER.log(Level.FINE, "Initializing procedures in {0}", this);
+        logger.info( "Initializing procedures in {0}", this);
         Map<String, Procedure> newProcedures = new LinkedHashMap<String, Procedure>();
         try {
-            ResultSet rs = MetadataUtilities.getProcedures(jdbcCatalog.getJDBCMetadata().getDmd(),
-                    jdbcCatalog.getName(), name, "%"); // NOI18N
+            ResultSet rs = MetadataUtilities.getProcedures(catalog.getMetadata().getDmd(),
+                    catalog.getName(), name, "%"); // NOI18N
             if (rs != null) {
                 try {
                     while (rs.next()) {
                         String procedureName = MetadataUtilities.trimmed(rs.getString("PROCEDURE_NAME")); // NOI18N
                         Procedure procedure = createJDBCProcedure(procedureName);
                         newProcedures.put(procedureName, procedure);
-                        LOGGER.log(Level.FINE, "Created procedure {0}", procedure); //NOI18N
+                        logger.info( "Created procedure {0}", procedure); //NOI18N
                     }
                 } finally {
                     rs.close();
@@ -227,18 +157,18 @@ public class Schema extends Element{
     }
 
     protected void createFunctions() {
-        LOGGER.log(Level.FINE, "Initializing functions in {0}", this); //NOI18N
+        logger.info( "Initializing functions in {0}", this); //NOI18N
         Map<String, Function> newProcedures = new LinkedHashMap<String, Function>();
         try {
-            ResultSet rs = MetadataUtilities.getFunctions(jdbcCatalog.getJDBCMetadata().getDmd(),
-                    jdbcCatalog.getName(), name, "%"); // NOI18N
+            ResultSet rs = MetadataUtilities.getFunctions(catalog.getMetadata().getDmd(),
+                    catalog.getName(), name, "%"); // NOI18N
             if (rs != null) {
                 try {
                     while (rs.next()) {
                         String functionName = MetadataUtilities.trimmed(rs.getString("FUNCTION_NAME")); // NOI18N
                         Function function = createJDBCFunction(functionName);
                         newProcedures.put(functionName, function);
-                        LOGGER.log(Level.FINE, "Created function {0}", function); //NOI18N
+                        logger.info( "Created function {0}", function); //NOI18N
                     }
                 } finally {
                     rs.close();
@@ -258,8 +188,8 @@ public class Schema extends Element{
         return tables;
     }
 
-    public final Catalog getJDBCCatalog() {
-        return jdbcCatalog;
+    public final Catalog getCatalog() {
+        return catalog;
     }
 
     private Map<String, View> initViews() {

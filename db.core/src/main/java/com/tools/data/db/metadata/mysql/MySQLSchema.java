@@ -1,51 +1,11 @@
-/*
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
- *
- * Copyright 2010 Oracle and/or its affiliates. All rights reserved.
- *
- * Oracle and Java are registered trademarks of Oracle and/or its affiliates.
- * Other names may be trademarks of their respective owners.
- *
- * The contents of this file are subject to the terms of either the GNU
- * General Public License Version 2 only ("GPL") or the Common
- * Development and Distribution License("CDDL") (collectively, the
- * "License"). You may not use this file except in compliance with the
- * License. You can obtain a copy of the License at
- * http://www.netbeans.org/cddl-gplv2.html
- * or nbbuild/licenses/CDDL-GPL-2-CP. See the License for the
- * specific language governing permissions and limitations under the
- * License.  When distributing the software, include this License Header
- * Notice in each file and include the License file at
- * nbbuild/licenses/CDDL-GPL-2-CP.  Oracle designates this
- * particular file as subject to the "Classpath" exception as provided
- * by Oracle in the GPL Version 2 section of the License file that
- * accompanied this code. If applicable, add the following below the
- * License Header, with the fields enclosed by brackets [] replaced by
- * your own identifying information:
- * "Portions Copyrighted [year] [name of copyright owner]"
- *
- * If you wish your version of this file to be governed by only the CDDL
- * or only the GPL Version 2, indicate your decision by adding
- * "[Contributor] elects to include this software in this distribution
- * under the [CDDL or GPL Version 2] license." If you do not indicate a
- * single choice of license, a recipient has the option to distribute
- * your version of this file under either the CDDL, the GPL Version 2 or
- * to extend the choice of license to its licensees as provided above.
- * However, if you add GPL Version 2 code and therefore, elected the GPL
- * Version 2 license, then the option applies only if the new code is
- * made subject to such option by the copyright holder.
- *
- * Contributor(s):
- *
- * Portions Copyrighted 2008-2010 Sun Microsystems, Inc.
- */
-
 package com.tools.data.db.metadata.mysql;
 
+import com.tools.data.db.exception.MetadataException;
 import com.tools.data.db.metadata.Catalog;
 import com.tools.data.db.metadata.Procedure;
 import com.tools.data.db.metadata.Schema;
-import com.tools.data.db.exception.MetadataException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
@@ -54,38 +14,32 @@ import java.sql.Statement;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
-/**
- *
- * @author David, Jiri Rechtacek
- */
 public class MySQLSchema extends Schema {
+
+    private static final Logger logger = LoggerFactory.getLogger(Catalog.class);
     
-    private static final Logger LOGGER = Logger.getLogger(MySQLSchema.class.getName());
-    
-    public MySQLSchema(Catalog jdbcCatalog, String name, boolean _default, boolean synthetic) {
-        super(jdbcCatalog, name, _default, synthetic);
+    public MySQLSchema(Catalog jdbcCatalog, String name) {
+        super(jdbcCatalog, name);
     }
 
     @Override
     protected void createProcedures() {
-        LOGGER.log(Level.FINE, "Initializing MySQL procedures in {0}", this);
+        logger.info( "Initializing MySQL procedures in {0}", this);
         Map<String, Procedure> newProcedures = new LinkedHashMap<String, Procedure>();
         // routines
         try {
-            DatabaseMetaData dmd = jdbcCatalog.getJDBCMetadata().getDmd();
+            DatabaseMetaData dmd = catalog.getMetadata().getDmd();
             Statement stmt = dmd.getConnection().createStatement();
             ResultSet rs = stmt.executeQuery("SELECT NAME, TYPE" // NOI18N
-                                            + " FROM mysql.proc WHERE DB='" + jdbcCatalog.getName() + "'" // NOI18N
+                                            + " FROM mysql.proc WHERE DB='" + catalog.getName() + "'" // NOI18N
                                             + " AND ( TYPE = 'PROCEDURE' OR TYPE = 'FUNCTION' )"); // NOI18N
             try {
                 while (rs.next()) {
                     String procedureName = rs.getString("NAME"); // NOI18N
                     Procedure procedure = createJDBCProcedure(procedureName);
                     newProcedures.put(procedureName, procedure);
-                    LOGGER.log(Level.FINE, "Created MySQL procedure: {0}, type: {1}", new Object[]{procedure, rs.getString("TYPE")});
+                    logger.info( "Created MySQL procedure: {0}, type: {1}", new Object[]{procedure, rs.getString("TYPE")});
                 }
             } finally {
                 if (rs != null) {
@@ -98,16 +52,16 @@ public class MySQLSchema extends Schema {
         }
         // information_schema.triggers
         try {
-            DatabaseMetaData dmd = jdbcCatalog.getJDBCMetadata().getDmd();
+            DatabaseMetaData dmd = catalog.getMetadata().getDmd();
             Statement stmt = dmd.getConnection().createStatement();
             ResultSet rs = stmt.executeQuery("SELECT TRIGGER_NAME" // NOI18N
-                                            + " FROM information_schema.triggers WHERE TRIGGER_SCHEMA='" + jdbcCatalog.getName() + "'"); // NOI18N
+                                            + " FROM information_schema.triggers WHERE TRIGGER_SCHEMA='" + catalog.getName() + "'"); // NOI18N
             try {
                 while (rs.next()) {
                     String procedureName = rs.getString("TRIGGER_NAME"); // NOI18N
                     Procedure procedure = createJDBCProcedure(procedureName);
                     newProcedures.put(procedureName, procedure);
-                    LOGGER.log(Level.FINE, "Created MySQL trigger: {0}", new Object[]{procedure});
+                    logger.info( "Created MySQL trigger: {0}", new Object[]{procedure});
                 }
             } finally {
                 if (rs != null) {
@@ -128,7 +82,7 @@ public class MySQLSchema extends Schema {
 
     @Override
     public String toString() {
-        return "MySQLSchema[jdbcCatalog=" + jdbcCatalog.getName() + ", name=" + getName() + "]";
+        return "MySQLSchema[jdbcCatalog=" + catalog.getName() + ", name=" + getName() + "]";
     }
 
 }

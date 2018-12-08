@@ -1,49 +1,9 @@
-/*
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
- *
- * Copyright 2010 Oracle and/or its affiliates. All rights reserved.
- *
- * Oracle and Java are registered trademarks of Oracle and/or its affiliates.
- * Other names may be trademarks of their respective owners.
- *
- * The contents of this file are subject to the terms of either the GNU
- * General Public License Version 2 only ("GPL") or the Common
- * Development and Distribution License("CDDL") (collectively, the
- * "License"). You may not use this file except in compliance with the
- * License. You can obtain a copy of the License at
- * http://www.netbeans.org/cddl-gplv2.html
- * or nbbuild/licenses/CDDL-GPL-2-CP. See the License for the
- * specific language governing permissions and limitations under the
- * License.  When distributing the software, include this License Header
- * Notice in each file and include the License file at
- * nbbuild/licenses/CDDL-GPL-2-CP.  Oracle designates this
- * particular file as subject to the "Classpath" exception as provided
- * by Oracle in the GPL Version 2 section of the License file that
- * accompanied this code. If applicable, add the following below the
- * License Header, with the fields enclosed by brackets [] replaced by
- * your own identifying information:
- * "Portions Copyrighted [year] [name of copyright owner]"
- *
- * If you wish your version of this file to be governed by only the CDDL
- * or only the GPL Version 2, indicate your decision by adding
- * "[Contributor] elects to include this software in this distribution
- * under the [CDDL or GPL Version 2] license." If you do not indicate a
- * single choice of license, a recipient has the option to distribute
- * your version of this file under either the CDDL, the GPL Version 2 or
- * to extend the choice of license to its licensees as provided above.
- * However, if you add GPL Version 2 code and therefore, elected the GPL
- * Version 2 license, then the option applies only if the new code is
- * made subject to such option by the copyright holder.
- *
- * Contributor(s):
- *
- * Portions Copyrighted 2008 Sun Microsystems, Inc.
- */
-
 package com.tools.data.db.metadata;
 
 import com.tools.data.db.exception.MetadataException;
 import com.tools.data.db.util.JDBCUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
@@ -53,15 +13,10 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
-/**
- *
- * @author David Van Couvering
- */
 public class Procedure extends Element{
 
-    private static final Logger LOGGER = Logger.getLogger(Procedure.class.getName());
+    private static final Logger logger = LoggerFactory.getLogger(Catalog.class);
 
     private final Schema jdbcSchema;
     private final String name;
@@ -89,11 +44,6 @@ public class Procedure extends Element{
 
     public final Column getColumn(String name) {
         return MetadataUtilities.find(name, initColumns());
-    }
-
-    public final void refresh() {
-        columns = null;
-        parameters = null;
     }
 
     public Collection<Parameter> getParameters() {
@@ -127,15 +77,15 @@ public class Procedure extends Element{
     }
 
     protected void createProcedureInfo() {
-        LOGGER.log(Level.FINE, "Initializing procedure info in {0}", this);
+        logger.info( "Initializing procedure info in {0}", this);
         
         Map<String, Column> newColumns = new LinkedHashMap<>();
         Map<String, Parameter> newParams = new LinkedHashMap<>();
         int resultCount = 0;
         int paramCount = 0;
         
-        DatabaseMetaData dmd = jdbcSchema.getJDBCCatalog().getJDBCMetadata().getDmd();
-        String catalogName = jdbcSchema.getJDBCCatalog().getName();
+        DatabaseMetaData dmd = jdbcSchema.getCatalog().getMetadata().getDmd();
+        String catalogName = jdbcSchema.getCatalog().getName();
         String schemaName = jdbcSchema.getName();
         
         try (ResultSet rs = dmd.getProcedureColumns(catalogName, schemaName, name, "%");) {  // NOI18N
@@ -157,7 +107,7 @@ public class Procedure extends Element{
                         setReturnValue(rs);
                         break;
                     default:
-                        LOGGER.log(Level.INFO, "Encountered unexpected column type {0} when retrieving metadadta for procedure {1}", new Object[]{columnType, name});
+                        logger.info( "Encountered unexpected column type {0} when retrieving metadadta for procedure {1}", new Object[]{columnType, name});
                 }
             }
         } catch (RuntimeException e) {
@@ -178,18 +128,18 @@ public class Procedure extends Element{
     private void addColumn(int position, ResultSet rs, Map<String,Column> newColumns) throws SQLException {
         Column column = createJDBCColumn(position, rs);
         newColumns.put(column.getName(), column);
-        LOGGER.log(Level.FINE, "Created column {0}", column);
+        logger.info( "Created column {0}", column);
     }
 
     private void addParameter(int position, ResultSet rs, Map<String,Parameter> newParams) throws SQLException {
         Parameter  param = createJDBCParameter(position, rs);
         newParams.put(param.getName(), param);
-        LOGGER.log(Level.FINE, "Created parameter {0}", param);
+        logger.info( "Created parameter {0}", param);
     }
 
     private void setReturnValue(ResultSet rs) throws SQLException {
         returnValue = createJDBCValue(rs);
-        LOGGER.log(Level.FINE, "Created return value {0}", returnValue);
+        logger.info( "Created return value {0}", returnValue);
     }
 
     @SuppressWarnings("ReturnOfCollectionOrArrayField")

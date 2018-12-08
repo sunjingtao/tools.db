@@ -1,82 +1,33 @@
-/*
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
- *
- * Copyright 2008 - 2011 Oracle and/or its affiliates. All rights reserved.
- *
- * Oracle and Java are registered trademarks of Oracle and/or its affiliates.
- * Other names may be trademarks of their respective owners.
- *
- * The contents of this file are subject to the terms of either the GNU
- * General Public License Version 2 only ("GPL") or the Common
- * Development and Distribution License("CDDL") (collectively, the
- * "License"). You may not use this file except in compliance with the
- * License. You can obtain a copy of the License at
- * http://www.netbeans.org/cddl-gplv2.html
- * or nbbuild/licenses/CDDL-GPL-2-CP. See the License for the
- * specific language governing permissions and limitations under the
- * License.  When distributing the software, include this License Header
- * Notice in each file and include the License file at
- * nbbuild/licenses/CDDL-GPL-2-CP.  Oracle designates this
- * particular file as subject to the "Classpath" exception as provided
- * by Oracle in the GPL Version 2 section of the License file that
- * accompanied this code. If applicable, add the following below the
- * License Header, with the fields enclosed by brackets [] replaced by
- * your own identifying information:
- * "Portions Copyrighted [year] [name of copyright owner]"
- *
- * If you wish your version of this file to be governed by only the CDDL
- * or only the GPL Version 2, indicate your decision by adding
- * "[Contributor] elects to include this software in this distribution
- * under the [CDDL or GPL Version 2] license." If you do not indicate a
- * single choice of license, a recipient has the option to distribute
- * your version of this file under either the CDDL, the GPL Version 2 or
- * to extend the choice of license to its licensees as provided above.
- * However, if you add GPL Version 2 code and therefore, elected the GPL
- * Version 2 license, then the option applies only if the new code is
- * made subject to such option by the copyright holder.
- *
- * Contributor(s):
- *
- * Portions Copyrighted 2009-2010 Sun Microsystems, Inc.
- */
 package com.tools.data.db.metadata.oracle;
 
-import com.tools.data.db.metadata.*;
 import com.tools.data.db.exception.MetadataException;
+import com.tools.data.db.metadata.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
-/**
- *
- * @author Andrei Badea
- */
 public class OracleSchema extends Schema {
 
-    private static final Logger LOGGER = Logger.getLogger(OracleSchema.class.getName());
+    private static final Logger logger = LoggerFactory.getLogger(Catalog.class);
 
-    public OracleSchema(Catalog catalog, String name, boolean _default, boolean synthetic) {
-        super(catalog, name, _default, synthetic);
+    public OracleSchema(Catalog catalog, String name) {
+        super(catalog, name);
     }
 
-    @Override
-    public String toString() {
-        return "OracleSchema[name='" + name + "',default=" + _default + ",synthetic=" + synthetic + "]"; // NOI18N
-    }
 
     @Override
     protected void createTables() {
-        LOGGER.log(Level.FINE, "Initializing tables in {0}", this);
+        logger.info( "Initializing tables in {0}", this);
         Map<String, Table> newTables = new LinkedHashMap<String, Table>();
         try {
-            DatabaseMetaData dmd = jdbcCatalog.getJDBCMetadata().getDmd();
+            DatabaseMetaData dmd = catalog.getMetadata().getDmd();
             Set<String> recycleBinTables = getRecycleBinObjects(dmd, "TABLE"); // NOI18N
-            ResultSet rs = dmd.getTables(jdbcCatalog.getName(), name, "%", new String[]{"TABLE"}); // NOI18N
+            ResultSet rs = dmd.getTables(catalog.getName(), name, "%", new String[]{"TABLE"}); // NOI18N
             if (rs != null) {
                 try {
                     while (rs.next()) {
@@ -85,9 +36,9 @@ public class OracleSchema extends Schema {
                         if (!recycleBinTables.contains(tableName)) {
                             Table table = createJDBCTable(tableName, type.contains("SYSTEM")); //NOI18N
                             newTables.put(tableName, table);
-                            LOGGER.log(Level.FINE, "Created table {0}", table);
+                            logger.info( "Created table {0}", table);
                         } else {
-                            LOGGER.log(Level.FINE, "Ignoring recycle bin table ''{0}''", tableName);
+                            logger.info( "Ignoring recycle bin table ''{0}''", tableName);
                         }
                     }
                 } finally {
@@ -112,7 +63,7 @@ public class OracleSchema extends Schema {
             try {
                 databaseMajorVersion = dmd.getDatabaseMajorVersion();
             } catch (UnsupportedOperationException use) {
-                LOGGER.log(Level.FINEST, "getDatabaseMajorVersion() on " + dmd, use);
+                logger.info("getDatabaseMajorVersion() on " + dmd, use);
             }
             if (databaseMajorVersion < 10 || types == null) {
                 return Collections.emptySet();
@@ -122,7 +73,7 @@ public class OracleSchema extends Schema {
             try {
                 rs = stmt.executeQuery("SELECT OBJECT_NAME, TYPE FROM SYS.DBA_RECYCLEBIN"); // NOI18N
             } catch (SQLException ex) {
-                LOGGER.log(Level.FINE, ex.getMessage(), ex); 
+                logger.info( ex.getMessage(), ex);
                 // try both
                 rs = stmt.executeQuery("SELECT OBJECT_NAME, TYPE FROM RECYCLEBIN"); // NOI18N
             }
@@ -141,17 +92,17 @@ public class OracleSchema extends Schema {
             }
             stmt.close();
         } catch (Exception e) {
-            LOGGER.log(Level.INFO, "Error while analyzing the recycle bin. JDBC Driver: " + driverName + "(" + driverVer + ")", e);
+            logger.info( "Error while analyzing the recycle bin. JDBC Driver: " + driverName + "(" + driverVer + ")", e);
         }
         return result;
     }
 
     @Override
     protected void createProcedures() {
-        LOGGER.log(Level.FINE, "Initializing Oracle procedures in {0}", this);
+        logger.info( "Initializing Oracle procedures in {0}", this);
         Map<String, Procedure> newProcedures = new LinkedHashMap<String, Procedure>();
         try {
-            DatabaseMetaData dmd = jdbcCatalog.getJDBCMetadata().getDmd();
+            DatabaseMetaData dmd = catalog.getMetadata().getDmd();
             Statement stmt = dmd.getConnection().createStatement();
             Set<String> recycleBinObjects = getRecycleBinObjects(dmd, "TRIGGER", "FUNCTION", "PROCEDURE"); // NOI18N
             ResultSet rs = stmt.executeQuery("SELECT OBJECT_NAME, OBJECT_TYPE, STATUS FROM SYS.ALL_OBJECTS WHERE OWNER='" + name + "'" // NOI18N
@@ -162,9 +113,9 @@ public class OracleSchema extends Schema {
                     Procedure procedure = createJDBCProcedure(procedureName);
                     if (!recycleBinObjects.contains(procedureName)) {
                         newProcedures.put(procedureName, procedure);
-                        LOGGER.log(Level.FINE, "Created Oracle procedure: {0}, type: {1}, status: {2}", new Object[]{procedure, rs.getString("OBJECT_TYPE"), rs.getString("STATUS")});
+                        logger.info( "Created Oracle procedure: {0}, type: {1}, status: {2}", new Object[]{procedure, rs.getString("OBJECT_TYPE"), rs.getString("STATUS")});
                     } else {
-                        LOGGER.log(Level.FINEST, "Oracle procedure found id RECYCLEBIN: {0}, type: {1}, status: {2}", new Object[]{procedure, rs.getString("OBJECT_TYPE"), rs.getString("STATUS")});
+                        logger.info("Oracle procedure found id RECYCLEBIN: {0}, type: {1}, status: {2}", new Object[]{procedure, rs.getString("OBJECT_TYPE"), rs.getString("STATUS")});
                     }
                 }
             } finally {

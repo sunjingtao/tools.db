@@ -1,66 +1,20 @@
-/*
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
- *
- * Copyright 2008 - 2012 Oracle and/or its affiliates. All rights reserved.
- *
- * Oracle and Java are registered trademarks of Oracle and/or its affiliates.
- * Other names may be trademarks of their respective owners.
- *
- * The contents of this file are subject to the terms of either the GNU
- * General Public License Version 2 only ("GPL") or the Common
- * Development and Distribution License("CDDL") (collectively, the
- * "License"). You may not use this file except in compliance with the
- * License. You can obtain a copy of the License at
- * http://www.netbeans.org/cddl-gplv2.html
- * or nbbuild/licenses/CDDL-GPL-2-CP. See the License for the
- * specific language governing permissions and limitations under the
- * License.  When distributing the software, include this License Header
- * Notice in each file and include the License file at
- * nbbuild/licenses/CDDL-GPL-2-CP.  Oracle designates this
- * particular file as subject to the "Classpath" exception as provided
- * by Oracle in the GPL Version 2 section of the License file that
- * accompanied this code. If applicable, add the following below the
- * License Header, with the fields enclosed by brackets [] replaced by
- * your own identifying information:
- * "Portions Copyrighted [year] [name of copyright owner]"
- *
- * If you wish your version of this file to be governed by only the CDDL
- * or only the GPL Version 2, indicate your decision by adding
- * "[Contributor] elects to include this software in this distribution
- * under the [CDDL or GPL Version 2] license." If you do not indicate a
- * single choice of license, a recipient has the option to distribute
- * your version of this file under either the CDDL, the GPL Version 2 or
- * to extend the choice of license to its licensees as provided above.
- * However, if you add GPL Version 2 code and therefore, elected the GPL
- * Version 2 license, then the option applies only if the new code is
- * made subject to such option by the copyright holder.
- *
- * Contributor(s):
- *
- * Portions Copyrighted 2009 Sun Microsystems, Inc.
- */
-
 package com.tools.data.db.metadata;
 
 import com.tools.data.db.exception.MetadataException;
 import com.tools.data.db.core.Ordering;
 import com.tools.data.db.util.JDBCUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.MessageFormat;
 import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
-/**
- *
- * @author Andrei Badea
- */
 public class Table extends Element{
 
-    private static final Logger LOGGER = Logger.getLogger(Table.class.getName());
+    private static final Logger logger = LoggerFactory.getLogger(Catalog.class);
 
     private final Schema jdbcSchema;
     private final String name;
@@ -69,7 +23,6 @@ public class Table extends Element{
     private Map<String, Column> columns;
     private Map<String, Index> indexes;
     private Map<String, ForeignKey> foreignKeys;
-    
     private PrimaryKey primaryKey;
 
     // Need a marker because there may be *no* primary key, and we don't want
@@ -119,12 +72,6 @@ public class Table extends Element{
          return MetadataUtilities.find(name, initForeignKeys());
     }
 
-    public final void refresh() {
-        columns = null;
-        primaryKey = null;
-        primaryKeyInitialized = false;
-    }
-
     public boolean isSystem() {
         return system;
     }
@@ -149,7 +96,7 @@ public class Table extends Element{
     /** Returns true if this table is under ODBC connection. In such a case
      * some meta data like ORDINAL_POSITION or ASC_OR_DESC are not supported. */
     private boolean isOdbc(ResultSet rs) throws SQLException {
-        boolean odbc = jdbcSchema.getJDBCCatalog().getJDBCMetadata().getDmd().getURL().startsWith("jdbc:odbc");  //NOI18N
+        boolean odbc = jdbcSchema.getCatalog().getMetadata().getDmd().getURL().startsWith("jdbc:odbc");  //NOI18N
         if (odbc) {
             try {
                 rs.getInt("PRECISION");
@@ -169,15 +116,15 @@ public class Table extends Element{
         Map<String, Column> newColumns = new LinkedHashMap<String, Column>();
         try {
             ResultSet rs = MetadataUtilities.getColumns(
-                    jdbcSchema.getJDBCCatalog().getJDBCMetadata().getDmd(),
-                    jdbcSchema.getJDBCCatalog().getName(), jdbcSchema.getName(),
+                    jdbcSchema.getCatalog().getMetadata().getDmd(),
+                    jdbcSchema.getCatalog().getName(), jdbcSchema.getName(),
                     name, "%"); // NOI18N
             if (rs != null) {
                 try {
                     while (rs.next()) {
                         Column column = createJDBCColumn(rs);
                         newColumns.put(column.getName(), column);
-                        LOGGER.log(Level.FINE, "Created column {0}", column); //NOI18N
+                        logger.info( "Created column {0}", column); //NOI18N
                     }
                 } finally {
                     rs.close();
@@ -193,8 +140,8 @@ public class Table extends Element{
         Map<String, Index> newIndexes = new LinkedHashMap<String, Index>();
         try {
             ResultSet rs = MetadataUtilities.getIndexInfo(
-                    jdbcSchema.getJDBCCatalog().getJDBCMetadata().getDmd(),
-                    jdbcSchema.getJDBCCatalog().getName(), jdbcSchema.getName(),
+                    jdbcSchema.getCatalog().getMetadata().getDmd(),
+                    jdbcSchema.getCatalog().getName(), jdbcSchema.getName(),
                     name, false, true);
             if (rs != null) {
                 try {
@@ -214,7 +161,7 @@ public class Table extends Element{
                         String indexName = MetadataUtilities.trimmed(rs.getString("INDEX_NAME")); //NOI18N
                         if (index == null || !(currentIndexName.equals(indexName))) {
                             index = createJDBCIndex(indexName, rs);
-                            LOGGER.log(Level.FINE, "Created index {0}", index); //NOI18N
+                            logger.info( "Created index {0}", index); //NOI18N
 
                             newIndexes.put(index.getName(), index);
                             currentIndexName = indexName;
@@ -222,12 +169,12 @@ public class Table extends Element{
 
                         IndexColumn idx = createJDBCIndexColumn(index, rs);
                         if (idx == null) {
-                            LOGGER.log(Level.INFO, "Cannot create index column for {0} from {1}",  //NOI18N
+                            logger.info("Cannot create index column for {0} from {1}",  //NOI18N
                                     new Object[]{indexName, rs});
                         } else {
                             IndexColumn col = idx;
                             index.addColumn(col);
-                            LOGGER.log(Level.FINE, "Added column {0} to index {1}",   //NOI18N
+                            logger.info( "Added column {0} to index {1}",   //NOI18N
                                     new Object[]{col.getName(), indexName});
                         }
                     }
@@ -268,7 +215,7 @@ public class Table extends Element{
             filterSQLException(e);
         }
         if (column == null) {
-            LOGGER.log(Level.INFO, "Cannot get column for index {0} from {1}",  //NOI18N
+            logger.info( "Cannot get column for index {0} from {1}",  //NOI18N
                     new Object[] {parent, rs});
             return null;
         }
@@ -279,8 +226,8 @@ public class Table extends Element{
         Map<String,ForeignKey> newKeys = new LinkedHashMap<String,ForeignKey>();
         try {
             ResultSet rs = MetadataUtilities.getImportedKeys(
-                    jdbcSchema.getJDBCCatalog().getJDBCMetadata().getDmd(),
-                    jdbcSchema.getJDBCCatalog().getName(), jdbcSchema.getName(),
+                    jdbcSchema.getCatalog().getMetadata().getDmd(),
+                    jdbcSchema.getCatalog().getName(), jdbcSchema.getName(),
                     name);
             if (rs != null) {
                 try {
@@ -292,7 +239,7 @@ public class Table extends Element{
                         // foreign key, even if the last foreign key name was also null.
                     if (fkey == null || keyName == null || !(currentKeyName.equals(keyName))) {
                             fkey = createJDBCForeignKey(keyName, rs);
-                            LOGGER.log(Level.FINE, "Created foreign key {0}", keyName);  //NOI18N
+                            logger.info( "Created foreign key {0}", keyName);  //NOI18N
 
                             newKeys.put(fkey.getInternalName(), fkey);
                             currentKeyName = keyName;
@@ -300,7 +247,7 @@ public class Table extends Element{
 
                         ForeignKeyColumn col = createJDBCForeignKeyColumn(fkey, rs);
                         fkey.addColumn(col);
-                        LOGGER.log(Level.FINE, "Added foreign key column {0} to foreign key {1}",  //NOI18N
+                        logger.info( "Added foreign key column {0} to foreign key {1}",  //NOI18N
                                 new Object[]{col.getName(), keyName});
                     }
                 } finally {
@@ -352,40 +299,28 @@ public class Table extends Element{
                 table.getParent().getParent().getName(),
                 table.getParent().getName(), table.getName(), colname);
         MetadataException e = new MetadataException(message);
-        LOGGER.log(Level.INFO, message, e);
+        logger.info(message, e);
         throw e;
     }
 
     private Table findReferredTable(ResultSet rs) {
-        Metadata metadata = jdbcSchema.getJDBCCatalog().getJDBCMetadata();
+        Metadata metadata = jdbcSchema.getCatalog().getMetadata();
         Catalog catalog;
         Schema schema;
         Table table = null;
 
         try {
             String catalogName = MetadataUtilities.trimmed(rs.getString("PKTABLE_CAT")); // NOI18N
-            if (catalogName == null || catalogName.length() == 0) {
-                catalog = jdbcSchema.getParent().to(Catalog.class);
-            } else {
-                catalog = metadata.getCatalog(catalogName);
-                if (catalog == null) {
-                    throw new MetadataException(MessageFormat.format("The catalog {0} can not be found", catalogName)); // NOI18N
-                }
+            if (catalogName != null || catalogName.length() != 0) {
+                logger.error(MessageFormat.format("The catalog {0} can not be found", catalogName));
             }
-
             String schemaName = MetadataUtilities.trimmed(rs.getString("PKTABLE_SCHEM")); // NOI18N
-
-            if (schemaName == null || schemaName.length() == 0) {
-                schema = catalog.getSyntheticSchema();
-            } else {
-                schema = catalog.getSchema(schemaName);
-                if (schema == null) {
-                    throw new MetadataException(MessageFormat.format("The schema named {0} can not be found in the catalog {1}", schemaName, catalog.getName()));
-                }
+            if (schemaName != null || schemaName.length() != 0) {
+                logger.error("The schema named {0} can not be found in the catalog {1}", schemaName, catalogName);
             }
 
             String tableName = MetadataUtilities.trimmed(rs.getString("PKTABLE_NAME"));
-            table = schema.getTable(tableName);
+            table = getParent().getTable(tableName);
 
             if (table == null) {
                 throw new MetadataException(MessageFormat.format("The table named {2} in catalog {0}, schema {1} can not be found", catalogName, schemaName, tableName));
@@ -403,8 +338,8 @@ public class Table extends Element{
         Collection<Column> pkcols = new ArrayList<Column>();
         try {
             ResultSet rs = MetadataUtilities.getPrimaryKeys(
-                    jdbcSchema.getJDBCCatalog().getJDBCMetadata().getDmd(),
-                    jdbcSchema.getJDBCCatalog().getName(), jdbcSchema.getName(),
+                    jdbcSchema.getCatalog().getMetadata().getDmd(),
+                    jdbcSchema.getCatalog().getName(), jdbcSchema.getName(),
                     name);
             if (rs != null) {
                 try {
@@ -430,7 +365,7 @@ public class Table extends Element{
         if (columns != null) {
             return columns;
         }
-        LOGGER.log(Level.FINE, "Initializing columns in {0}", this);
+        logger.info( "Initializing columns in {0}", this);
         createColumns();
         return columns;
     }
@@ -439,7 +374,7 @@ public class Table extends Element{
         if (indexes != null) {
             return indexes;
         }
-        LOGGER.log(Level.FINE, "Initializing indexes in {0}", this);
+        logger.info( "Initializing indexes in {0}", this);
 
         createIndexes();
         return indexes;
@@ -449,7 +384,7 @@ public class Table extends Element{
         if (foreignKeys != null) {
             return foreignKeys;
         }
-        LOGGER.log(Level.FINE, "Initializing foreign keys in {0}", this);
+        logger.info( "Initializing foreign keys in {0}", this);
 
         createForeignKeys();
         return foreignKeys;
@@ -459,7 +394,7 @@ public class Table extends Element{
         if (primaryKeyInitialized) {
             return primaryKey;
         }
-        LOGGER.log(Level.FINE, "Initializing columns in {0}", this);
+        logger.info( "Initializing columns in {0}", this);
         // These need to be initialized first.
         getColumns();
         createPrimaryKey();
@@ -469,7 +404,7 @@ public class Table extends Element{
 
     private void filterSQLException(SQLException x) throws MetadataException {
         if (SQL_EXCEPTION_NOT_YET_IMPLEMENTED.equalsIgnoreCase(x.getMessage())) {
-            Logger.getLogger(Table.class.getName()).log(Level.FINE, x.getLocalizedMessage(), x);
+            logger.info(x.getLocalizedMessage(), x);
         } else {
             throw new MetadataException(x);
         }
