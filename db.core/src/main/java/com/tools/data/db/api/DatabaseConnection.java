@@ -76,4 +76,8 @@ public final class DatabaseConnection {
         }
     }
 
+    public ConnectionUrl getConnectionUrl(){
+        return connectionUrl;
+    }
+
 }

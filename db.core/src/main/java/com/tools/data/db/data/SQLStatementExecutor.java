@@ -1,40 +1,46 @@
 package com.tools.data.db.data;
 
+import com.tools.data.db.api.DatabaseConnection;
 import com.tools.data.db.exception.DatabaseException;
 import com.tools.data.db.util.BeanUtils;
+import com.tools.data.db.util.JDBCUtils;
 import com.tools.data.db.util.SQLParserUtils;
+import com.tools.data.db.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class SQLStatementExecutor{
     protected Logger logger = LoggerFactory.getLogger(SQLStatementExecutor.class);
 
     protected boolean lastCommitState;
     private boolean runInTransaction = false;
-    private Connection connection;
+    private DatabaseConnection dbConnection;
     private String sql;
 
-    public SQLStatementExecutor(Connection connection) {
-        if (connection == null) {
+    public SQLStatementExecutor(DatabaseConnection dbConnection) {
+        if (dbConnection == null) {
             throw new IllegalArgumentException("parameter connection in SQLStatementExecutor cann't be null !");
         }
-        this.connection = connection;
+        this.dbConnection = dbConnection;
     }
 
     public <T> T selectOne(Class clazz, String sql){
         try{
-            Statement stmt = connection.createStatement();
+            Statement stmt = dbConnection.openConnection().createStatement();
             stmt.execute(sql);
             ResultSet rs = stmt.getResultSet();
             if(rs== null || !rs.next())return null;
             if(rs.getFetchSize() > 1)
                 throw new DatabaseException("respect to find one row ,but result count is larger than one !");
             //select sql may be select info from multi tables ,so must parse sql and get columns
-            Record record = new Record(rs, SQLParserUtils.getColumnSet(sql));
+            Set<String> columns = JDBCUtils.getColumnSetFromResultSetMetadata(rs.getMetaData());
+            Map record = new HashMap();
+            for(String column : columns){
+                record.put(StringUtils.toCamelCase(column),rs.getString(column));
+            }
             return (T) BeanUtils.convertToObject(clazz,record);
         }catch (Exception ex){
             logger.error(ex.getMessage());
@@ -42,23 +48,32 @@ public class SQLStatementExecutor{
         return null;
     }
 
-    public <T> List<T> select(Class clazz, String sql){
+    public <T> List<T> selectAll(Class clazz, String sql){
         try{
-            Statement stmt = connection.createStatement();
+            Statement stmt = dbConnection.openConnection().createStatement();
             stmt.execute(sql);
             ResultSet rs = stmt.getResultSet();
             List<T> resultList = new ArrayList<>(rs.getFetchSize());
-            Record record = null;
+            Map record = null;
+            Set<String> columns = JDBCUtils.getColumnSetFromResultSetMetadata(rs.getMetaData());
             while (rs.next()){
                 //select sql may be select info from multi tables ,so must parse sql and get columns
-                record = new Record(rs, SQLParserUtils.getColumnSet(sql));
-                resultList.add((T)BeanUtils.convertToObject(clazz,record));
+                record = new HashMap();
+                for(String column : columns) {
+                    record.put(StringUtils.toCamelCase(column),rs.getString(column));
+                }
+                resultList.add((T) BeanUtils.convertToObject(clazz, record));
             }
             return resultList;
         }catch (Exception ex){
             logger.error(ex.getMessage());
         }
         return null;
+    }
+
+    public <T> List<T> selectPage(Class clazz, String sql,int startOffset,int pagesize){
+        int dbType = JDBCUtils.getDBTypeFromURL(dbConnection.getConnectionUrl().getUrlTemplate());
+        return selectAll(clazz,JDBCUtils.appendLimitCondition(sql,dbType,startOffset,pagesize));
     }
 
     private boolean isSelectStatement(String queryString) {
@@ -121,6 +136,7 @@ public class SQLStatementExecutor{
     }
 
     private boolean setAutocommit(boolean newState) {
+        Connection connection = dbConnection.openConnection();
         try {
             if (connection != null) {
                 boolean lastState = connection.getAutoCommit();
@@ -134,6 +150,7 @@ public class SQLStatementExecutor{
     }
 
     private boolean commit() {
+        Connection connection = dbConnection.openConnection();
         if(! runInTransaction) {
             return true;
         }
@@ -149,6 +166,7 @@ public class SQLStatementExecutor{
     }
 
     private void rollback() {
+        Connection connection = dbConnection.openConnection();
         if(! runInTransaction) {
             logger.error("failed to rollback ,because it is not need to rollback !");
         }

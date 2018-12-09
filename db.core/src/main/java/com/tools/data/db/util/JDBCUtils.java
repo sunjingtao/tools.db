@@ -1,47 +1,6 @@
-/*
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
- *
- * Copyright 2010 Oracle and/or its affiliates. All rights reserved.
- *
- * Oracle and Java are registered trademarks of Oracle and/or its affiliates.
- * Other names may be trademarks of their respective owners.
- *
- * The contents of this file are subject to the terms of either the GNU
- * General Public License Version 2 only ("GPL") or the Common
- * Development and Distribution License("CDDL") (collectively, the
- * "License"). You may not use this file except in compliance with the
- * License. You can obtain a copy of the License at
- * http://www.netbeans.org/cddl-gplv2.html
- * or nbbuild/licenses/CDDL-GPL-2-CP. See the License for the
- * specific language governing permissions and limitations under the
- * License.  When distributing the software, include this License Header
- * Notice in each file and include the License file at
- * nbbuild/licenses/CDDL-GPL-2-CP.  Oracle designates this
- * particular file as subject to the "Classpath" exception as provided
- * by Oracle in the GPL Version 2 section of the License file that
- * accompanied this code. If applicable, add the following below the
- * License Header, with the fields enclosed by brackets [] replaced by
- * your own identifying information:
- * "Portions Copyrighted [year] [name of copyright owner]"
- *
- * If you wish your version of this file to be governed by only the CDDL
- * or only the GPL Version 2, indicate your decision by adding
- * "[Contributor] elects to include this software in this distribution
- * under the [CDDL or GPL Version 2] license." If you do not indicate a
- * single choice of license, a recipient has the option to distribute
- * your version of this file under either the CDDL, the GPL Version 2 or
- * to extend the choice of license to its licensees as provided above.
- * However, if you add GPL Version 2 code and therefore, elected the GPL
- * Version 2 license, then the option applies only if the new code is
- * made subject to such option by the copyright holder.
- *
- * Contributor(s):
- *
- * Portions Copyrighted 2008 Sun Microsystems, Inc.
- */
-
 package com.tools.data.db.util;
 
+import com.tools.data.db.core.DBType;
 import com.tools.data.db.core.Nullable;
 import com.tools.data.db.core.Ordering;
 import com.tools.data.db.core.SQLType;
@@ -51,15 +10,15 @@ import com.tools.data.db.metadata.Parameter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.sql.DatabaseMetaData;
-import java.sql.Timestamp;
-import java.sql.Types;
+import java.sql.*;
 import java.text.DateFormat;
 import java.text.MessageFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.EnumSet;
+import java.util.HashSet;
+import java.util.Set;
 
 public final class JDBCUtils {
     private static final Logger logger = LoggerFactory.getLogger(JDBCUtils.class);
@@ -392,4 +351,59 @@ public final class JDBCUtils {
         }
     }
 
+    public static int getDBTypeFromURL(String url) {
+        int dbtype;
+        // get the database type based on the product name converted to lowercase
+        url = url.toLowerCase();
+        if (url.contains("sybase")) { // NOI18N
+            dbtype = DBType.SYBASE;
+        } else if (url.contains("sqlserver")) { // NOI18N
+            dbtype = DBType.SQLSERVER;
+        } else if (url.contains("db2")) { // NOI18N
+            dbtype = DBType.DB2;
+        } else if (url.contains("orac")) { // NOI18N
+            dbtype = DBType.ORACLE;
+        } else if (url.contains("axion")) { // NOI18N
+            dbtype = DBType.AXION;
+        } else if (url.contains("derby")) { // NOI18N
+            dbtype = DBType.DERBY;
+        } else if (url.contains("postgre")) { // NOI18N
+            dbtype = DBType.PostgreSQL;
+        } else if (url.contains("mysql")) { // NOI18N
+            dbtype = DBType.MYSQL;
+        } else if (url.contains("pointbase")) { // NOI18N
+            dbtype = DBType.POINTBASE;
+        } else {
+            dbtype = DBType.JDBC;
+        }
+        return dbtype;
+    }
+
+    public static String appendLimitCondition(String sql,int dbType,int startOffset,int pagesize){
+        if(dbType == DBType.MYSQL){
+            return MessageFormat.format("{0} LIMIT {1},{2}",sql,startOffset,pagesize);
+        }
+        if(dbType == DBType.SQLSERVER){
+            return MessageFormat.format(
+                    "SELECT TOP {0} T2.* FROM (SELECT ROW_NUMBER() OVER (ORDER BY ID) AS ROWNUM,T1.* FROM ({1}) T1 ) T2 WHERE ROWNUM > {2}",
+                    pagesize,sql,startOffset);
+        }
+        if(dbType == DBType.ORACLE){
+            return MessageFormat.format(
+                    "SELECT T2.* FROM (SELECT T1.*,ROWNUM FROM ({0}) T1 WHERE ROWNUM >= {1}) T2 WHERE ROWNUM <= {2}",
+                    sql,startOffset,pagesize
+            );
+        }
+        logger.error("unsupported db type, cann't construct limit info to sql !");
+        return null;
+    }
+
+    public static Set<String> getColumnSetFromResultSetMetadata(ResultSetMetaData metaData) throws SQLException{
+        int columnCount = metaData.getColumnCount();
+        Set<String> columnSet = new HashSet<>(columnCount);
+        for(int i = 1; i <= columnCount; i++){
+            columnSet.add(metaData.getColumnName(i));
+        }
+        return columnSet;
+    }
 }

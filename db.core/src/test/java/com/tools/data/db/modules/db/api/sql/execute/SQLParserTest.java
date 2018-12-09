@@ -13,6 +13,7 @@ public class SQLParserTest {
     public void testSQLParser() throws Exception{
         SQLParser parser = new SQLParser(new ByteArrayInputStream("SELECT A as a2,B,C FROM TTT WHERE A= 'test'".getBytes()));
         QueryNode queryNode = parser.SQLQuery();
-
+        parser = new SQLParser(new ByteArrayInputStream("SELECT qazwsx.* , department.* from qazwsx, department where qazwsx.name = department.name".getBytes()));
+        queryNode = parser.SQLQuery();
     }
 }
