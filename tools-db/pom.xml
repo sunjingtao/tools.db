@@ -43,25 +43,6 @@
                     <target>1.8</target>
                 </configuration>
             </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-antrun-plugin</artifactId>
-                <version>1.3</version>
-                <executions>
-                    <execution>
-                        <id>ant-run</id>
-                        <phase>compile</phase>
-                        <configuration>
-                            <target>
-                                <!--如果需要重新编译，解除注释再执行一次-->
-                                <!--<exec executable="javacc">-->
-                                    <!--<arg value="com/tools/data/db/sql/lexer/SQLParser.jj"/>-->
-                                <!--</exec>-->
-                            </target>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
         </plugins>
     </build>
 </project>

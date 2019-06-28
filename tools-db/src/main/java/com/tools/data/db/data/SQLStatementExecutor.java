@@ -4,7 +4,6 @@ import com.tools.data.db.api.DatabaseConnection;
 import com.tools.data.db.exception.DatabaseException;
 import com.tools.data.db.util.BeanUtils;
 import com.tools.data.db.util.JDBCUtils;
-import com.tools.data.db.util.SQLParserUtils;
 import com.tools.data.db.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
